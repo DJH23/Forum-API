@@ -14,7 +14,7 @@
 	<name>Forum</name>
 	<description>Forum Backend for Lesson Lab</description>
 	<properties>
-		<java.version>22</java.version>
+		<java.version>17.0.10</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
