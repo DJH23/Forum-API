@@ -1,5 +1,7 @@
 package com.LessonLab.forum.Models;
 
+import java.util.List;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -10,67 +12,55 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) 
     private Long id;
-    
-    @NotNull(message = "Username should not be null")
-    @Size(min = 5, max = 15, message = "Username must be between 5 and 15 characters")
+
+    @NotNull
+    @Size(min = 5, max = 15)
     private String username;
 
     @Enumerated(EnumType.STRING) 
     private Role role;
-    
-    @Enumerated(EnumType.STRING) 
-    private Permission permission;
 
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    @Enumerated(EnumType.STRING)
-    private Account account;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Content> contents;
 
-    // Getters
+    // Getters and Setters
     public Long getId() {
         return id;
     }
 
-    public String getUsername() {
-        return username;
-    }
-    
-    public Role getRole() {
-        return role;
-    }
-    
-    public Permission getPermission() {
-        return permission;
-    }
-
-    public Account getAccount() {
-        return account;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    // Setters
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
     }
 
     public void setUsername(String username) {
         this.username = username;
     }
 
+    public Role getRole() {
+        return role;
+    }
+
     public void setRole(Role role) {
         this.role = role;
     }
 
-    public void setPermission(Permission permission) {
-        this.permission = permission;
+    public List<Content> getContents() {
+        return contents;
     }
 
-    public void setAccount(Account account) {
-        this.account = account;
+    public void setContents(List<Content> contents) {
+        this.contents = contents;
+    }
+
+    public Status getStatus() {
+        return status;
     }
 
     public void setStatus(Status status) {
@@ -78,14 +68,6 @@ public class User {
     }
 
     // Behavioral Methods
-    public void activeAccount() {
-        setAccount(Account.ACTIVE);
-    }
-
-    public void inactivateAccount() {
-        setAccount(Account.INACTIVE);
-    }
-
     public void goOnline() {
         setStatus(Status.ONLINE);
     }

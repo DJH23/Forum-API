@@ -1,5 +1,14 @@
 package com.LessonLab.forum.Repositories;
 
-public interface PostRepository {
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import com.LessonLab.forum.Models.Post;
+
+@Repository
+public interface PostRepository extends JpaRepository<Post, Long>{
+
+   
     
 }
