@@ -12,8 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Models.Role;
 import com.LessonLab.forum.Models.User;
+import com.LessonLab.forum.Models.Vote;
 import com.LessonLab.forum.Repositories.ContentRepository;
 import com.LessonLab.forum.Repositories.UserRepository;
+import com.LessonLab.forum.Repositories.VoteRepository;
+import com.LessonLab.forum.Services.NotificationService;
+import com.LessonLab.forum.Services.ConfigurationService;
 
 @Service
 public class ContentService {
@@ -22,6 +26,12 @@ public class ContentService {
     private ContentRepository<Content, Long> contentRepository;  
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private VoteRepository voteRepository;
+    @Autowired
+    private NotificationService notificationService;
+    @Autowired
+    private ConfigurationService configurationService;
 
     @Transactional
     public Content addContent(Content content) {
@@ -80,33 +90,38 @@ public class ContentService {
     }
 
     @Transactional
-    public void incrementUpVote(Long contentId) {
+    public void handleVote(Long contentId, Long userId, boolean isUpVote) {
+        User user = userRepository.findById(userId)
+                        .orElseThrow(() -> new IllegalArgumentException("User with ID " + userId + " not found"));
         Content content = contentRepository.findById(contentId)
-            .orElseThrow(() -> new RuntimeException("Content not found"));
-        content.upVote();  // Increment the upvote count
-        contentRepository.save(content);  // Save the updated content
-    }
-
-    @Transactional
-    public void incrementDownVote(Long contentId) {
-        Content content = contentRepository.findById(contentId)
-                .orElseThrow(() -> new RuntimeException("Content not found"));
-        content.downVote();  // Increment the downvote count
+                        .orElseThrow(() -> new IllegalArgumentException("Content with ID " + contentId + " not found"));
     
-        // Assume ConfigurationService is a service managing dynamic threshold, injected via @Autowired
-        int threshold = configurationService.getVoteThreshold();  // Get the dynamically managed threshold
+        Vote existingVote = voteRepository.findByUserAndContent(user, content)
+                            .orElse(null);  
     
-        if (content.checkThreshold(threshold)) {  // Check if the downvotes exceed the threshold
-            notifyAdmins(content);  // Notify administrators and moderators
+        if (existingVote != null) {
+            throw new IllegalStateException("User has already voted on this content");
         }
-        contentRepository.save(content);  // Save the updated content
+    
+        Vote vote = new Vote();
+        vote.setUser(user);
+        vote.setContent(content);
+        vote.setUpVote(isUpVote);
+        voteRepository.save(vote);
+    
+        if (isUpVote) {
+            content.upVote();
+        } else {
+            content.downVote();
+            if (content.checkThreshold(configurationService.getVoteThreshold())) { 
+                notifyAdmins(content);
+            }
+        }
+        contentRepository.save(content);
     }
     
     public void notifyAdmins(Content content) {
-        // Fetch admins and moderators
         List<User> adminsAndMods = userRepository.findByRole(Arrays.asList(Role.ADMIN, Role.MODERATOR));
-    
-        // Sending a notification (assumes a NotificationService is set up and injected)
         notificationService.notifyUsers(adminsAndMods, "Threshold reached for content ID: " + content.getId());
     }
 
