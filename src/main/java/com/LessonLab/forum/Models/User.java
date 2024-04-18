@@ -24,8 +24,8 @@ public class User {
     private Status status;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Content> contents;
-
+    private List<Content> contents;  
+    
     // Getters and Setters
     public Long getId() {
         return id;
