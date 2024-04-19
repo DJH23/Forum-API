@@ -1,20 +1,20 @@
 package com.LessonLab.forum.Repositories;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.LessonLab.forum.Models.Content;
 
-import java.util.List;
-
-@NoRepositoryBean  
-public interface ContentRepository<T extends Content, ID> extends JpaRepository<T, ID> {
-  //  List<T> findByUserId(Long userId);
+@NoRepositoryBean
+public interface ContentRepository<T extends Content> extends JpaRepository<T, Long> {
+    @Query("SELECT c FROM #{#entityName} c WHERE c.user.id = :userId")
+    Page<T> findByUserId(@Param("userId") Long userId, Pageable pageable);
 
     List<T> findByContentContaining(String text);
-
-    Page<T> findByUserId(Long userId, Pageable pageable);
-    
 }

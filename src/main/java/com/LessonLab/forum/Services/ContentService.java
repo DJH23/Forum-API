@@ -4,8 +4,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,15 +16,15 @@ import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Models.Role;
 import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.Vote;
-import com.LessonLab.forum.Repositories.ConcreteContentRepository;
+import com.LessonLab.forum.Repositories.ContentRepository;
 import com.LessonLab.forum.Repositories.UserRepository;
 import com.LessonLab.forum.Repositories.VoteRepository;
 
 @Service
-public class ContentService {
-
+public abstract class ContentService<T extends Content> {
+    
     @Autowired
-    private ConcreteContentRepository contentRepository;  
+    private ContentRepository<T> contentRepository; 
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -32,95 +35,83 @@ public class ContentService {
     private ConfigurationService configurationService;
 
     @Transactional
-    public Content addContent(Content content) {
-        if (content == null) {
-            throw new IllegalArgumentException("Content cannot be null");
-        }
+    public T addContent(T content) {
         return contentRepository.save(content);
     }
 
     @Transactional
-    public Content updateContent(Long id, String newContent) {
-        if (id == null) {
-            throw new IllegalArgumentException("Content ID cannot be null");
-        }
-        Content content = contentRepository.findById(id)
+    public T updateContent(Long id, String newContent) {
+        T content = contentRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Content not found with ID: " + id));
         content.setContent(newContent);
         return contentRepository.save(content);
     }
 
-    public Content getContent(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException("Content ID cannot be null");
-        }
+    public T getContent(Long id) {
         return contentRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Content not found with ID: " + id));
     }
 
-    public List<Content> searchContent(String searchText) {
-        if (searchText == null || searchText.trim().isEmpty()) {
-            throw new IllegalArgumentException("Search text must not be empty");
-        }
+    public List<T> searchContent(String searchText) {
         return contentRepository.findByContentContaining(searchText);
     }
     
-    public Page<Content> getPagedContentByUser(Long userId, Pageable pageable) {
-        if (userId == null) {
-            throw new IllegalArgumentException("User ID cannot be null");
-        }
-        if (pageable == null) {
-            throw new IllegalArgumentException("Pageable cannot be null");
-        }
-        return contentRepository.findByUserId(userId, null);
+    public Page<T> getPagedContentByUser(Long userId, Pageable pageable) {
+        return contentRepository.findByUserId(userId, pageable);
     }
 
     @Transactional
-    public void deleteContent(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException("Content ID cannot be null");
+    public void deleteContent(Long contentId) {
+        T content = getContent(contentId);
+        if (!canDeleteContent(content)) {
+            throw new SecurityException("You do not have permission to delete this content");
         }
-        contentRepository.deleteById(id);
+        contentRepository.delete(content);
+        logDeletionEvent(content);
     }
 
-    public List<Content> listContent() {
+    protected abstract boolean canDeleteContent(T content);
+
+    protected void logDeletionEvent(T content) {
+        // Implementation of logging the deletion
+    }
+
+      public List<T> listContent() {
         return contentRepository.findAll();
     }
 
     @Transactional
     public void handleVote(Long contentId, Long userId, boolean isUpVote) {
         User user = userRepository.findById(userId)
-                        .orElseThrow(() -> new IllegalArgumentException("User with ID " + userId + " not found"));
-        Content content = contentRepository.findById(contentId)
-                        .orElseThrow(() -> new IllegalArgumentException("Content with ID " + contentId + " not found"));
-    
-        Vote existingVote = voteRepository.findByUserAndContent(user, content)
-                            .orElse(null);  
+                        .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        T content = getContent(contentId);
+        Vote existingVote = voteRepository.findByUserAndContent(user, content).orElse(null);
     
         if (existingVote != null) {
             throw new IllegalStateException("User has already voted on this content");
         }
-    
+
         Vote vote = new Vote();
         vote.setUser(user);
         vote.setContent(content);
         vote.setUpVote(isUpVote);
         voteRepository.save(vote);
-    
+
         if (isUpVote) {
             content.upVote();
+            contentRepository.save(content);
         } else {
             content.downVote();
             if (content.checkThreshold(configurationService.getVoteThreshold())) { 
-                notifyAdmins(content);
+               /*  notifyAdmins(content);*/
+               System.out.println("Threshold reached for content ID: " + content.getId());
             }
+            contentRepository.save(content);
         }
-        contentRepository.save(content);
     }
     
-    public void notifyAdmins(Content content) {
+  /*   public void notifyAdmins(T content) {
         List<User> adminsAndMods = userRepository.findByRoleIn(Arrays.asList(Role.ADMIN, Role.MODERATOR));
         notificationService.notifyUsers(adminsAndMods, "Threshold reached for content ID: " + content.getId());
-    }
-
+    }*/
 }

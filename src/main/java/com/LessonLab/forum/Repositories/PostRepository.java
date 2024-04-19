@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface PostRepository extends ContentRepository<Post, Long> {
+public interface PostRepository extends ContentRepository<Post> {
 
     // Additional specialized methods specific to posts
     List<Post> findByThreadId(Long threadId);  // Find all posts by specific thread ID
