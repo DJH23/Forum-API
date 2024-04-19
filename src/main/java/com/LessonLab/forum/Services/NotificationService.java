@@ -24,11 +24,11 @@ public class NotificationService {
      * @param messageBody the body of the notification message.
      */
     public void notifyUsers(List<User> users, String messageBody) {
-        for (User user : users) {
-            if (user.getEmail() != null && !user.getEmail().isEmpty()) {
-                sendEmail(user.getEmail(), "Notification", messageBody);
-            }
-        }
+     //   for (User user : users) {
+       //     if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+         //       sendEmail(user.getEmail(), "Notification", messageBody);
+           // }
+       // }
     }
 
     /**

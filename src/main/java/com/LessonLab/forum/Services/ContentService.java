@@ -13,7 +13,7 @@ import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Models.Role;
 import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.Vote;
-import com.LessonLab.forum.Repositories.ContentRepository;
+import com.LessonLab.forum.Repositories.ConcreteContentRepository;
 import com.LessonLab.forum.Repositories.UserRepository;
 import com.LessonLab.forum.Repositories.VoteRepository;
 
@@ -21,7 +21,7 @@ import com.LessonLab.forum.Repositories.VoteRepository;
 public class ContentService {
 
     @Autowired
-    private ContentRepository<Content, Long> contentRepository;  
+    private ConcreteContentRepository contentRepository;  
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -72,7 +72,7 @@ public class ContentService {
         if (pageable == null) {
             throw new IllegalArgumentException("Pageable cannot be null");
         }
-        return contentRepository.findByUserId(userId, pageable);
+        return contentRepository.findByUserId(userId, null);
     }
 
     @Transactional
@@ -119,7 +119,7 @@ public class ContentService {
     }
     
     public void notifyAdmins(Content content) {
-        List<User> adminsAndMods = userRepository.findByRole(Arrays.asList(Role.ADMIN, Role.MODERATOR));
+        List<User> adminsAndMods = userRepository.findByRoleIn(Arrays.asList(Role.ADMIN, Role.MODERATOR));
         notificationService.notifyUsers(adminsAndMods, "Threshold reached for content ID: " + content.getId());
     }
 

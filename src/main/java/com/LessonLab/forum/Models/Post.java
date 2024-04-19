@@ -1,6 +1,6 @@
 package com.LessonLab.forum.Models;
 
-import jakarta.persistence.Entity;
+import javax.persistence.Entity;
 
 @Entity
 public class Post extends Content {

@@ -1,8 +1,6 @@
 package com.LessonLab.forum.Models;
 
-import org.springframework.data.annotation.Id;
-
-import jakarta.persistence.*;
+import javax.persistence.*;
 
 @Entity
 public class Vote {
@@ -18,7 +16,7 @@ public class Vote {
     @JoinColumn(name = "content_id")
     private Content content;
 
-    private boolean upVote;  // True for upvote, false for downvote
+    private boolean upVote;  
 
     public Long getId() {
         return id;
