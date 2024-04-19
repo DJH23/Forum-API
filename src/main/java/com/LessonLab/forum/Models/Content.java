@@ -1,28 +1,18 @@
 package com.LessonLab.forum.Models;
 
-import org.springframework.data.annotation.Id;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import jakarta.persistence.InheritanceType;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED) 
 public abstract class Content {
 
-    @Id
+    @Id  // Corrected to use JPA Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
-    @Lob  // Assuming content could be large, annotate with Lob if it is expected to be a large text
+    @Lob  // Assuming content could be large, use Lob if it is expected to be large text
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -31,9 +21,6 @@ public abstract class Content {
 
     private int upvotes = 0;
     private int downvotes = 0;
-
-    // Add new content - typically handled in a Service layer, so no such method in Entity
-    // Delete content - same as above
 
     public void upVote() {
         this.upvotes += 1;
@@ -46,6 +33,7 @@ public abstract class Content {
     public boolean checkThreshold(int threshold) {
         return this.downvotes > threshold;
     }
+
 
     // Getters and setters
     public Long getId() {
@@ -88,3 +76,4 @@ public abstract class Content {
         this.downvotes = downvotes;
     }
 }
+

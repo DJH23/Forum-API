@@ -16,8 +16,6 @@ import com.LessonLab.forum.Models.Vote;
 import com.LessonLab.forum.Repositories.ContentRepository;
 import com.LessonLab.forum.Repositories.UserRepository;
 import com.LessonLab.forum.Repositories.VoteRepository;
-import com.LessonLab.forum.Services.NotificationService;
-import com.LessonLab.forum.Services.ConfigurationService;
 
 @Service
 public class ContentService {
