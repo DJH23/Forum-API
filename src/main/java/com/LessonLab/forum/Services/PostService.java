@@ -15,19 +15,5 @@ public class PostService {
     @Autowired
     private PostRepository postRepository;
 
-    public List<Post> getPostsByThread(Long threadId) {
-        return postRepository.findByThreadId(threadId);
-    }
-
-    @Transactional
-    public Post createOrUpdatePost(Post post) {
-        return postRepository.save(post);
-    }
-
-   /*  @Transactional
-    public Post getPost(Long postId) {
-        return postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("Post not found with ID: " + postId));
-    }*/
 
 }
