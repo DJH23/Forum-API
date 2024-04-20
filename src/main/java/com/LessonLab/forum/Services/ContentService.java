@@ -27,10 +27,10 @@ import com.LessonLab.forum.Repositories.UserRepository;
 import com.LessonLab.forum.Repositories.VoteRepository;
 
 @Service
-public abstract class ContentService<T extends Content> {
+public abstract class ContentService {
     
     @Autowired
-    private ContentRepository<T> contentRepository; 
+    private ContentRepository contentRepository; 
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -43,7 +43,7 @@ public abstract class ContentService<T extends Content> {
     private CommentRepository commentRepository;
 
     @Transactional
-    public T addContent(T content, User user) {
+    public Content addContent(Content content, User user) {
         if (content == null) {
             throw new IllegalArgumentException("Content cannot be null");
         }
@@ -52,8 +52,8 @@ public abstract class ContentService<T extends Content> {
     }
 
     @Transactional
-    public T updateContent(Long id, String newContent, User user) {
-        T content = contentRepository.findById(id)
+    public Content updateContent(Long id, String newContent, User user) {
+        Content content = contentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Content not found with ID: " + id));
         checkRole(user, Role.ADMIN, Role.MODERATOR, Role.USER); 
         content.setContent(newContent);  
@@ -66,19 +66,19 @@ public abstract class ContentService<T extends Content> {
         }
     }
 
-    public T getContent(Long id) {
+    public Content getContent(Long id) {
         return contentRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Content not found with ID: " + id));
     }
 
-    public List<T> searchContent(String searchText) {
+    public List<Content> searchContent(String searchText) {
         if (searchText == null || searchText.trim().isEmpty()) {
             throw new IllegalArgumentException("Search text must not be empty");
         }
         return contentRepository.findByContentContaining(searchText);
     }
     
-    public Page<T> getPagedContentByUser(Long userId, Pageable pageable) {
+    public Page<Content> getPagedContentByUser(Long userId, Pageable pageable) {
         try {
             return contentRepository.findByUserId(userId, pageable);
         } catch (Exception e) {
@@ -86,7 +86,7 @@ public abstract class ContentService<T extends Content> {
         }
     }
     
-    public List<T> getContentsByCreatedAtBetween(LocalDateTime start, LocalDateTime end) {
+    public List<Content> getContentsByCreatedAtBetween(LocalDateTime start, LocalDateTime end) {
         try {
             return contentRepository.findByCreatedAtBetween(start, end);
         } catch (Exception e) {
@@ -94,7 +94,7 @@ public abstract class ContentService<T extends Content> {
         }
     }
     
-    public List<T> getContentsByContentContaining(String text) {
+    public List<Content> getContentsByContentContaining(String text) {
         try {
             return contentRepository.findByContentContaining(text);
         } catch (Exception e) {
@@ -104,7 +104,7 @@ public abstract class ContentService<T extends Content> {
 
     @Transactional
     public void deleteContent(Long contentId, User user) {
-        T content = getContent(contentId);
+        Content content = getContent(contentId);
         
         if (!hasPermissionToDelete(content, user)) {
             throw new SecurityException("You do not have permission to delete this content");
@@ -115,14 +115,14 @@ public abstract class ContentService<T extends Content> {
     }
 
 
-    protected boolean hasPermissionToDelete(T content, User user) {
+    protected boolean hasPermissionToDelete(Content content, User user) {
         return (user.getRole().equals(Role.ADMIN) || 
                 user.getRole().equals(Role.MODERATOR) ||
                 (content.getUser().equals(user) && canOriginalPosterDelete(content)));
     }
     
 
-    protected boolean canOriginalPosterDelete(T content) {
+    protected boolean canOriginalPosterDelete(Content content) {
         if (content instanceof Post) {
             Post post = (Post) content;
             return getCommentCountExcludingPoster(post) == 0;
@@ -134,7 +134,7 @@ public abstract class ContentService<T extends Content> {
         return commentRepository.countByPostAndUserNot(post, post.getUser());
     }
 
-    protected void logDeletionEvent(T content) {
+    protected void logDeletionEvent(Content content) {
         // Fetch the currently authenticated user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = (authentication != null && authentication.getPrincipal() instanceof UserDetails) ?
@@ -153,7 +153,7 @@ public abstract class ContentService<T extends Content> {
         System.out.println(logMessage);
     }
     
-    private String getContentDetail(T content) {
+    private String getContentDetail(Content content) {
         if (content instanceof Post) {
             return ((Post) content).getContent(); 
 
@@ -167,7 +167,7 @@ public abstract class ContentService<T extends Content> {
         return "Generic Content"; // Fallback for other or undefined content types
     }
 
-    public List<T> listContent() {
+    public List<Content> listContent() {
         return contentRepository.findAll();
     }
 
@@ -175,7 +175,7 @@ public abstract class ContentService<T extends Content> {
     public void handleVote(Long contentId, Long userId, boolean isUpVote) {
         User user = userRepository.findById(userId)
                         .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        T content = getContent(contentId);
+        Content content = getContent(contentId);
         Vote existingVote = voteRepository.findByUserAndContent(user, content).orElse(null);
     
         if (existingVote != null) {
