@@ -13,12 +13,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.LessonLab.forum.Models.Comment;
 import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.Vote;
 import com.LessonLab.forum.Models.Thread;
+import com.LessonLab.forum.Models.Post;
 import com.LessonLab.forum.Models.Enums.Permission;
 import com.LessonLab.forum.Models.Enums.Role;
+import com.LessonLab.forum.Repositories.CommentRepository;
 import com.LessonLab.forum.Repositories.ContentRepository;
 import com.LessonLab.forum.Repositories.UserRepository;
 import com.LessonLab.forum.Repositories.VoteRepository;
@@ -36,6 +39,8 @@ public abstract class ContentService<T extends Content> {
     private NotificationService notificationService;
     @Autowired
     private ConfigurationService configurationService;
+    @Autowired
+    private CommentRepository commentRepository;
 
     @Transactional
     public T addContent(T content, User user) {
@@ -75,9 +80,7 @@ public abstract class ContentService<T extends Content> {
     public void deleteContent(Long contentId, User user) {
         T content = getContent(contentId);
         
-        if (!(user.getRole().equals(Role.ADMIN) || 
-            user.getRole().equals(Role.MODERATOR) ||
-            (content.getUser().equals(user) && canOriginalPosterDelete(content)))) {
+        if (!hasPermissionToDelete(content, user)) {
             throw new SecurityException("You do not have permission to delete this content");
         }
 
@@ -85,25 +88,57 @@ public abstract class ContentService<T extends Content> {
         logDeletionEvent(content);
     }
 
+
+    protected boolean hasPermissionToDelete(T content, User user) {
+        return (user.getRole().equals(Role.ADMIN) || 
+                user.getRole().equals(Role.MODERATOR) ||
+                (content.getUser().equals(user) && canOriginalPosterDelete(content)));
+    }
+    
+
     protected boolean canOriginalPosterDelete(T content) {
-        // Assuming `getNumberOfRepliesNotByPoster()` returns the count of replies not made by the original poster
-        return content.getNumberOfRepliesNotByPoster() == 0;
+        if (content instanceof Post) {
+            Post post = (Post) content;
+            return getCommentCountExcludingPoster(post) == 0;
+        }
+        return true;  // Assumes that other types of Content can always be deleted by the original poster.
+    }
+    
+    public long getCommentCountExcludingPoster(Post post) {
+        return commentRepository.countByPostAndUserNot(post, post.getUser());
     }
 
-    protected void logDeletionEvent(T content, Thread thread) {
+    protected void logDeletionEvent(T content) {
         // Fetch the currently authenticated user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = (authentication != null && authentication.getPrincipal() instanceof UserDetails) ?
                           ((UserDetails)authentication.getPrincipal()).getUsername() : "Unknown";
     
-        String logMessage = String.format("Content ID %d, titled '%s', was deleted by user '%s' at %s",
+        // Assuming the content's title or similar information can be generalized or accessed generically
+        String contentDetail = getContentDetail(content);
+    
+        String logMessage = String.format("Content ID %d, with detail '%s', was deleted by user '%s' at %s",
                                           content.getId(),
-                                          thread.getTitle(), 
+                                          contentDetail, 
                                           username,
                                           LocalDateTime.now());
     
-        // Update to use a logging framework like SLF4J instead of System.out
+        // Consider using a proper logging framework like SLF4J instead of System.out
         System.out.println(logMessage);
+    }
+    
+    private String getContentDetail(T content) {
+        if (content instanceof Post) {
+            return ((Post) content).getContent(); 
+
+        } else if (content instanceof Comment) {
+            return "Comment Content: " + content.getContent(); 
+
+        } else if (content instanceof Thread) {
+            return ((Thread) content).getTitle(); 
+        } 
+        
+        return "Generic Content"; // Fallback for other or undefined content types
     }
 
     

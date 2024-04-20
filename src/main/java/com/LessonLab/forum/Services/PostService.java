@@ -7,13 +7,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.LessonLab.forum.Models.Post;
+import com.LessonLab.forum.Repositories.CommentRepository;
 import com.LessonLab.forum.Repositories.PostRepository;
 
 @Service
 public class PostService {
-
-    @Autowired
-    private PostRepository postRepository;
-
 
 }
