@@ -1,8 +1,8 @@
 package com.LessonLab.forum.Services;
 
-import com.LessonLab.forum.Models.Role;
 import com.LessonLab.forum.Models.Thread;
 import com.LessonLab.forum.Models.User;
+import com.LessonLab.forum.Models.Enums.Role;
 import com.LessonLab.forum.Repositories.ThreadRepository;
 import com.LessonLab.forum.Repositories.UserRepository;
 

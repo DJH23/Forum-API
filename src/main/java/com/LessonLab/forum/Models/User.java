@@ -6,6 +6,9 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import com.LessonLab.forum.Models.Enums.Role;
+import com.LessonLab.forum.Models.Enums.Status;
+
 @Entity
 @Table(name = "users")
 public class User {

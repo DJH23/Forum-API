@@ -1,19 +1,15 @@
 package com.LessonLab.forum.Services;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.LessonLab.forum.Models.Content;
-import com.LessonLab.forum.Models.Role;
 import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.Vote;
 import com.LessonLab.forum.Repositories.ContentRepository;

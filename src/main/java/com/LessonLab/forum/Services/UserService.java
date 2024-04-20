@@ -7,10 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
-import com.LessonLab.forum.Models.Permission;
-import com.LessonLab.forum.Models.Role;
-import com.LessonLab.forum.Models.Status;
 import com.LessonLab.forum.Models.User;
+import com.LessonLab.forum.Models.Enums.Account;
+import com.LessonLab.forum.Models.Enums.Permission;
+import com.LessonLab.forum.Models.Enums.Role;
+import com.LessonLab.forum.Models.Enums.Status;
 import com.LessonLab.forum.Repositories.UserRepository;
 
 import jakarta.transaction.Transactional;
@@ -94,6 +95,17 @@ public class UserService {
             throw new IllegalArgumentException("Status cannot be null");
         }
         List<User> users = userRepository.findByStatus(status);
+        if (users.isEmpty()) {
+            return Collections.emptyList();  // Adjust based on expected application behavior
+        }
+        return users;
+    }
+
+    public List<User> getUsersByAccountStatus(Account accountStatus) {
+        if (accountStatus == null) {
+            throw new IllegalArgumentException("Account status cannot be null");
+        }
+        List<User> users = userRepository.findByAccountStatus(accountStatus);
         if (users.isEmpty()) {
             return Collections.emptyList();  // Adjust based on expected application behavior
         }

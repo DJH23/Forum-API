@@ -1,4 +1,4 @@
-package com.LessonLab.forum.Models;
+package com.LessonLab.forum.Models.Enums;
 
 import java.util.Set;
 
