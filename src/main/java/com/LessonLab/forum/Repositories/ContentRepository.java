@@ -12,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.LessonLab.forum.Models.Content;
 
-@NoRepositoryBean
+//@NoRepositoryBean
 public interface ContentRepository<T extends Content> extends JpaRepository<T, Long> {
 
     @Query("SELECT c FROM #{#entityName} c WHERE c.user.id = :userId")

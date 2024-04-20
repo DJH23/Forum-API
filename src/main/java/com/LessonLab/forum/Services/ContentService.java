@@ -1,6 +1,7 @@
 package com.LessonLab.forum.Services;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,6 @@ import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.Vote;
 import com.LessonLab.forum.Models.Thread;
 import com.LessonLab.forum.Models.Post;
-import com.LessonLab.forum.Models.Enums.Permission;
 import com.LessonLab.forum.Models.Enums.Role;
 import com.LessonLab.forum.Repositories.CommentRepository;
 import com.LessonLab.forum.Repositories.ContentRepository;
@@ -47,7 +47,7 @@ public abstract class ContentService<T extends Content> {
         if (content == null) {
             throw new IllegalArgumentException("Content cannot be null");
         }
-        checkPermission(user, Permission.WRITE_POST);
+        checkRole(user, Role.ADMIN, Role.MODERATOR, Role.USER);
         return contentRepository.save(content);
     }
 
@@ -55,9 +55,15 @@ public abstract class ContentService<T extends Content> {
     public T updateContent(Long id, String newContent, User user) {
         T content = contentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Content not found with ID: " + id));
-        checkPermission(user, Permission.WRITE_POST);  
+        checkRole(user, Role.ADMIN, Role.MODERATOR, Role.USER); 
         content.setContent(newContent);  
         return contentRepository.save(content);  
+    }
+
+    protected void checkRole(User user, Role... roles) {
+        if (!Arrays.asList(roles).contains(user.getRole())) {
+            throw new SecurityException("You do not have permission to perform this action");
+        }
     }
 
     public T getContent(Long id) {
@@ -73,7 +79,27 @@ public abstract class ContentService<T extends Content> {
     }
     
     public Page<T> getPagedContentByUser(Long userId, Pageable pageable) {
-        return contentRepository.findByUserId(userId, pageable);
+        try {
+            return contentRepository.findByUserId(userId, pageable);
+        } catch (Exception e) {
+            throw new RuntimeException("Error getting paged content by user", e);
+        }
+    }
+    
+    public List<T> getContentsByCreatedAtBetween(LocalDateTime start, LocalDateTime end) {
+        try {
+            return contentRepository.findByCreatedAtBetween(start, end);
+        } catch (Exception e) {
+            throw new RuntimeException("Error getting contents by created at between", e);
+        }
+    }
+    
+    public List<T> getContentsByContentContaining(String text) {
+        try {
+            return contentRepository.findByContentContaining(text);
+        } catch (Exception e) {
+            throw new RuntimeException("Error getting contents by content containing", e);
+        }
     }
 
     @Transactional
@@ -139,13 +165,6 @@ public abstract class ContentService<T extends Content> {
         } 
         
         return "Generic Content"; // Fallback for other or undefined content types
-    }
-
-    
-    protected void checkPermission(User user, Permission requiredPermission) {
-        if (!user.getRole().getPermissions().contains(requiredPermission)) {
-            throw new SecurityException("You do not have permission to perform this action");
-        }
     }
 
     public List<T> listContent() {
