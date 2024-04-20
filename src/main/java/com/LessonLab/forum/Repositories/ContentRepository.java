@@ -1,5 +1,6 @@
 package com.LessonLab.forum.Repositories;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -13,7 +14,12 @@ import com.LessonLab.forum.Models.Content;
 
 @NoRepositoryBean
 public interface ContentRepository<T extends Content> extends JpaRepository<T, Long> {
+
     @Query("SELECT c FROM #{#entityName} c WHERE c.user.id = :userId")
+
+    // Find content created within a specific time range
+    List<T> findByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
+
     Page<T> findByUserId(@Param("userId") Long userId, Pageable pageable);
 
     List<T> findByContentContaining(String text);

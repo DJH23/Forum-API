@@ -5,8 +5,8 @@ import javax.persistence.Table;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.JoinColumn;
-import javax.persistence.FetchType;
 import javax.persistence.CascadeType;
+import javax.persistence.FetchType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,15 +14,22 @@ import java.util.List;
 @Table(name = "posts")
 public class Post extends Content {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "thread_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "thread_id")
     private Thread thread;  // Each post belongs to one thread
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();  // One post can have many comments
 
     // Constructors
-    public Post() {}
+    public Post() {
+        super();
+    }
+    
+    // To initialize Post with content directly
+    public Post(String content) {
+        super(content);
+    }
 
     // Getters and Setters
     public Thread getThread() {
@@ -31,6 +38,9 @@ public class Post extends Content {
 
     public void setThread(Thread thread) {
         this.thread = thread;
+        if (!thread.getPosts().contains(this)) {
+            thread.getPosts().add(this);
+        }
     }
 
     public List<Comment> getComments() {
@@ -43,12 +53,13 @@ public class Post extends Content {
 
     // Additional methods to manage comments
     public void addComment(Comment comment) {
-        comments.add(comment);
-     //   comment.setPost(this);
+        addToCollection(comments, comment);
+        comment.setPost(this);
     }
 
     public void removeComment(Comment comment) {
-        comments.remove(comment);
-      //  comment.setPost(null);
+        removeFromCollection(comments, comment);
+        comment.setPost(null);
     }
+
 }

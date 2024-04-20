@@ -1,5 +1,7 @@
 package com.LessonLab.forum.Models;
 
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
@@ -27,6 +29,25 @@ public abstract class Content {
     @JoinColumn(name = "user_id")
     private User user;
 
+    // Default constructor
+    public Content() {
+    }
+
+    // Constructor that initializes content
+    public Content(String content) {
+        this.content = content;
+    }
+
+    protected <T> void addToCollection(List<T> collection, T item) {
+        if (!collection.contains(item)) {
+            collection.add(item);
+        }
+    }
+
+    protected <T> void removeFromCollection(List<T> collection, T item) {
+        collection.remove(item);
+    }
+
     private int upvotes = 0;
     private int downvotes = 0;
 
@@ -41,7 +62,6 @@ public abstract class Content {
     public boolean checkThreshold(int threshold) {
         return this.downvotes > threshold;
     }
-
 
     // Getters and setters
     public Long getId() {

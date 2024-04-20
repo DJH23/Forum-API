@@ -61,15 +61,13 @@ public class Thread extends Content {
         this.posts = posts;
     }
 
-    // Add a method to add a post to the thread
     public void addPost(Post post) {
-        posts.add(post);
+        addToCollection(this.posts, post);
         post.setThread(this);
     }
 
-    // Remove a post from the thread
     public void removePost(Post post) {
-        posts.remove(post);
+        removeFromCollection(this.posts, post);
         post.setThread(null);
-    }  
+    }
 }
