@@ -9,10 +9,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import com.LessonLab.forum.Models.Content;
 
 //@NoRepositoryBean
+@Repository
 public interface ContentRepository extends JpaRepository<Content, Long>{
 
     @Query("SELECT c FROM #{#entityName} c WHERE c.user.id = :userId")

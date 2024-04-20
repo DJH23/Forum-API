@@ -30,7 +30,7 @@ import com.LessonLab.forum.Repositories.VoteRepository;
 public abstract class ContentService {
     
     @Autowired
-    private ContentRepository contentRepository; 
+    protected ContentRepository contentRepository; 
     @Autowired
     private UserRepository userRepository;
     @Autowired

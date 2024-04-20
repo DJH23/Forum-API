@@ -15,14 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-public class ThreadService {
+public class ThreadService extends ContentService{
 
     @Autowired
     private ThreadRepository threadRepository;
-    @Autowired
-    private ContentRepository contentRepository;
-    @Autowired
-    private ContentService contentService;
+    //@Autowired
+    //private ContentRepository contentRepository;
 
     @Transactional
     public Thread createThread(Thread thread) {
@@ -55,7 +53,7 @@ public class ThreadService {
 
     @Transactional
     public void deleteContent(Long threadId, User user) {
-        contentService.deleteContent(threadId, user);
+        super.deleteContent(threadId, user);
     }
 
 }
