@@ -1,15 +1,20 @@
 package com.LessonLab.forum.Services;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
 import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.Post;
 import com.LessonLab.forum.Models.Thread;
+import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Repositories.PostRepository;
 
 @Service
@@ -76,6 +81,26 @@ public class PostService extends ContentService {
             System.err.println("Error getting most commented posts: " + e.getMessage());
             throw e;
         }
+    }
+
+    public List<Post> searchPosts(String searchText) {
+        List<Content> contents = searchContent(searchText);
+        return contents.stream().map(content -> (Post) content).collect(Collectors.toList());
+    }
+    
+    public Page<Post> getPagedPostsByUser(Long userId, Pageable pageable) {
+        Page<Content> contents = getPagedContentByUser(userId, pageable);
+        return new PageImpl<>(contents.getContent().stream().map(content -> (Post) content).collect(Collectors.toList()), pageable, contents.getTotalElements());
+    }
+    
+    public List<Post> getPostsByCreatedAtBetween(LocalDateTime start, LocalDateTime end) {
+        List<Content> contents = getContentsByCreatedAtBetween(start, end);
+        return contents.stream().map(content -> (Post) content).collect(Collectors.toList());
+    }
+    
+    public List<Post> getPostsByContentContaining(String text) {
+        List<Content> contents = getContentsByContentContaining(text);
+        return contents.stream().map(content -> (Post) content).collect(Collectors.toList());
     }
 
     @Transactional
