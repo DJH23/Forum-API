@@ -36,20 +36,46 @@ public class PostService extends ContentService {
     }
 
     public Post getPost(Long id) {
-        return postRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Post not found with ID: " + id));
+        return (Post) getContent(id);
     }
 
     public List<Post> getPostsByThread(Thread thread) {
-        return postRepository.findByThread(thread);
+        try {
+            if (thread == null) {
+                throw new IllegalArgumentException("Thread cannot be null");
+            }
+            return postRepository.findByThread(thread);
+        } catch (Exception e) {
+            // Log the exception and rethrow it
+            System.err.println("Error getting posts by thread: " + e.getMessage());
+            throw e;
+        }
     }
-
+    
     public List<Post> getPostsByCommentContent(String content) {
-        return postRepository.findByCommentContent(content);
+        try {
+            if (content == null) {
+                throw new IllegalArgumentException("Content cannot be null");
+            }
+            return postRepository.findByCommentContent(content);
+        } catch (Exception e) {
+            // Log the exception and rethrow it
+            System.err.println("Error getting posts by comment content: " + e.getMessage());
+            throw e;
+        }
     }
-
+    
     public List<Post> getMostCommentedPosts(Pageable pageable) {
-        return postRepository.findMostCommentedPosts(pageable);
+        try {
+            if (pageable == null) {
+                throw new IllegalArgumentException("Pageable cannot be null");
+            }
+            return postRepository.findMostCommentedPosts(pageable);
+        } catch (Exception e) {
+            // Log the exception and rethrow it
+            System.err.println("Error getting most commented posts: " + e.getMessage());
+            throw e;
+        }
     }
 
     @Transactional
