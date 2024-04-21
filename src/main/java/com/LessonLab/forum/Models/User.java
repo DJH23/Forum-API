@@ -2,12 +2,11 @@ package com.LessonLab.forum.Models;
 
 import java.util.List;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import jakarta.persistence.*;
 
 import com.LessonLab.forum.Models.Enums.Role;
 import com.LessonLab.forum.Models.Enums.Status;
+import com.LessonLab.forum.Models.Enums.Account;
 
 @Entity
 @Table(name = "users")
@@ -16,8 +15,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY) 
     private Long id;
 
-    @NotNull
-    @Size(min = 5, max = 15)
+   // @NotNull
+   // @Size(min = 5, max = 15)
     private String username;
 
     @Enumerated(EnumType.STRING) 
@@ -25,6 +24,9 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Status status;
+
+    @Enumerated(EnumType.STRING)
+    private Account accountStatus;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Content> contents;  
@@ -68,6 +70,14 @@ public class User {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public Account getAccountStatus() {
+        return accountStatus;
+    }
+    
+    public void setAccountStatus(Account accountStatus) {
+        this.accountStatus = accountStatus;
     }
 
     // Behavioral Methods

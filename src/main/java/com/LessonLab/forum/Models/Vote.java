@@ -1,6 +1,6 @@
 package com.LessonLab.forum.Models;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 public class Vote {
