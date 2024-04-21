@@ -3,6 +3,8 @@ package com.LessonLab.forum.Services;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -54,21 +56,24 @@ public abstract class ContentService {
     @Transactional
     public Content updateContent(Long id, String newContent, User user) {
         Content content = contentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Content not found with ID: " + id));
+                .orElseThrow(() -> new NoSuchElementException("Content not found with ID: " + id));
         checkRole(user, Role.ADMIN, Role.MODERATOR, Role.USER); 
         content.setContent(newContent);  
         return contentRepository.save(content);  
     }
 
     protected void checkRole(User user, Role... roles) {
+        if (user == null) {
+            throw new IllegalArgumentException("User cannot be null");
+        }
         if (!Arrays.asList(roles).contains(user.getRole())) {
-            throw new SecurityException("You do not have permission to perform this action");
+            throw new IllegalArgumentException("User with role " + user.getRole() + " does not have permission to perform this action");
         }
     }
-
+    
     public Content getContent(Long id) {
         return contentRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Content not found with ID: " + id));
+            .orElseThrow(() -> new NoSuchElementException("Content not found with ID: " + id));
     }
 
     public List<Content> searchContent(String searchText) {
