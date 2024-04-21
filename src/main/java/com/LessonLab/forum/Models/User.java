@@ -15,8 +15,6 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY) 
     private Long id;
 
-   // @NotNull
-   // @Size(min = 5, max = 15)
     private String username;
 
     @Enumerated(EnumType.STRING) 

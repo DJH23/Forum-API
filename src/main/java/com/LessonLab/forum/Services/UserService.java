@@ -45,6 +45,9 @@ public class UserService {
         if (user == null) {
             throw new IllegalArgumentException("User cannot be null");
         }
+        if (user.getUsername() == null || user.getUsername().isEmpty()) {
+            throw new IllegalArgumentException("Username cannot be null or empty");
+        }
         if (userRepository.findByUsername(user.getUsername()) != null) {
             throw new RuntimeException("Username already exists!");
         }
@@ -75,6 +78,9 @@ public class UserService {
         }
         if (user.getId() == null || !userRepository.existsById(user.getId())) {
             throw new IllegalArgumentException("Cannot update a non-existing user");
+        }
+        if (user.getUsername() == null || user.getUsername().isEmpty()) {
+            throw new IllegalArgumentException("Username cannot be null or empty");
         }
         return userRepository.save(user);
     }

@@ -3,7 +3,6 @@ package com.LessonLab.forum.Services;
 import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Models.Thread;
 import com.LessonLab.forum.Models.User;
-import com.LessonLab.forum.Repositories.ContentRepository;
 import com.LessonLab.forum.Repositories.ThreadRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +18,6 @@ public class ThreadService extends ContentService{
 
     @Autowired
     private ThreadRepository threadRepository;
-    //@Autowired
-    //private ContentRepository contentRepository;
 
     @Transactional
     public Thread createThread(Thread thread) {
@@ -52,7 +49,7 @@ public class ThreadService extends ContentService{
     }
 
     @Transactional
-    public void deleteContent(Long threadId, User user) {
+    public void deleteThread(Long threadId, User user) {
         super.deleteContent(threadId, user);
     }
 

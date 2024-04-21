@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.LessonLab.forum.Models.Thread;
 import com.LessonLab.forum.Models.Post;
 
 import java.util.List;
