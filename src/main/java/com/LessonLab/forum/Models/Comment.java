@@ -15,8 +15,8 @@ public class Comment extends Content {
         super();
     }
 
-    public Comment(String content, Post post) {
-        super(content);  
+    public Comment(String content, User user, Post post) {
+        super(content, user);  
         this.setPost(post);
     }
 

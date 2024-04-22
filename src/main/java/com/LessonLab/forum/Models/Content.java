@@ -12,7 +12,6 @@ public abstract class Content {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-   // @NotNull
     @Lob  // Assuming content could be large, use Lob if it is expected to be large text
     private String content;
 
@@ -33,8 +32,9 @@ public abstract class Content {
     }
 
     // Constructor that initializes content
-    public Content(String content) {
+    public Content(String content, User user) {
         this.content = content;
+        this.user = user;
     }
 
     protected <T> void addToCollection(List<T> collection, T item) {

@@ -35,9 +35,10 @@ public class PostService extends ContentService {
 
     @Transactional
     public Post updatePost(Long id, String newContent, User user) {
-        Post post = getPost(id);
-        post.setContent(newContent);
-        return (Post) updateContent(id, newContent, user);
+        Post post = (Post) contentRepository.findById(id).get();
+        Content updatedContent = updateContent(post.getId(), newContent, user);
+        post.setContent(updatedContent.getContent());
+        return post;
     }
 
     public Post getPost(Long id) {

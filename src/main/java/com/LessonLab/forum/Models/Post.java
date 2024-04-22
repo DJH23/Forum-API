@@ -15,14 +15,17 @@ public class Post extends Content {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();  // One post can have many comments
 
-    // Constructors
-    public Post() {
-        super();
+    // Constructor for the first post in a thread
+    public Post(String content, User user, Thread thread) {
+        super(content, user);
+        this.thread = thread;
+        thread.getPosts().add(this); // Add this post to the thread's posts list
     }
-    
-    // To initialize Post with content directly
-    public Post(String content) {
-        super(content);
+
+    // Constructor for subsequent posts in a thread
+    public Post(String content, User user) {
+        super(content, user);
+        // No thread is passed, so we don't set it here
     }
 
     // Getters and Setters

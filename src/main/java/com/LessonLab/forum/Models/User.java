@@ -28,6 +28,13 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Content> contents;  
+
+    public User() {} // no-arg constructor for serialization and testing
+
+    public User(String username, Role role) {
+        this.username = username;
+        this.role = role;
+    }
     
     // Getters and Setters
     public Long getId() {
