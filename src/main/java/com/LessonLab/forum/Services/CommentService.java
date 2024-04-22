@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.Content;
@@ -54,8 +55,9 @@ public class CommentService extends ContentService{
         return contents.stream().map(content -> (Comment) content).collect(Collectors.toList());
     }
 
+    @Transactional
     public void deleteComment(Long commentId, User user) {
-        deleteContent(commentId, user);
+        super.deleteContent(commentId, user);
     }
 
     public List<Comment> getCommentsByPost(Post post) {
