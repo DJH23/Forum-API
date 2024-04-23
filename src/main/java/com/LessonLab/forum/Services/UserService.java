@@ -30,7 +30,7 @@ public class UserService {
         return user.getRole().getPermissions().contains(permission);
     }
 
-    private User getCurrentUser() {
+    public User getCurrentUser() {
         String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
         return userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("User not found"));
     }

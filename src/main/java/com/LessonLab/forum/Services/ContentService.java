@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -173,36 +172,48 @@ public abstract class ContentService {
     }
 
     public List<Content> listContent() {
-        return contentRepository.findAll();
+        try {
+            return contentRepository.findAll();
+        } catch (Exception e) {
+            // Log the exception and rethrow it
+            System.err.println("Error listing content: " + e.getMessage());
+            throw e;
+        }
     }
 
     @Transactional
     public void handleVote(Long contentId, Long userId, boolean isUpVote) {
-        User user = userRepository.findById(userId)
-                        .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        Content content = getContent(contentId);
-        Vote existingVote = voteRepository.findByUserAndContent(user, content).orElse(null);
-    
-        if (existingVote != null) {
-            throw new IllegalStateException("User has already voted on this content");
-        }
-
-        Vote vote = new Vote();
-        vote.setUser(user);
-        vote.setContent(content);
-        vote.setUpVote(isUpVote);
-        voteRepository.save(vote);
-
-        if (isUpVote) {
-            content.upVote();
-            contentRepository.save(content);
-        } else {
-            content.downVote();
-            if (content.checkThreshold(configurationService.getVoteThreshold())) { 
-               /*  notifyAdmins(content);*/
-               System.out.println("Threshold reached for content ID: " + content.getId());
+        try {
+            User user = userRepository.findById(userId)
+                            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+            Content content = getContent(contentId);
+            Vote existingVote = voteRepository.findByUserAndContent(user, content).orElse(null);
+        
+            if (existingVote != null) {
+                throw new IllegalStateException("User has already voted on this content");
             }
-            contentRepository.save(content);
+    
+            Vote vote = new Vote();
+            vote.setUser(user);
+            vote.setContent(content);
+            vote.setUpVote(isUpVote);
+            voteRepository.save(vote);
+    
+            if (isUpVote) {
+                content.upVote();
+                contentRepository.save(content);
+            } else {
+                content.downVote();
+                if (content.checkThreshold(configurationService.getVoteThreshold())) { 
+                   /*  notifyAdmins(content);*/
+                   System.out.println("Threshold reached for content ID: " + content.getId());
+                }
+                contentRepository.save(content);
+            }
+        } catch (Exception e) {
+            // Log the exception and rethrow it
+            System.err.println("Error handling vote: " + e.getMessage());
+            throw e;
         }
     }
     

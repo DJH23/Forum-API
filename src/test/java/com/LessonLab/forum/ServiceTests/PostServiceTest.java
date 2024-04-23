@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -33,6 +34,7 @@ import com.LessonLab.forum.Repositories.PostRepository;
 import com.LessonLab.forum.Repositories.UserRepository;
 import com.LessonLab.forum.Repositories.VoteRepository;
 import com.LessonLab.forum.Services.ConfigurationService;
+import com.LessonLab.forum.Services.ContentService;
 import com.LessonLab.forum.Services.NotificationService;
 import com.LessonLab.forum.Services.PostService;
 import com.LessonLab.forum.Services.ThreadService;
@@ -44,6 +46,8 @@ public class PostServiceTest {
     private PostRepository postRepository;
     @Mock
     private ThreadService threadService;
+    @Mock
+    private ContentService contentService;
     @Mock
     private ContentRepository contentRepository;
     @Mock
@@ -175,7 +179,7 @@ public class PostServiceTest {
         for (int i = 0; i < 3; i++) {
             Post post = new Post("Test post " + i, user);
             post.setThread(thread);
-            Comment comment = new Comment(commentContent, user, post);
+            Comment comment = new Comment(commentContent, user);
             post.addComment(comment);
             posts.add(post);
         }
@@ -192,6 +196,44 @@ public class PostServiceTest {
     }
 
     @Test
+    public void testGetPagedPostsByUserWithComments() {
+        // Create a test user and thread
+        User user = new User("testUser", Role.USER);
+        Thread thread = new Thread("Test thread title", "Test thread description");
+
+        // Create a list of contents and associate them with the user
+        List<Content> contents = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            Post post = new Post("Test post " + i, user);
+            post.setThread(thread);
+
+            // Create a comment and associate it with the post
+            Comment comment = new Comment("Test comment " + i, user);
+            comment.setPost(post);
+
+            // Add the post to the contents list as a Content object
+            contents.add((Content) post);
+        }
+
+        // Mock the getPagedContentByUser to return the contents when called with 1L and pageable
+        when(postService.getPagedContentByUser(1L, PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "createdAt"))))
+            .thenReturn(new PageImpl<>(contents));
+
+        // Call getPagedPostsByUser
+        Page<Post> retrievedPosts = postService.getPagedPostsByUser(1L, PageRequest.of(0, 5));
+
+        // Verify that the correct methods were called on the mock repositories
+        verify(userRepository, times(1)).findById(1L);
+        verify(contentRepository, times(1)).findByUserId(1L, PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "createdAt")));
+
+        // After calling getPagedPostsByUser, verify that each post has the correct comment
+        for (Post post : retrievedPosts.getContent()) {
+            Comment comment = commentRepository.findByPost(post).get(0);
+            assertEquals("Test comment " + post.getContent().charAt(post.getContent().length() - 1), comment.getContent());
+        }
+    }
+
+    @Test
     public void testGetMostCommentedPosts() {
         // Create a test user and thread
         User user = new User("testUser", Role.USER);
@@ -204,7 +246,7 @@ public class PostServiceTest {
             Post post = new Post("Test post " + i, user);
             post.setThread(thread);
             for (int j = 0; j <= i; j++) {  // Each post will have i comments
-                Comment comment = new Comment(commentContent, user, post);
+                Comment comment = new Comment(commentContent, user);
                 post.addComment(comment);
             }
             posts.add(post);
@@ -359,4 +401,61 @@ public class PostServiceTest {
         verify(contentRepository, times(1)).delete(post);
     }
 
+    @Test
+    public void testListPosts() {
+        // Create user
+        User user = new User("testUser", Role.USER);
+    
+        // Create posts
+        Post post1 = new Post("Test post 1", user);
+        Post post2 = new Post("Test post 2", user);
+        Post post3 = new Post("Test post 3", user);
+    
+        // Save the posts
+        when(contentRepository.save(post1)).thenReturn(post1);
+        when(contentRepository.save(post2)).thenReturn(post2);
+        when(contentRepository.save(post3)).thenReturn(post3);
+    
+        // Mock the contentRepository to return the posts when findAll is called
+        when(contentRepository.findAll()).thenReturn(Arrays.asList(post1, post2, post3));
+    
+        // Call listPosts
+        List<Post> returnedPosts = postService.listPosts();
+    
+        // Assert that the returned posts are the same as the original posts
+        assertNotNull(returnedPosts);
+        assertEquals(3, returnedPosts.size());
+        assertTrue(returnedPosts.containsAll(Arrays.asList(post1, post2, post3)));
+    
+        // Verify that the findAll method was called
+        verify(contentRepository, times(1)).findAll();
+    }
+
+    @Test
+    public void testHandlePostVote() {
+        // Create a user
+        User user = new User("testUser", Role.USER);
+
+        // Create a post
+        Content post = new Post("Test post content", user);
+
+        // Mock the userRepository to return the user when findById is called with 1L
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        // Mock the contentRepository to return the post when findById is called with 1L
+        when(contentRepository.findById(1L)).thenReturn(Optional.of(post));
+
+        // Mock the voteRepository to return Optional.empty() when findByUserAndContent is called
+        when(voteRepository.findByUserAndContent(user, post)).thenReturn(Optional.empty());
+
+        // Call handlePostVote
+        postService.handlePostVote(1L, 1L, true);
+
+        // Verify that the correct methods were called on the mock repositories
+        verify(userRepository, times(1)).findById(1L);
+        verify(contentRepository, times(1)).findById(1L);
+        verify(voteRepository, times(1)).findByUserAndContent(user, post);
+        verify(contentRepository, times(1)).save(any(Content.class));
+    }
+    
 }

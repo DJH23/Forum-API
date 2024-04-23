@@ -98,4 +98,17 @@ public class CommentService extends ContentService{
             throw e;
         }
     }
+
+    public List<Comment> listComments() {
+        List<Content> contents = super.listContent();
+        return contents.stream()
+            .filter(content -> content instanceof Comment)
+            .map(content -> (Comment) content)
+            .collect(Collectors.toList());
+    }
+
+    public void handleCommentVote(Long commentId, Long userId, boolean isUpVote) {
+        super.handleVote(commentId, userId, isUpVote);
+    }
+    
 }

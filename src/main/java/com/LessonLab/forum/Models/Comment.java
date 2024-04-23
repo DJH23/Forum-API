@@ -12,12 +12,11 @@ public class Comment extends Content {
 
     // Constructors
     public Comment() {
-        super();
+        
     }
 
-    public Comment(String content, User user, Post post) {
-        super(content, user);  
-        this.setPost(post);
+    public Comment(String content, User user) {
+        super(content, user);
     }
 
     // Getter and setter for post

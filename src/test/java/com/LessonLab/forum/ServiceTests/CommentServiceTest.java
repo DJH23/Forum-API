@@ -25,7 +25,10 @@ import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.Enums.Role;
 import com.LessonLab.forum.Repositories.CommentRepository;
 import com.LessonLab.forum.Repositories.ContentRepository;
+import com.LessonLab.forum.Repositories.UserRepository;
+import com.LessonLab.forum.Repositories.VoteRepository;
 import com.LessonLab.forum.Services.CommentService;
+import com.LessonLab.forum.Services.ContentService;
 
 
 public class CommentServiceTest {
@@ -34,7 +37,16 @@ public class CommentServiceTest {
     private ContentRepository contentRepository;
 
     @Mock
+    private UserRepository userRepository;
+    
+    @Mock
+    private VoteRepository voteRepository;
+
+    @Mock
     private CommentRepository commentRepository;
+
+    @Mock
+    private ContentService contentService;
 
     @InjectMocks
     private CommentService commentService;
@@ -54,7 +66,7 @@ public class CommentServiceTest {
         post.setUser(user);
 
         // Create a comment
-        Comment comment = new Comment("Test comment", user, post);
+        Comment comment = new Comment("Test comment", user);
         comment.setPost(post);
 
         // Mock the contentRepository to return the comment when save is called
@@ -81,7 +93,7 @@ public class CommentServiceTest {
         post.setUser(user);
     
         // Create a comment
-        Comment comment = new Comment("Test comment", user, post);
+        Comment comment = new Comment("Test comment", user);
         comment.setPost(post);
     
         // Save the comment
@@ -110,7 +122,7 @@ public class CommentServiceTest {
         post.setUser(user);
 
         // Create a comment
-        Comment comment = new Comment("Test comment", user, post);
+        Comment comment = new Comment("Test comment", user);
         comment.setPost(post);
 
         // Save the comment
@@ -140,9 +152,9 @@ public class CommentServiceTest {
         post.setUser(user);
     
         // Create comments
-        Comment comment1 = new Comment("Test comment 1", user, post);
-        Comment comment2 = new Comment("Test comment 2", user, post);
-        Comment comment3 = new Comment("Test comment 3", user, post);
+        Comment comment1 = new Comment("Test comment 1", user);
+        Comment comment2 = new Comment("Test comment 2", user);
+        Comment comment3 = new Comment("Test comment 3", user);
     
         // Save the comments
         when(contentRepository.save(comment1)).thenReturn(comment1);
@@ -175,9 +187,9 @@ public class CommentServiceTest {
         post.setUser(user);
     
         // Create comments
-        Comment comment1 = new Comment("Test comment 1", user, post);
-        Comment comment2 = new Comment("Test comment 2", user, post);
-        Comment comment3 = new Comment("Test comment 3", user, post);
+        Comment comment1 = new Comment("Test comment 1", user);
+        Comment comment2 = new Comment("Test comment 2", user);
+        Comment comment3 = new Comment("Test comment 3", user);
     
         // Save the comments
         when(contentRepository.save(comment1)).thenReturn(comment1);
@@ -214,9 +226,9 @@ public class CommentServiceTest {
         post.setUser(user);
     
         // Create comments
-        Comment comment1 = new Comment("Test comment 1", user, post);
-        Comment comment2 = new Comment("Test comment 2", user, post);
-        Comment comment3 = new Comment("Test comment 3", user, post);
+        Comment comment1 = new Comment("Test comment 1", user);
+        Comment comment2 = new Comment("Test comment 2", user);
+        Comment comment3 = new Comment("Test comment 3", user);
     
         // Save the comments
         when(contentRepository.save(comment1)).thenReturn(comment1);
@@ -250,9 +262,9 @@ public class CommentServiceTest {
         post.setUser(user);
     
         // Create comments
-        Comment comment1 = new Comment("Test comment 1", user, post);
-        Comment comment2 = new Comment("Test comment 2", user, post);
-        Comment comment3 = new Comment("Test comment 3", user, post);
+        Comment comment1 = new Comment("Test comment 1", user);
+        Comment comment2 = new Comment("Test comment 2", user);
+        Comment comment3 = new Comment("Test comment 3", user);
     
         // Save the comments
         when(contentRepository.save(comment1)).thenReturn(comment1);
@@ -285,7 +297,7 @@ public class CommentServiceTest {
         post.setUser(user);
     
         // Create a comment
-        Comment comment = new Comment("Test comment", user, post);
+        Comment comment = new Comment("Test comment", user);
         comment.setPost(post);
     
         // Save the comment
@@ -311,9 +323,9 @@ public class CommentServiceTest {
         post.setUser(user);
 
         // Create comments
-        Comment comment1 = new Comment("Test comment 1", user, post);
-        Comment comment2 = new Comment("Test comment 2", user, post);
-        Comment comment3 = new Comment("Test comment 3", user, post);
+        Comment comment1 = new Comment("Test comment 1", user);
+        Comment comment2 = new Comment("Test comment 2", user);
+        Comment comment3 = new Comment("Test comment 3", user);
 
         // Save the comments
         when(commentRepository.save(comment1)).thenReturn(comment1);
@@ -351,9 +363,9 @@ public class CommentServiceTest {
         post.setUser(user);
 
         // Create comments
-        Comment comment1 = new Comment("Test comment 1", user, post);
-        Comment comment2 = new Comment("Test comment 2", user, post);
-        Comment comment3 = new Comment("Test comment 3", user, post);
+        Comment comment1 = new Comment("Test comment 1", user);
+        Comment comment2 = new Comment("Test comment 2", user);
+        Comment comment3 = new Comment("Test comment 3", user);
 
         // Save the comments
         when(commentRepository.save(comment1)).thenReturn(comment1);
@@ -395,9 +407,9 @@ public class CommentServiceTest {
         post.setUser(user1);
     
         // Create comments
-        Comment comment1 = new Comment("Test comment 1", user2, post);
-        Comment comment2 = new Comment("Test comment 2", user2, post);
-        Comment comment3 = new Comment("Test comment 3", user2, post);
+        Comment comment1 = new Comment("Test comment 1", user2);
+        Comment comment2 = new Comment("Test comment 2", user2);
+        Comment comment3 = new Comment("Test comment 3", user2);
     
         // Save the comments
         when(commentRepository.save(comment1)).thenReturn(comment1);
@@ -421,6 +433,67 @@ public class CommentServiceTest {
     public void testCountCommentsByPostAndUserNotWithNullPostAndUser() {
         // Call countCommentsByPostAndUserNot with null post and user
         commentService.countCommentsByPostAndUserNot(null, null);
+    }
+
+    @Test
+    public void testListContent() {
+        // Create user
+        User user = new User("testUser", Role.USER);
+
+        // Create a post
+        Post post = new Post("Test post", user);
+        post.setUser(user);
+
+        // Create comments
+        Comment comment1 = new Comment("Test comment 1", user);
+        Comment comment2 = new Comment("Test comment 2", user);
+        Comment comment3 = new Comment("Test comment 3", user);
+
+        // Save the comments
+        when(contentRepository.save(comment1)).thenReturn(comment1);
+        when(contentRepository.save(comment2)).thenReturn(comment2);
+        when(contentRepository.save(comment3)).thenReturn(comment3);
+
+        // Mock the contentRepository to return the comments when findAll is called
+        when(contentRepository.findAll()).thenReturn(Arrays.asList(comment1, comment2, comment3));
+
+        // Call listContent
+        List<Content> returnedContents = commentService.listContent();
+
+        // Assert that the returned contents are the same as the original comments
+        assertNotNull(returnedContents);
+        assertEquals(3, returnedContents.size());
+        assertTrue(returnedContents.containsAll(Arrays.asList(comment1, comment2, comment3)));
+
+        // Verify that the findAll method was called
+        verify(contentRepository, times(1)).findAll();
+    }
+
+    @Test
+    public void testHandleCommentVote() {
+        // Create a user
+        User user = new User("testUser", Role.USER);
+    
+        // Create a comment
+        Content comment = new Comment("Test comment", user);
+    
+        // Mock the userRepository to return the user when findById is called with 1L
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+    
+        // Mock the contentRepository to return the comment when findById is called with 1L
+        when(contentRepository.findById(1L)).thenReturn(Optional.of(comment));
+    
+        // Mock the voteRepository to return Optional.empty() when findByUserAndContent is called
+        when(voteRepository.findByUserAndContent(user, comment)).thenReturn(Optional.empty());
+    
+        // Call handleCommentVote
+        commentService.handleCommentVote(1L, 1L, true);
+    
+        // Verify that the correct methods were called on the mock repositories
+        verify(userRepository, times(1)).findById(1L);
+        verify(contentRepository, times(1)).findById(1L);
+        verify(voteRepository, times(1)).findByUserAndContent(user, comment);
+        verify(contentRepository, times(1)).save(any(Content.class));
     }
     
 }

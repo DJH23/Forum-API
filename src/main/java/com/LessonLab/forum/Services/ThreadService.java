@@ -108,6 +108,18 @@ public class ThreadService extends ContentService{
         super.deleteContent(threadId, user);
     }
 
+    public List<Thread> listThreads() {
+        List<Content> contents = super.listContent();
+        return contents.stream()
+            .filter(content -> content instanceof Thread)
+            .map(content -> (Thread) content)
+            .collect(Collectors.toList());
+    }
+
+    public void handleThreadVote(Long threadId, Long userId, boolean isUpVote) {
+        super.handleVote(threadId, userId, isUpVote);
+    }
+
 }
 
 

@@ -109,4 +109,16 @@ public class PostService extends ContentService {
         super.deleteContent(postId, user);
     }
 
+    public List<Post> listPosts() {
+        List<Content> contents = super.listContent();
+        return contents.stream()
+            .filter(content -> content instanceof Post)
+            .map(content -> (Post) content)
+            .collect(Collectors.toList());
+    }
+
+    public void handlePostVote(Long postId, Long userId, boolean isUpVote) {
+        super.handleVote(postId, userId, isUpVote);
+    }
+
 }
