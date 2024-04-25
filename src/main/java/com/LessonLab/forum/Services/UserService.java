@@ -37,21 +37,20 @@ public class UserService {
 
     @Transactional
     public User addUser(User user) {
-        User currentUser = getCurrentUser();
-        if (!hasPermission(currentUser, Permission.WRITE_USER)) {
-            throw new AccessDeniedException("You do not have permission to add users.");
-        }
-
         if (user == null) {
             throw new IllegalArgumentException("User cannot be null");
         }
         if (user.getUsername() == null || user.getUsername().isEmpty()) {
             throw new IllegalArgumentException("Username cannot be null or empty");
         }
-        if (userRepository.findByUsername(user.getUsername()) != null) {
-            throw new RuntimeException("Username already exists!");
+        if (!user.getUsername().matches("[A-Za-z0-9_]+")) {
+            throw new IllegalArgumentException("Username contains invalid characters");
         }
-        return userRepository.save(user);
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            throw new IllegalArgumentException("Username already exists!");
+        }
+        User savedUser = userRepository.save(user);
+        return savedUser;
     }
 
     public User getUser(Long id) {

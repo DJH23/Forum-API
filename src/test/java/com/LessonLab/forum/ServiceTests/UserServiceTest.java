@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,6 +39,11 @@ public class UserServiceTest {
     @Before
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+    }
+
+    @After
+    public void tearDown() {
+        userRepository.deleteAll();
     }
     
     @Test
@@ -81,52 +87,64 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testAddUser() {
-        // Create a user with the "ADMIN" role
-        User user = new User("testUser", Role.ADMIN);
-    
-        // Create a UserDetails instance
-        UserDetails userDetails = org.springframework.security.core.userdetails.User.withUsername(user.getUsername())
-                                      .password("") // Use an empty password
-                                      .roles(user.getRole().toString())
-                                      .build();
-    
-        // Create a mock Authentication
-        Authentication authentication = mock(Authentication.class);
-    
-        // Mock Authentication.getPrincipal to return the UserDetails
-        when(authentication.getPrincipal()).thenReturn(userDetails);
-    
-        // Create a mock SecurityContext
-        SecurityContext securityContext = mock(SecurityContext.class);
-    
-        // Mock SecurityContext.getAuthentication to return the mock Authentication
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-    
-        // Set the mock SecurityContext in the SecurityContextHolder
-        SecurityContextHolder.setContext(securityContext);
-    
-        // Mock userRepository.findByUsername to return the user
-        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
-        
-        // Call getCurrentUser to get the current user
-        User currentUser = userService.getCurrentUser();
-        
-        // Mock userRepository.findByUsername to return an empty Optional
-        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.empty());
-        
-        // Call addUser with the user
-        User addedUser = userService.addUser(user);
-    
-        // Verify that userRepository.save was called with the user
-        verify(userRepository, times(1)).save(user);
-    
-        // Assert that currentUser is not null
-        assertNotNull(currentUser);
-    
-        // Assert that the returned user is the same as the user
-        assertEquals(user, addedUser);
+    public void testAddUser_WithValidUser_ShouldSaveUser() {
+        // Arrange
+        User validUser = new User("validUsername123", Role.ADMIN);
+        when(userRepository.findByUsername(validUser.getUsername())).thenReturn(Optional.empty());
+        when(userRepository.save(validUser)).thenReturn(validUser);
+
+        // Act
+        User savedUser = userService.addUser(validUser);
+
+        // Assert
+        assertNotNull(savedUser);
+        assertEquals(validUser.getUsername(), savedUser.getUsername());
+        verify(userRepository, times(1)).save(validUser);
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testAddUser_WithNullUser_ShouldThrowException() {
+        // Act
+        userService.addUser(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testAddUser_WithNullUsername_ShouldThrowException() {
+        // Arrange
+        User userWithNullUsername = new User(null, Role.ADMIN);
+
+        // Act
+        userService.addUser(userWithNullUsername);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testAddUser_WithEmptyUsername_ShouldThrowException() {
+        // Arrange
+        User userWithEmptyUsername = new User("", Role.ADMIN);
+
+        // Act
+        userService.addUser(userWithEmptyUsername);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testAddUser_WithInvalidUsername_ShouldThrowException() {
+        // Arrange
+        User userWithInvalidUsername = new User("Invalid$$Username", Role.ADMIN);
+
+        // Act
+        userService.addUser(userWithInvalidUsername);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testAddUser_WithExistingUsername_ShouldThrowException() {
+        // Arrange
+        User userWithExistingUsername = new User("existingUser", Role.ADMIN);
+        when(userRepository.findByUsername(userWithExistingUsername.getUsername())).thenReturn(Optional.of(new User()));
+
+        // Act
+        userService.addUser(userWithExistingUsername);
+    }
+
 }
 
 
