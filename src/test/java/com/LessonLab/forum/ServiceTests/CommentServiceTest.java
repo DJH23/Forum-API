@@ -101,8 +101,8 @@ public class CommentServiceTest {
     
         // Update the comment
         String newContent = "Updated comment";
-        when(contentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));
-        Comment updatedComment = commentService.updateComment(comment.getId(), newContent, user);
+        when(contentRepository.findById(comment.getContentId())).thenReturn(Optional.of(comment));
+        Comment updatedComment = commentService.updateComment(comment.getContentId(), newContent, user);
     
         // Assert that the returned comment's content is the updated content
         assertNotNull(updatedComment);
@@ -129,17 +129,17 @@ public class CommentServiceTest {
         when(contentRepository.save(comment)).thenReturn(comment);
 
         // Mock the contentRepository to return the comment when findById is called
-        when(contentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));
+        when(contentRepository.findById(comment.getContentId())).thenReturn(Optional.of(comment));
 
         // Call getComment
-        Comment returnedComment = commentService.getComment(comment.getId());
+        Comment returnedComment = commentService.getComment(comment.getContentId());
 
         // Assert that the returned comment is the same as the original comment
         assertNotNull(returnedComment);
         assertEquals(comment, returnedComment);
 
         // Verify that the findById method was called
-        verify(contentRepository, times(1)).findById(comment.getId());
+        verify(contentRepository, times(1)).findById(comment.getContentId());
     }
 
     @Test
@@ -202,10 +202,10 @@ public class CommentServiceTest {
     
 
         // Mock the contentRepository to return the Page of comments when findByUserId is called
-        when(contentRepository.findByUserId(user.getId(), pageable)).thenReturn(contentPage);   
+        when(contentRepository.findByUserUserId(user.getUserId(), pageable)).thenReturn(contentPage);   
     
         // Call getPagedCommentsByUser
-        Page<Comment> returnedComments = commentService.getPagedCommentsByUser(user.getId(), pageable);
+        Page<Comment> returnedComments = commentService.getPagedCommentsByUser(user.getUserId(), pageable);
     
         // Assert that the returned comments are the same as the original comments
         assertNotNull(returnedComments);
@@ -213,7 +213,7 @@ public class CommentServiceTest {
         assertTrue(returnedComments.getContent().containsAll(Arrays.asList(comment1, comment2, comment3)));
     
         // Verify that the getPagedContentByUser method was called
-        verify(contentRepository, times(1)).findByUserId(user.getId(), pageable);
+        verify(contentRepository, times(1)).findByUserUserId(user.getUserId(), pageable);
     }
 
     @Test
@@ -304,10 +304,10 @@ public class CommentServiceTest {
         when(contentRepository.save(comment)).thenReturn(comment);
     
         // Mock the contentRepository to return the comment when findById is called
-        when(contentRepository.findById(comment.getId())).thenReturn(Optional.of(comment));
+        when(contentRepository.findById(comment.getContentId())).thenReturn(Optional.of(comment));
     
         // Call deleteComment
-        commentService.deleteComment(comment.getId(), user);
+        commentService.deleteComment(comment.getContentId(), user);
     
         // Verify that the delete method was called
         verify(contentRepository, times(1)).delete(comment);

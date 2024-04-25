@@ -86,7 +86,7 @@ public class ThreadServiceTest {
         Thread thread = new Thread("Test thread title", "Test thread description");
     
         // Mock the contentRepository to return the thread when findById is called
-        when(contentRepository.findById(thread.getId())).thenReturn(Optional.of((Content) thread));
+        when(contentRepository.findById(thread.getContentId())).thenReturn(Optional.of((Content) thread));
     
         // Create an updateThread with a new title and description
         Thread updateThread = new Thread("Updated thread title", "Updated thread description");
@@ -95,7 +95,7 @@ public class ThreadServiceTest {
         when(contentRepository.save(any(Thread.class))).thenAnswer(i -> i.getArguments()[0]);
     
         // Call updateThread
-        Thread updatedThread = threadService.updateThread(thread.getId(), updateThread);
+        Thread updatedThread = threadService.updateThread(thread.getContentId(), updateThread);
     
         // Assert that the updated thread has the new title and description
         assertNotNull(updatedThread);
@@ -109,10 +109,10 @@ public class ThreadServiceTest {
         Thread thread = new Thread("Test thread title", "Test thread description");
     
         // Mock the contentRepository to return the thread when findById is called
-        when(contentRepository.findById(thread.getId())).thenReturn(Optional.of((Content) thread));
+        when(contentRepository.findById(thread.getContentId())).thenReturn(Optional.of((Content) thread));
     
         // Call getThread
-        Thread retrievedThread = threadService.getThread(thread.getId());
+        Thread retrievedThread = threadService.getThread(thread.getContentId());
     
         // Assert that the retrieved thread is the same as the original thread
         assertNotNull(retrievedThread);
@@ -158,10 +158,10 @@ public class ThreadServiceTest {
         Page<Content> threadPage = new PageImpl<>(threads, pageable, threads.size());
     
         // Mock the contentRepository to return the Page of threads when findByUserId is called
-        when(contentRepository.findByUserId(user.getId(), pageable)).thenReturn(threadPage);
+        when(contentRepository.findByUserUserId(user.getUserId(), pageable)).thenReturn(threadPage);
     
         // Call getPagedThreadsByUser
-        Page<Thread> retrievedThreadPage = threadService.getPagedThreadsByUser(user.getId(), pageable);
+        Page<Thread> retrievedThreadPage = threadService.getPagedThreadsByUser(user.getUserId(), pageable);
     
         // Assert that the retrieved Page of threads is the same as the original Page of threads
         assertNotNull(retrievedThreadPage);
@@ -308,13 +308,13 @@ public class ThreadServiceTest {
 
         // Create a test thread
         Thread thread = new Thread("Test thread title", "Test thread description");
-        thread.setId(1L);
+        thread.setContentId(1L);
 
         // Mock the contentRepository to return the thread
-        when(contentRepository.findById(thread.getId())).thenReturn(Optional.of(thread));
+        when(contentRepository.findById(thread.getContentId())).thenReturn(Optional.of(thread));
 
         // Call the deleteThread method
-        threadService.deleteThread(thread.getId(), user);
+        threadService.deleteThread(thread.getContentId(), user);
 
         // Verify that the contentRepository was called with the correct arguments
         verify(contentRepository).delete(thread);

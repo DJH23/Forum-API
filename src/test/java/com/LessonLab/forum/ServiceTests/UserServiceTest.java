@@ -44,7 +44,7 @@ public class UserServiceTest {
     public void testDeleteUser() {
         // Create a user with the "ADMIN" role
         User user = new User("testUser", Role.ADMIN);
-        user.setId(1L);
+        user.setUserId(1L);
 
         // Create a UserDetails instance
         UserDetails userDetails = org.springframework.security.core.userdetails.User.withUsername(user.getUsername())
@@ -71,13 +71,13 @@ public class UserServiceTest {
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
 
         // Mock userRepository.existsById to return true
-        when(userRepository.existsById(user.getId())).thenReturn(true);
+        when(userRepository.existsById(user.getUserId())).thenReturn(true);
 
         // Call deleteUser with the user's ID
-        userService.deleteUser(user.getId());
+        userService.deleteUser(user.getUserId());
 
         // Verify that userRepository.deleteById was called with the user's ID
-        verify(userRepository, times(1)).deleteById(user.getId());
+        verify(userRepository, times(1)).deleteById(user.getUserId());
     }
 
     @Test

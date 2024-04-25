@@ -78,7 +78,7 @@ public class PostServiceTest {
         post.setThread(thread); // Set the thread for the post
     
         // Mock the threadService to return the thread
-        when(threadService.getThread(thread.getId())).thenReturn(thread); 
+        when(threadService.getThread(thread.getContentId())).thenReturn(thread); 
     
         // Mock the contentRepository to return the saved post
         when(contentRepository.save(post)).thenReturn(post);
@@ -103,17 +103,17 @@ public class PostServiceTest {
         post.setThread(thread); // Set the thread for the post
 
         // Mock the threadService to return the thread
-        when(threadService.getThread(thread.getId())).thenReturn(thread); 
+        when(threadService.getThread(thread.getContentId())).thenReturn(thread); 
 
         // Mock the contentRepository to return the saved post
         when(contentRepository.save(post)).thenReturn(post);
 
         // Mock the contentRepository to return the post when findById is called
-        when(contentRepository.findById(post.getId())).thenReturn(Optional.of(post));
+        when(contentRepository.findById(post.getContentId())).thenReturn(Optional.of(post));
 
         // Update the post content
         String newContent = "Updated post content";
-        Post updatedPost = postService.updatePost(post.getId(), newContent, user);
+        Post updatedPost = postService.updatePost(post.getContentId(), newContent, user);
 
         // Assert that the post was updated successfully
         assertNotNull(updatedPost);
@@ -132,10 +132,10 @@ public class PostServiceTest {
         post.setThread(thread); // Set the thread for the post
 
         // Mock the contentRepository to return the post when findById is called
-        when(contentRepository.findById(post.getId())).thenReturn(Optional.of(post));
+        when(contentRepository.findById(post.getContentId())).thenReturn(Optional.of(post));
 
         // Call getPost
-        Post retrievedPost = postService.getPost(post.getId());
+        Post retrievedPost = postService.getPost(post.getContentId());
 
         // Assert that the retrieved post is the same as the original post
         assertNotNull(retrievedPost);
@@ -224,7 +224,7 @@ public class PostServiceTest {
 
         // Verify that the correct methods were called on the mock repositories
         verify(userRepository, times(1)).findById(1L);
-        verify(contentRepository, times(1)).findByUserId(1L, PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "createdAt")));
+        verify(contentRepository, times(1)).findByUserUserId(1L, PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "createdAt")));
 
         // After calling getPagedPostsByUser, verify that each post has the correct comment
         for (Post post : retrievedPosts.getContent()) {
@@ -313,10 +313,10 @@ public class PostServiceTest {
         Page<Content> page = new PageImpl<>(new ArrayList<>(posts), pageable, posts.size());
     
         // Mock the contentRepository to return the page when findByUserId is called
-        when(contentRepository.findByUserId(user.getId(), pageable)).thenReturn(page);
+        when(contentRepository.findByUserUserId(user.getUserId(), pageable)).thenReturn(page);
     
         // Call getPagedPostsByUser
-        Page<Post> retrievedPosts = postService.getPagedPostsByUser(user.getId(), pageable);
+        Page<Post> retrievedPosts = postService.getPagedPostsByUser(user.getUserId(), pageable);
     
         // Assert that the retrieved posts are the same as the original posts
         assertNotNull(retrievedPosts);
@@ -389,13 +389,13 @@ public class PostServiceTest {
         post.setThread(thread);
     
         // Mock the contentRepository to return the post when findById is called
-        when(contentRepository.findById(post.getId())).thenReturn(Optional.of((Content) post));
+        when(contentRepository.findById(post.getContentId())).thenReturn(Optional.of((Content) post));
     
         // Mock the contentRepository to do nothing when delete is called
         doNothing().when(contentRepository).delete(post);
     
         // Call deletePost
-        postService.deletePost(post.getId(), user);
+        postService.deletePost(post.getContentId(), user);
     
         // Verify that delete was called on the contentRepository
         verify(contentRepository, times(1)).delete(post);

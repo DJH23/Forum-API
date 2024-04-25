@@ -84,7 +84,7 @@ public abstract class ContentService {
     
     public Page<Content> getPagedContentByUser(Long userId, Pageable pageable) {
         try {
-            return contentRepository.findByUserId(userId, pageable);
+            return contentRepository.findByUserUserId(userId, pageable);
         } catch (Exception e) {
             throw new RuntimeException("Error getting paged content by user", e);
         }
@@ -148,7 +148,7 @@ public abstract class ContentService {
         String contentDetail = getContentDetail(content);
     
         String logMessage = String.format("Content ID %d, with detail '%s', was deleted by user '%s' at %s",
-                                          content.getId(),
+                                          content.getContentId(),
                                           contentDetail, 
                                           username,
                                           LocalDateTime.now());
@@ -206,7 +206,7 @@ public abstract class ContentService {
                 content.downVote();
                 if (content.checkThreshold(configurationService.getVoteThreshold())) { 
                    /*  notifyAdmins(content);*/
-                   System.out.println("Threshold reached for content ID: " + content.getId());
+                   System.out.println("Threshold reached for content ID: " + content.getContentId());
                 }
                 contentRepository.save(content);
             }

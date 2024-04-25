@@ -28,7 +28,7 @@ public class PostService extends ContentService {
 
     @Transactional
     public Post addPost(Post post, User user) {
-        Thread thread = threadService.getThread(post.getThread().getId());
+        Thread thread = threadService.getThread(post.getThread().getContentId());
         post.setThread(thread);
         return (Post) addContent(post, user);
     }
@@ -36,7 +36,7 @@ public class PostService extends ContentService {
     @Transactional
     public Post updatePost(Long id, String newContent, User user) {
         Post post = (Post) contentRepository.findById(id).get();
-        Content updatedContent = updateContent(post.getId(), newContent, user);
+        Content updatedContent = updateContent(post.getContentId(), newContent, user);
         post.setContent(updatedContent.getContent());
         return post;
     }

@@ -76,7 +76,7 @@ public class UserService {
         if (user == null) {
             throw new IllegalArgumentException("Cannot update a null user");
         }
-        if (user.getId() == null || !userRepository.existsById(user.getId())) {
+        if (user.getUserId() == null || !userRepository.existsById(user.getUserId())) {
             throw new IllegalArgumentException("Cannot update a non-existing user");
         }
         if (user.getUsername() == null || user.getUsername().isEmpty()) {

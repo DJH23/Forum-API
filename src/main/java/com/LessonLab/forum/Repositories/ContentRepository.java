@@ -23,7 +23,7 @@ public interface ContentRepository extends JpaRepository<Content, Long>{
     @Query("SELECT c FROM #{#entityName} c WHERE c.createdAt BETWEEN :start AND :end")
     List<Content> findByCreatedAtBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
-    Page<Content> findByUserId(@Param("userId") Long userId, Pageable pageable);
+    Page<Content> findByUserUserId(@Param("userId") Long userId, Pageable pageable);
 
     List<Content> findByContentContaining(String text);
 }
