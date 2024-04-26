@@ -1,5 +1,7 @@
 package com.LessonLab.forum.Controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,39 +30,47 @@ public class UserController {
     @GetMapping("/{id}")
     @PreAuthorize("hasPermission(#id, 'READ_USER')")
     public ResponseEntity<?> getUser(@PathVariable Long id) {
-        // Call the getUser method from the service
+        User user = userService.getUser(id);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasPermission(#id, 'WRITE_USER')")
     public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody User user) {
-        // Call the updateUser method from the service
+        user.setUserId(id);
+        User updatedUser = userService.updateUser(user);
+        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
 
     @GetMapping("/role/{role}")
     public ResponseEntity<?> getUsersByRole(@PathVariable Role role) {
-        // Call the getUsersByRole method from the service
+        List<User> users = userService.getUsersByRole(role);
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     @GetMapping("/status/{status}")
     public ResponseEntity<?> getUsersByStatus(@PathVariable Status status) {
-        // Call the getUsersByStatus method from the service
+        List<User> users = userService.getUsersByStatus(status);
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     @GetMapping("/account-status/{accountStatus}")
     public ResponseEntity<?> getUsersByAccountStatus(@PathVariable Account accountStatus) {
-        // Call the getUsersByAccountStatus method from the service
+        List<User> users = userService.getUsersByAccountStatus(accountStatus);
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasPermission(#id, 'DELETE_USER')")
     public ResponseEntity<?> deleteUserById(@PathVariable Long id) {
-        // Call the deleteUserById method from the service
+        userService.deleteUserById(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("/username/{username}")
     @PreAuthorize("hasPermission(#username, 'DELETE_USER')")
     public ResponseEntity<?> deleteUserByUsername(@PathVariable String username) {
-        // Call the deleteUserByUsername method from the service
+        userService.deleteUserByUsername(username);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
