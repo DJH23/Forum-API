@@ -15,6 +15,11 @@ public class Post extends Content {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();  // One post can have many comments
 
+    // No-args constructor
+    public Post() {
+
+    }
+
     // Constructor for the first post in a thread
     public Post(String content, User user, Thread thread) {
         super(content, user);
@@ -34,8 +39,11 @@ public class Post extends Content {
     }
 
     public void setThread(Thread thread) {
+        if (this.thread != null) {
+            this.thread.getPosts().remove(this);
+        }
         this.thread = thread;
-        if (!thread.getPosts().contains(this)) {
+        if (thread != null && !thread.getPosts().contains(this)) {
             thread.getPosts().add(this);
         }
     }
