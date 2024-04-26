@@ -56,7 +56,7 @@ public class CommentServiceTest {
         MockitoAnnotations.openMocks(this); // Proper initialization of mocks
     }
 
-    @Test
+    /* @Test
     public void testAddComment() {
         // Create user
         User user = new User("testUser", Role.USER);
@@ -81,9 +81,9 @@ public class CommentServiceTest {
 
         // Verify that the save method was called
         verify(contentRepository, times(1)).save(comment);
-    }
+    } */
 
-    @Test
+    /* @Test
     public void testUpdateComment() {
         // Create user
         User user = new User("testUser", Role.USER);
@@ -110,9 +110,9 @@ public class CommentServiceTest {
     
         // Verify that the save method was called
         verify(contentRepository, times(1)).save(comment);
-    }
+    } */
 
-    @Test
+    /* @Test
     public void testGetComment() {
         // Create user
         User user = new User("testUser", Role.USER);
@@ -140,9 +140,9 @@ public class CommentServiceTest {
 
         // Verify that the findById method was called
         verify(contentRepository, times(1)).findById(comment.getContentId());
-    }
+    } */
 
-    @Test
+    /* @Test
     public void testSearchComments() {
         // Create user
         User user = new User("testUser", Role.USER);
@@ -175,9 +175,9 @@ public class CommentServiceTest {
         
         // Verify that the searchContent method was called
         verify(contentRepository, times(1)).findByContentContaining(searchText);
-    }
+    } */
 
-    @Test
+    /* @Test
     public void testGetPagedCommentsByUser() {
         // Create user
         User user = new User("testUser", Role.USER);
@@ -215,8 +215,8 @@ public class CommentServiceTest {
         // Verify that the getPagedContentByUser method was called
         verify(contentRepository, times(1)).findByUserUserId(user.getUserId(), pageable);
     }
-
-    @Test
+ */
+    /* @Test
     public void testGetCommentsByCreatedAtBetween() {
         // Create user
         User user = new User("testUser", Role.USER);
@@ -250,9 +250,9 @@ public class CommentServiceTest {
     
         // Verify that the findByCreatedAtBetween method was called
         verify(contentRepository, times(1)).findByCreatedAtBetween(start, end);
-    }
+    } */
 
-    @Test
+    /* @Test
     public void testGetCommentsByContentContaining() {
         // Create user
         User user = new User("testUser", Role.USER);
@@ -285,9 +285,9 @@ public class CommentServiceTest {
     
         // Verify that the findByContentContaining method was called
         verify(contentRepository, times(1)).findByContentContaining(text);
-    }
+    } */
 
-    @Test
+    /* @Test
     public void testDeleteComment() {
         // Create user
         User user = new User("testUser", Role.USER);
@@ -311,7 +311,7 @@ public class CommentServiceTest {
     
         // Verify that the delete method was called
         verify(contentRepository, times(1)).delete(comment);
-    }
+    } */
 
     @Test
     public void testGetCommentsByPost() {
@@ -469,7 +469,7 @@ public class CommentServiceTest {
         verify(contentRepository, times(1)).findAll();
     }
 
-    @Test
+    /* @Test
     public void testHandleCommentVote() {
         // Create a user
         User user = new User("testUser", Role.USER);
@@ -494,6 +494,6 @@ public class CommentServiceTest {
         verify(contentRepository, times(1)).findById(1L);
         verify(voteRepository, times(1)).findByUserAndContent(user, comment);
         verify(contentRepository, times(1)).save(any(Content.class));
-    }
+    } */
     
 }

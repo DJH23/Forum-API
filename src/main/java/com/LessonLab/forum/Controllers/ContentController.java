@@ -12,76 +12,212 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.LessonLab.forum.Models.Content;
-import com.LessonLab.forum.Services.ContentService;
+import com.LessonLab.forum.Services.CommentService;
+import com.LessonLab.forum.Services.PostService;
+import com.LessonLab.forum.Services.ThreadService;
 
 @RestController
 @RequestMapping("/api/contents")
 public class ContentController {
 
     @Autowired
-    private ContentService contentService;
+    private CommentService commentService;
     
-    @PostMapping("/")
+    @Autowired
+    private PostService postService;
+    
+    @Autowired
+    private ThreadService threadService;
+    
+    @PostMapping("/{contentType}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
-    public ResponseEntity<?> addContent(@RequestBody Content content) {
-        Content savedContent = contentService.addContent(content, null);
+    public ResponseEntity<?> addContent(@PathVariable String contentType, @RequestBody Content content) {
+        Content savedContent;
+        switch (contentType.toLowerCase()) {
+            case "comment":
+                savedContent = commentService.addContent(content, null);
+                break;
+            case "post":
+                savedContent = postService.addContent(content, null);
+                break;
+            case "thread":
+                savedContent = threadService.addContent(content, null);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid content type: " + contentType);
+        }
         return new ResponseEntity<>(savedContent, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{contentType}/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
-    public ResponseEntity<?> updateContent(@PathVariable Long id, @RequestBody String newContent) {
-        Content updatedContent = contentService.updateContent(id, newContent, null);
+    public ResponseEntity<?> updateContent(@PathVariable String contentType, @PathVariable Long id, @RequestBody String newContent) {
+        Content updatedContent;
+        switch (contentType.toLowerCase()) {
+            case "comment":
+                updatedContent = commentService.updateContent(id, newContent, null);
+                break;
+            case "post":
+                updatedContent = postService.updateContent(id, newContent, null);
+                break;
+            case "thread":
+                updatedContent = threadService.updateContent(id, newContent, null);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid content type: " + contentType);
+        }
         return new ResponseEntity<>(updatedContent, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getContent(@PathVariable Long id) {
-        Content content = contentService.getContent(id);
+    @GetMapping("/{contentType}/{id}")
+    public ResponseEntity<?> getContent(@PathVariable String contentType, @PathVariable Long id) {
+        Content content;
+        switch (contentType.toLowerCase()) {
+            case "comment":
+                content = commentService.getContent(id);
+                break;
+            case "post":
+                content = postService.getContent(id);
+                break;
+            case "thread":
+                content = threadService.getContent(id);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid content type: " + contentType);
+        }
         return new ResponseEntity<>(content, HttpStatus.OK);
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<?> searchContent(@RequestParam String searchText) {
-        List<Content> contents = contentService.searchContent(searchText);
+    @GetMapping("/search/{contentType}")
+    public ResponseEntity<?> searchContent(@PathVariable String contentType, @RequestParam String searchText) {
+        List<? extends Content> contents;
+        switch (contentType.toLowerCase()) {
+            case "comment":
+                contents = commentService.searchContent(searchText);
+                break;
+            case "post":
+                contents = postService.searchContent(searchText);
+                break;
+            case "thread":
+                contents = threadService.searchContent(searchText);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid content type: " + contentType);
+        }
         return new ResponseEntity<>(contents, HttpStatus.OK);
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getPagedContentByUser(@PathVariable Long userId, Pageable pageable) {
-        Page<Content> contents = contentService.getPagedContentByUser(userId, pageable);
+    @GetMapping("/user/{contentType}/{userId}")
+    public ResponseEntity<?> getPagedContentByUser(@PathVariable String contentType, @PathVariable Long userId, Pageable pageable) {
+        Page<? extends Content> contents;
+        switch (contentType.toLowerCase()) {
+            case "comment":
+                contents = commentService.getPagedContentByUser(userId, pageable);
+                break;
+            case "post":
+                contents = postService.getPagedContentByUser(userId, pageable);
+                break;
+            case "thread":
+                contents = threadService.getPagedContentByUser(userId, pageable);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid content type: " + contentType);
+        }
         return new ResponseEntity<>(contents, HttpStatus.OK);
     }
 
-    @GetMapping("/created-at-between")
-    public ResponseEntity<?> getContentsByCreatedAtBetween(@RequestParam LocalDateTime start, @RequestParam LocalDateTime end) {
-        List<Content> contents = contentService.getContentsByCreatedAtBetween(start, end);
+    @GetMapping("/created-at-between/{contentType}")
+    public ResponseEntity<?> getContentsByCreatedAtBetween(@PathVariable String contentType, @RequestParam LocalDateTime start, @RequestParam LocalDateTime end) {
+        List<Content> contents;
+        switch (contentType.toLowerCase()) {
+            case "comment":
+                contents = commentService.getContentsByCreatedAtBetween(start, end);
+                break;
+            case "post":
+                contents = postService.getContentsByCreatedAtBetween(start, end);
+                break;
+            case "thread":
+                contents = threadService.getContentsByCreatedAtBetween(start, end);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid content type: " + contentType);
+        }
         return new ResponseEntity<>(contents, HttpStatus.OK);
     }
 
-    @GetMapping("/content-containing")
-    public ResponseEntity<?> getContentsByContentContaining(@RequestParam String text) {
-        List<Content> contents = contentService.getContentsByContentContaining(text);
+    @GetMapping("/content-containing/{contentType}")
+    public ResponseEntity<?> getContentsByContentContaining(@PathVariable String contentType, @RequestParam String text) {
+        List<? extends Content> contents;
+        switch (contentType.toLowerCase()) {
+            case "comment":
+                contents = commentService.getContentsByContentContaining(text);
+                break;
+            case "post":
+                contents = postService.getContentsByContentContaining(text);
+                break;
+            case "thread":
+                contents = threadService.getContentsByContentContaining(text);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid content type: " + contentType);
+        }
         return new ResponseEntity<>(contents, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{contentType}/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
-    public ResponseEntity<?> deleteContent(@PathVariable Long id) {
-        contentService.deleteContent(id, null);
+    public ResponseEntity<?> deleteContent(@PathVariable String contentType, @PathVariable Long id) {
+        switch (contentType.toLowerCase()) {
+            case "comment":
+                commentService.deleteContent(id, null);
+                break;
+            case "post":
+                postService.deleteContent(id, null);
+                break;
+            case "thread":
+                threadService.deleteContent(id, null);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid content type: " + contentType);
+        }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @GetMapping("/")
-    public ResponseEntity<?> listContent() {
-        List<Content> contents = contentService.listContent();
+    @GetMapping("/{contentType}")
+    public ResponseEntity<?> listContent(@PathVariable String contentType) {
+        List<? extends Content> contents;
+        switch (contentType.toLowerCase()) {
+            case "comment":
+                contents = commentService.listContent();
+                break;
+            case "post":
+                contents = postService.listContent();
+                break;
+            case "thread":
+                contents = threadService.listContent();
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid content type: " + contentType);
+        }
         return new ResponseEntity<>(contents, HttpStatus.OK);
     }
 
-    @PostMapping("/{contentId}/vote")
+    @PostMapping("/{contentType}/{contentId}/vote")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
-    public ResponseEntity<?> handleVote(@PathVariable Long contentId, @RequestParam Long userId, @RequestParam boolean isUpVote) {
-        contentService.handleVote(contentId, userId, isUpVote);
+    public ResponseEntity<?> handleVote(@PathVariable String contentType, @PathVariable Long contentId, @RequestParam Long userId, @RequestParam boolean isUpVote) {
+        switch (contentType.toLowerCase()) {
+            case "comment":
+                commentService.handleVote(contentId, userId, isUpVote);
+                break;
+            case "post":
+                postService.handleVote(contentId, userId, isUpVote);
+                break;
+            case "thread":
+                threadService.handleVote(contentId, userId, isUpVote);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid content type: " + contentType);
+        }
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

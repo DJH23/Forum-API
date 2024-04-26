@@ -15,8 +15,6 @@ import org.springframework.data.domain.PageImpl;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.time.LocalDateTime;
-
 
 @Service
 public class ThreadService extends ContentService{
@@ -42,29 +40,29 @@ public class ThreadService extends ContentService{
         return (Thread) contentRepository.save(thread);
     }
 
-    public Thread getThread(Long id) {
+    /* public Thread getThread(Long id) {
         return (Thread) getContent(id);
-    }
+    } */
 
-    public List<Thread> searchThreads(String searchText) {
+    /* public List<Thread> searchThreads(String searchText) {
         List<Content> contents = searchContent(searchText);
         return contents.stream().map(content -> (Thread) content).collect(Collectors.toList());
-    }
+    } */
 
-    public Page<Thread> getPagedThreadsByUser(Long userId, Pageable pageable) {
+    /* public Page<Thread> getPagedThreadsByUser(Long userId, Pageable pageable) {
         Page<Content> contents = getPagedContentByUser(userId, pageable);
         return new PageImpl<>(contents.getContent().stream().map(content -> (Thread) content).collect(Collectors.toList()), pageable, contents.getTotalElements());
-    }
+    } */
 
-    public List<Thread> getThreadsByCreatedAtBetween(LocalDateTime start, LocalDateTime end) {
+    /* public List<Thread> getThreadsByCreatedAtBetween(LocalDateTime start, LocalDateTime end) {
         List<Content> contents = getContentsByCreatedAtBetween(start, end);
         return contents.stream().map(content -> (Thread) content).collect(Collectors.toList());
-    }
+    } */
 
-    public List<Thread> getThreadsByContentContaining(String text) {
+    /* public List<Thread> getThreadsByContentContaining(String text) {
         List<Content> contents = getContentsByContentContaining(text);
         return contents.stream().map(content -> (Thread) content).collect(Collectors.toList());
-    }
+    } */
 
     public List<Thread> getThreadsByTitle(String title) {
         try {
@@ -103,22 +101,22 @@ public class ThreadService extends ContentService{
         }
     }
 
-    @Transactional
+    /* @Transactional
     public void deleteThread(Long threadId, User user) {
         super.deleteContent(threadId, user);
-    }
+    } */
 
-    public List<Thread> listThreads() {
+    /* public List<Thread> listThreads() {
         List<Content> contents = super.listContent();
         return contents.stream()
             .filter(content -> content instanceof Thread)
             .map(content -> (Thread) content)
             .collect(Collectors.toList());
-    }
+    } */
 
-    public void handleThreadVote(Long threadId, Long userId, boolean isUpVote) {
+    /* public void handleThreadVote(Long threadId, Long userId, boolean isUpVote) {
         super.handleVote(threadId, userId, isUpVote);
-    }
+    } */
 
 }
 

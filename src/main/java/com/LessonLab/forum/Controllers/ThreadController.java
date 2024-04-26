@@ -33,32 +33,32 @@ public class ThreadController {
         return new ResponseEntity<>(updatedThread, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}")
+    /* @GetMapping("/{id}")
     public ResponseEntity<?> getThread(@PathVariable Long id) {
         Thread thread = threadService.getThread(id);
         return new ResponseEntity<>(thread, HttpStatus.OK);
-    }
+    } */
 
-    @GetMapping("/search/{text}")
+    /* @GetMapping("/search/{text}")
     public ResponseEntity<?> searchThreads(@PathVariable String text) {
         List<Thread> threads = threadService.searchThreads(text);
         return new ResponseEntity<>(threads, HttpStatus.OK);
-    }
+    } */
 
-    @GetMapping("/user/{userId}")
+    /* @GetMapping("/user/{userId}")
     public ResponseEntity<?> getPagedThreadsByUser(@PathVariable Long userId, Pageable pageable) {
         return new ResponseEntity<>(threadService.getPagedThreadsByUser(userId, pageable), HttpStatus.OK);
-    }
+    } */
 
-    @GetMapping("/created-at-between")
+    /* @GetMapping("/created-at-between")
     public ResponseEntity<?> getThreadsByCreatedAtBetween(@RequestParam LocalDateTime start, @RequestParam LocalDateTime end) {
         return new ResponseEntity<>(threadService.getThreadsByCreatedAtBetween(start, end), HttpStatus.OK);
-    }
+    } */
 
-    @GetMapping("/content-containing/{text}")
+    /* @GetMapping("/content-containing/{text}")
     public ResponseEntity<?> getThreadsByContentContaining(@PathVariable String text) {
         return new ResponseEntity<>(threadService.getThreadsByContentContaining(text), HttpStatus.OK);
-    }
+    } */
 
     @GetMapping("/title/{title}")
     public ResponseEntity<?> getThreadsByTitle(@PathVariable String title) {
@@ -75,23 +75,23 @@ public class ThreadController {
         return new ResponseEntity<>(threadService.getRecentThreads(), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}")
+    /* @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
     public ResponseEntity<?> deleteThread(@PathVariable Long id) {
         threadService.deleteThread(id, null);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
+    } */
 
-    @GetMapping("/")
+    /* @GetMapping("/")
     public ResponseEntity<?> listThreads() {
         List<Thread> threads = threadService.listThreads();
         return new ResponseEntity<>(threads, HttpStatus.OK);
-    }
+    } */
 
-    @PostMapping("/{id}/vote")
+    /* @PostMapping("/{id}/vote")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
     public ResponseEntity<?> handleThreadVote(@PathVariable Long id, @RequestParam Long userId, @RequestParam boolean isUpVote) {
         threadService.handleThreadVote(id, userId, isUpVote);
         return new ResponseEntity<>(HttpStatus.OK);
-    }
+    } */
 }

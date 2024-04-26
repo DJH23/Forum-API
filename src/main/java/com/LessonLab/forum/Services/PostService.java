@@ -26,24 +26,24 @@ public class PostService extends ContentService {
     @Autowired
     private ThreadService threadService;
 
-    @Transactional
+    /* @Transactional
     public Post addPost(Post post, User user) {
         Thread thread = threadService.getThread(post.getThread().getContentId());
         post.setThread(thread);
         return (Post) addContent(post, user);
     }
-
-    @Transactional
+ */
+    /* @Transactional
     public Post updatePost(Long id, String newContent, User user) {
         Post post = (Post) contentRepository.findById(id).get();
         Content updatedContent = updateContent(post.getContentId(), newContent, user);
         post.setContent(updatedContent.getContent());
         return post;
-    }
+    } */
 
-    public Post getPost(Long id) {
+    /* public Post getPost(Long id) {
         return (Post) getContent(id);
-    }
+    } */
 
     public List<Post> getPostsByThread(Thread thread) {
         try {
@@ -84,41 +84,41 @@ public class PostService extends ContentService {
         }
     }
 
-    public List<Post> searchPosts(String searchText) {
+    /* public List<Post> searchPosts(String searchText) {
         List<Content> contents = searchContent(searchText);
         return contents.stream().map(content -> (Post) content).collect(Collectors.toList());
-    }
+    } */
     
-    public Page<Post> getPagedPostsByUser(Long userId, Pageable pageable) {
+    /* public Page<Post> getPagedPostsByUser(Long userId, Pageable pageable) {
         Page<Content> contents = getPagedContentByUser(userId, pageable);
         return new PageImpl<>(contents.getContent().stream().map(content -> (Post) content).collect(Collectors.toList()), pageable, contents.getTotalElements());
-    }
+    } */
     
-    public List<Post> getPostsByCreatedAtBetween(LocalDateTime start, LocalDateTime end) {
+    /* public List<Post> getPostsByCreatedAtBetween(LocalDateTime start, LocalDateTime end) {
         List<Content> contents = getContentsByCreatedAtBetween(start, end);
         return contents.stream().map(content -> (Post) content).collect(Collectors.toList());
-    }
+    } */
     
-    public List<Post> getPostsByContentContaining(String text) {
+    /* public List<Post> getPostsByContentContaining(String text) {
         List<Content> contents = getContentsByContentContaining(text);
         return contents.stream().map(content -> (Post) content).collect(Collectors.toList());
-    }
+    } */
 
-    @Transactional
+    /* @Transactional
     public void deletePost(Long postId, User user) {
         super.deleteContent(postId, user);
-    }
+    } */
 
-    public List<Post> listPosts() {
+    /* public List<Post> listPosts() {
         List<Content> contents = super.listContent();
         return contents.stream()
             .filter(content -> content instanceof Post)
             .map(content -> (Post) content)
             .collect(Collectors.toList());
-    }
+    } */
 
-    public void handlePostVote(Long postId, Long userId, boolean isUpVote) {
+    /* public void handlePostVote(Long postId, Long userId, boolean isUpVote) {
         super.handleVote(postId, userId, isUpVote);
-    }
+    } */
 
 }
