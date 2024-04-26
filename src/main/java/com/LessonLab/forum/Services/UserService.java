@@ -118,7 +118,7 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUser(Long id) {
+    public void deleteUserById(Long id) {
         User currentUser = getCurrentUser();
         if (!hasPermission(currentUser, Permission.DELETE_USER)) {
             throw new AccessDeniedException("You do not have permission to delete users.");
@@ -131,5 +131,18 @@ public class UserService {
             throw new IllegalArgumentException("Cannot delete non-existing user with ID: " + id);
         }
         userRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void deleteUserByUsername(String username) {
+        User currentUser = getCurrentUser();
+        if (!hasPermission(currentUser, Permission.DELETE_USER)) {
+            throw new AccessDeniedException("You do not have permission to delete users.");
+        }
+    
+        if (!userRepository.existsByUsername(username)) {
+            throw new IllegalArgumentException("Cannot delete non-existing user with username: " + username);
+        }
+        userRepository.deleteByUsername(username);
     }
 }

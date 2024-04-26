@@ -20,6 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import static org.mockito.ArgumentMatchers.anyString;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -54,7 +55,7 @@ public class UserServiceTest {
     }
     
     @Test
-    public void testDeleteUser() {
+    public void testDeleteUserById() {
         // Create a user with the "ADMIN" role
         User user = new User("testUser", Role.ADMIN);
         user.setUserId(1L);
@@ -87,7 +88,7 @@ public class UserServiceTest {
         when(userRepository.existsById(user.getUserId())).thenReturn(true);
 
         // Call deleteUser with the user's ID
-        userService.deleteUser(user.getUserId());
+        userService.deleteUserById(user.getUserId());
 
         // Verify that userRepository.deleteById was called with the user's ID
         verify(userRepository, times(1)).deleteById(user.getUserId());
@@ -480,7 +481,7 @@ public class UserServiceTest {
             when(userRepository.existsById(id)).thenReturn(true);
         
             // Act
-            userService.deleteUser(id);
+            userService.deleteUserById(id);
         
             // Assert
             verify(userRepository, times(1)).deleteById(id);
@@ -502,7 +503,7 @@ public class UserServiceTest {
             when(userDetails.getUsername()).thenReturn(currentUser.getUsername());
         
             // Act and Assert
-            assertThrows(IllegalArgumentException.class, () -> userService.deleteUser(null));
+            assertThrows(IllegalArgumentException.class, () -> userService.deleteUserById(null));
         }
         
         @Test
@@ -524,7 +525,7 @@ public class UserServiceTest {
             when(userRepository.existsById(id)).thenReturn(false);
         
             // Act and Assert
-            assertThrows(IllegalArgumentException.class, () -> userService.deleteUser(id));
+            assertThrows(IllegalArgumentException.class, () -> userService.deleteUserById(id));
         }
         
         @Test
@@ -546,7 +547,50 @@ public class UserServiceTest {
             when(userRepository.existsById(id)).thenReturn(true);
         
             // Act and Assert
-            assertThrows(AccessDeniedException.class, () -> userService.deleteUser(id));
+            assertThrows(AccessDeniedException.class, () -> userService.deleteUserById(id));
+        }
+
+        @Test
+        public void testDeleteUserByUsername() {
+            // Arrange
+            User currentUser = new User("currentUsername", Role.ADMIN);
+            when(userRepository.findByUsername(currentUser.getUsername())).thenReturn(Optional.of(currentUser));
+        
+            Authentication authentication = mock(Authentication.class);
+            SecurityContext securityContext = mock(SecurityContext.class);
+            when(securityContext.getAuthentication()).thenReturn(authentication);
+            SecurityContextHolder.setContext(securityContext);
+        
+            UserDetails userDetails = mock(UserDetails.class);
+            when(authentication.getPrincipal()).thenReturn(userDetails);
+            when(userDetails.getUsername()).thenReturn(currentUser.getUsername());
+        
+            when(userRepository.existsByUsername(anyString())).thenReturn(true);
+        
+            // Act
+            userService.deleteUserByUsername("testUser");
+        
+            // Assert
+            verify(userRepository, times(1)).deleteByUsername("testUser");
+        }
+    
+        @Test
+        public void testDeleteUserByUsernameWithoutPermission() {
+            // Arrange
+            User currentUser = new User("currentUsername", Role.USER);
+            when(userRepository.findByUsername(currentUser.getUsername())).thenReturn(Optional.of(currentUser));
+        
+            Authentication authentication = mock(Authentication.class);
+            SecurityContext securityContext = mock(SecurityContext.class);
+            when(securityContext.getAuthentication()).thenReturn(authentication);
+            SecurityContextHolder.setContext(securityContext);
+        
+            UserDetails userDetails = mock(UserDetails.class);
+            when(authentication.getPrincipal()).thenReturn(userDetails);
+            when(userDetails.getUsername()).thenReturn(currentUser.getUsername());
+        
+            // Act and Assert
+            assertThrows(AccessDeniedException.class, () -> userService.deleteUserByUsername("testUser"));
         }
 
 }
