@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Models.Post;
 import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.Vote;
@@ -94,7 +93,7 @@ public class VoteRepositoryTest {
             userRepository.delete(testUser);
         }
     
-        // Delete the test user
+        // Delete the test thread
         if (testThread != null) {
             contentRepository.delete(testThread);
         }
