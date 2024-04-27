@@ -30,7 +30,7 @@ public class ContentController {
     private ThreadService threadService;
     
     @PostMapping("/{contentType}")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
+    //@PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
     public ResponseEntity<?> addContent(@PathVariable String contentType, @RequestBody Content content) {
         Content savedContent;
         switch (contentType.toLowerCase()) {
