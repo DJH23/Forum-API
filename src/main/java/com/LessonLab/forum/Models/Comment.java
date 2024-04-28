@@ -1,5 +1,7 @@
 package com.LessonLab.forum.Models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -8,6 +10,7 @@ public class Comment extends Content {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id")
+    @JsonBackReference
     private Post post;  // Each comment is associated with one post
 
     // Constructors

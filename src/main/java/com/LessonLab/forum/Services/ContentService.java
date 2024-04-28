@@ -29,9 +29,9 @@ import com.LessonLab.forum.Repositories.VoteRepository;
 
 @Service
 public abstract class ContentService {
-    
+
     @Autowired
-    protected ContentRepository contentRepository; 
+    protected ContentRepository contentRepository;
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -56,9 +56,9 @@ public abstract class ContentService {
     public Content updateContent(Long id, String newContent, User user) {
         Content content = contentRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Content not found with ID: " + id));
-        checkRole(user, Role.ADMIN, Role.MODERATOR, Role.USER); 
-        content.setContent(newContent);  
-        return contentRepository.save(content);  
+        checkRole(user, Role.ADMIN, Role.MODERATOR, Role.USER);
+        content.setContent(newContent);
+        return contentRepository.save(content);
     }
 
     protected void checkRole(User user, Role... roles) {
@@ -66,13 +66,14 @@ public abstract class ContentService {
             throw new IllegalArgumentException("User cannot be null");
         }
         if (!Arrays.asList(roles).contains(user.getRole())) {
-            throw new IllegalArgumentException("User with role " + user.getRole() + " does not have permission to perform this action");
+            throw new IllegalArgumentException(
+                    "User with role " + user.getRole() + " does not have permission to perform this action");
         }
     }
-    
+
     public Content getContent(Long id) {
         return contentRepository.findById(id)
-            .orElseThrow(() -> new NoSuchElementException("Content not found with ID: " + id));
+                .orElseThrow(() -> new NoSuchElementException("Content not found with ID: " + id));
     }
 
     public List<Content> searchContent(String searchText) {
@@ -81,7 +82,7 @@ public abstract class ContentService {
         }
         return contentRepository.findByContentContaining(searchText);
     }
-    
+
     public Page<Content> getPagedContentByUser(Long userId, Pageable pageable) {
         try {
             return contentRepository.findByUserUserId(userId, pageable);
@@ -89,7 +90,7 @@ public abstract class ContentService {
             throw new RuntimeException("Error getting paged content by user", e);
         }
     }
-    
+
     public List<Content> getContentsByCreatedAtBetween(LocalDateTime start, LocalDateTime end) {
         try {
             return contentRepository.findByCreatedAtBetween(start, end);
@@ -97,7 +98,7 @@ public abstract class ContentService {
             throw new RuntimeException("Error getting contents by created at between", e);
         }
     }
-    
+
     public List<Content> getContentsByContentContaining(String text) {
         try {
             return contentRepository.findByContentContaining(text);
@@ -109,7 +110,7 @@ public abstract class ContentService {
     @Transactional
     public void deleteContent(Long contentId, User user) {
         Content content = getContent(contentId);
-        
+
         if (!hasPermissionToDelete(content, user)) {
             throw new SecurityException("You do not have permission to delete this content");
         }
@@ -118,22 +119,21 @@ public abstract class ContentService {
         logDeletionEvent(content);
     }
 
-
     protected boolean hasPermissionToDelete(Content content, User user) {
-        return (user.getRole().equals(Role.ADMIN) || 
+        return (user.getRole().equals(Role.ADMIN) ||
                 user.getRole().equals(Role.MODERATOR) ||
                 (content.getUser().equals(user) && canOriginalPosterDelete(content)));
     }
-    
 
     protected boolean canOriginalPosterDelete(Content content) {
         if (content instanceof Post) {
             Post post = (Post) content;
             return getCommentCountExcludingPoster(post) == 0;
         }
-        return true;  // Assumes that other types of Content can always be deleted by the original poster.
+        return true; // Assumes that other types of Content can always be deleted by the original
+                     // poster.
     }
-    
+
     public long getCommentCountExcludingPoster(Post post) {
         return commentRepository.countByPostAndUserNot(post, post.getUser());
     }
@@ -141,33 +141,35 @@ public abstract class ContentService {
     protected void logDeletionEvent(Content content) {
         // Fetch the currently authenticated user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = (authentication != null && authentication.getPrincipal() instanceof UserDetails) ?
-                          ((UserDetails)authentication.getPrincipal()).getUsername() : "Unknown";
-    
-        // Assuming the content's title or similar information can be generalized or accessed generically
+        String username = (authentication != null && authentication.getPrincipal() instanceof UserDetails)
+                ? ((UserDetails) authentication.getPrincipal()).getUsername()
+                : "Unknown";
+
+        // Assuming the content's title or similar information can be generalized or
+        // accessed generically
         String contentDetail = getContentDetail(content);
-    
+
         String logMessage = String.format("Content ID %d, with detail '%s', was deleted by user '%s' at %s",
-                                          content.getContentId(),
-                                          contentDetail, 
-                                          username,
-                                          LocalDateTime.now());
-    
+                content.getContentId(),
+                contentDetail,
+                username,
+                LocalDateTime.now());
+
         // Consider using a proper logging framework like SLF4J instead of System.out
         System.out.println(logMessage);
     }
-    
+
     private String getContentDetail(Content content) {
         if (content instanceof Post) {
-            return ((Post) content).getContent(); 
+            return ((Post) content).getContent();
 
         } else if (content instanceof Comment) {
-            return "Comment Content: " + content.getContent(); 
+            return "Comment Content: " + content.getContent();
 
         } else if (content instanceof Thread) {
-            return ((Thread) content).getTitle(); 
-        } 
-        
+            return ((Thread) content).getTitle();
+        }
+
         return "Generic Content"; // Fallback for other or undefined content types
     }
 
@@ -185,28 +187,28 @@ public abstract class ContentService {
     public void handleVote(Long contentId, Long userId, boolean isUpVote) {
         try {
             User user = userRepository.findById(userId)
-                            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
             Content content = getContent(contentId);
             Vote existingVote = voteRepository.findByUserAndContent(user, content).orElse(null);
-        
+
             if (existingVote != null) {
                 throw new IllegalStateException("User has already voted on this content");
             }
-    
+
             Vote vote = new Vote();
             vote.setUser(user);
             vote.setContent(content);
             vote.setUpVote(isUpVote);
             voteRepository.save(vote);
-    
+
             if (isUpVote) {
                 content.upVote();
                 contentRepository.save(content);
             } else {
                 content.downVote();
-                if (content.checkThreshold(configurationService.getVoteThreshold())) { 
-                   /*  notifyAdmins(content);*/
-                   System.out.println("Threshold reached for content ID: " + content.getContentId());
+                if (content.checkThreshold(configurationService.getVoteThreshold())) {
+                    /* notifyAdmins(content); */
+                    System.out.println("Threshold reached for content ID: " + content.getContentId());
                 }
                 contentRepository.save(content);
             }
@@ -216,9 +218,13 @@ public abstract class ContentService {
             throw e;
         }
     }
-    
-  /*   public void notifyAdmins(T content) {
-        List<User> adminsAndMods = userRepository.findByRoleIn(Arrays.asList(Role.ADMIN, Role.MODERATOR));
-        notificationService.notifyUsers(adminsAndMods, "Threshold reached for content ID: " + content.getId());
-    }*/
+
+    /*
+     * public void notifyAdmins(T content) {
+     * List<User> adminsAndMods =
+     * userRepository.findByRoleIn(Arrays.asList(Role.ADMIN, Role.MODERATOR));
+     * notificationService.notifyUsers(adminsAndMods,
+     * "Threshold reached for content ID: " + content.getId());
+     * }
+     */
 }

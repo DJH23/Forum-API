@@ -2,8 +2,10 @@ package com.LessonLab.forum.Controllers;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.web.exchanges.HttpExchange.Principal;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -12,46 +14,74 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.LessonLab.forum.Models.Content;
+import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Services.CommentService;
 import com.LessonLab.forum.Services.PostService;
 import com.LessonLab.forum.Services.ThreadService;
+import com.LessonLab.forum.Services.UserService;
+
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 @RestController
 @RequestMapping("/api/contents")
 public class ContentController {
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private CommentService commentService;
-    
+
     @Autowired
     private PostService postService;
-    
+
     @Autowired
     private ThreadService threadService;
-    
+
+
     @PostMapping("/{contentType}")
-    //@PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
-    public ResponseEntity<?> addContent(@PathVariable String contentType, @RequestBody Content content) {
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
+    public ResponseEntity<?> addContent(@PathVariable String contentType, @RequestBody Content content, Principal principal) {
+        User user = userService.getCurrentUser();
         Content savedContent;
-        switch (contentType.toLowerCase()) {
-            case "comment":
-                savedContent = commentService.addContent(content, null);
-                break;
-            case "post":
-                savedContent = postService.addContent(content, null);
-                break;
-            case "thread":
-                savedContent = threadService.addContent(content, null);
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid content type: " + contentType);
+        try {
+            switch (contentType.toLowerCase()) {
+                case "comment":
+                    savedContent = commentService.addContent(content, user);
+                    break;
+                case "post":
+                    savedContent = postService.addContent(content, user);
+                    break;
+                case "thread":
+                    savedContent = threadService.addContent(content, user);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid content type: " + contentType);
+            }
+            return new ResponseEntity<>(savedContent, HttpStatus.CREATED);
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error processing request: " + ex.getMessage());
         }
-        return new ResponseEntity<>(savedContent, HttpStatus.CREATED);
+    }
+
+    @ExceptionHandler({ MethodArgumentNotValidException.class })
+    public ResponseEntity<String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        String errorMessage = ex.getBindingResult().getFieldErrors().stream()
+                .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
+                .collect(Collectors.joining(", "));
+        return ResponseEntity.badRequest().body(errorMessage);
+    }
+
+    @ExceptionHandler({ IllegalArgumentException.class })
+    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body("Invalid argument: " + ex.getMessage());
     }
 
     @PutMapping("/{contentType}/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
-    public ResponseEntity<?> updateContent(@PathVariable String contentType, @PathVariable Long id, @RequestBody String newContent) {
+    public ResponseEntity<?> updateContent(@PathVariable String contentType, @PathVariable Long id,
+            @RequestBody String newContent) {
         Content updatedContent;
         switch (contentType.toLowerCase()) {
             case "comment":
@@ -108,7 +138,8 @@ public class ContentController {
     }
 
     @GetMapping("/user/{contentType}/{userId}")
-    public ResponseEntity<?> getPagedContentByUser(@PathVariable String contentType, @PathVariable Long userId, Pageable pageable) {
+    public ResponseEntity<?> getPagedContentByUser(@PathVariable String contentType, @PathVariable Long userId,
+            Pageable pageable) {
         Page<? extends Content> contents;
         switch (contentType.toLowerCase()) {
             case "comment":
@@ -127,7 +158,8 @@ public class ContentController {
     }
 
     @GetMapping("/created-at-between/{contentType}")
-    public ResponseEntity<?> getContentsByCreatedAtBetween(@PathVariable String contentType, @RequestParam LocalDateTime start, @RequestParam LocalDateTime end) {
+    public ResponseEntity<?> getContentsByCreatedAtBetween(@PathVariable String contentType,
+            @RequestParam LocalDateTime start, @RequestParam LocalDateTime end) {
         List<Content> contents;
         switch (contentType.toLowerCase()) {
             case "comment":
@@ -146,7 +178,8 @@ public class ContentController {
     }
 
     @GetMapping("/content-containing/{contentType}")
-    public ResponseEntity<?> getContentsByContentContaining(@PathVariable String contentType, @RequestParam String text) {
+    public ResponseEntity<?> getContentsByContentContaining(@PathVariable String contentType,
+            @RequestParam String text) {
         List<? extends Content> contents;
         switch (contentType.toLowerCase()) {
             case "comment":
@@ -204,7 +237,8 @@ public class ContentController {
 
     @PostMapping("/{contentType}/{contentId}/vote")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
-    public ResponseEntity<?> handleVote(@PathVariable String contentType, @PathVariable Long contentId, @RequestParam Long userId, @RequestParam boolean isUpVote) {
+    public ResponseEntity<?> handleVote(@PathVariable String contentType, @PathVariable Long contentId,
+            @RequestParam Long userId, @RequestParam boolean isUpVote) {
         switch (contentType.toLowerCase()) {
             case "comment":
                 commentService.handleVote(contentId, userId, isUpVote);

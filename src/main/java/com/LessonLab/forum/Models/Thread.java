@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 @Entity
 @Table(name = "threads") 
 
@@ -18,6 +20,7 @@ public class Thread extends Content {
 
     // One-to-many relationship with Post
     @OneToMany(mappedBy = "thread", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JsonManagedReference
     private List<Post> posts = new ArrayList<>();
 
     // Constructors

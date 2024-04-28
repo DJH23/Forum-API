@@ -6,7 +6,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-@EntityScan("com.LessonLab.forum.Models")  
+@EntityScan("com.LessonLab.forum.Models")
 @EnableJpaRepositories("com.LessonLab.forum.Repositories")
 public class ForumApplication {
     public static void main(String[] args) {
