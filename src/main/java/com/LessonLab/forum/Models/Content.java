@@ -3,6 +3,8 @@ package com.LessonLab.forum.Models;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.time.LocalDateTime;
 
@@ -11,14 +13,22 @@ import jakarta.persistence.*;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Content {
+
+    /* @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+    @JsonSubTypes({
+            @JsonSubTypes.Type(value = Thread.class, name = "thread"),
+            @JsonSubTypes.Type(value = Post.class, name = "post"),
+            @JsonSubTypes.Type(value = Comment.class, name = "comment"),
+    }) */
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "content_id")
     private Long contentId;
 
-    @Lob  // Assuming content could be large, use Lob if it is expected to be large text
+    @Lob // Assuming content could be large, use Lob if it is expected to be large text
     private String content;
-        
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -28,7 +38,7 @@ public abstract class Content {
     private LocalDateTime createdAt;
 
     @PrePersist
-    //@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    // @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     public void prePersist() {
         createdAt = LocalDateTime.now();
     }
@@ -117,4 +127,3 @@ public abstract class Content {
         this.createdAt = createdAt;
     }
 }
-

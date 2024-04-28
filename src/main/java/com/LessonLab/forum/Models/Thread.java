@@ -20,7 +20,7 @@ public class Thread extends Content {
 
     // One-to-many relationship with Post
     @OneToMany(mappedBy = "thread", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    @JsonManagedReference
+    //@JsonManagedReference
     private List<Post> posts = new ArrayList<>();
 
     // Constructors

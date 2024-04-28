@@ -1,6 +1,9 @@
 package com.LessonLab.forum.Models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import jakarta.persistence.*;
 
@@ -8,14 +11,16 @@ import jakarta.persistence.*;
 @Table(name = "comments")
 public class Comment extends Content {
 
+    //@JsonManagedReference
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id")
-    @JsonBackReference
-    private Post post;  // Each comment is associated with one post
+    //@JsonBackReference
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contentId")
+    private Post post; // Each comment is associated with one post
 
     // Constructors
     public Comment() {
-        
+
     }
 
     public Comment(String content, User user) {

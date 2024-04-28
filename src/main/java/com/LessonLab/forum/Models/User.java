@@ -30,7 +30,7 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Content> contents;  
 
-    public User() {} // no-arg constructor for serialization and testing
+    public User() {} 
 
     public User(String username, Role role) {
         this.username = username;

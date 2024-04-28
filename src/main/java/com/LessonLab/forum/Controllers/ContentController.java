@@ -13,14 +13,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import com.LessonLab.forum.Models.Comment;
 import com.LessonLab.forum.Models.Content;
+import com.LessonLab.forum.Models.Post;
 import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Services.CommentService;
 import com.LessonLab.forum.Services.PostService;
 import com.LessonLab.forum.Services.ThreadService;
 import com.LessonLab.forum.Services.UserService;
 
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+
 
 @RestController
 @RequestMapping("/api/contents")
@@ -37,45 +41,33 @@ public class ContentController {
 
     @Autowired
     private ThreadService threadService;
-
+    
 
     @PostMapping("/{contentType}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
-    public ResponseEntity<?> addContent(@PathVariable String contentType, @RequestBody Content content, Principal principal) {
+    public ResponseEntity<?> addContent(@PathVariable String contentType, @RequestBody JsonNode jsonNode,
+            Principal principal) {
         User user = userService.getCurrentUser();
-        Content savedContent;
+        Content addedContent;
+        ObjectMapper objectMapper = new ObjectMapper();
         try {
             switch (contentType.toLowerCase()) {
                 case "comment":
-                    savedContent = commentService.addContent(content, user);
+                    Comment comment = objectMapper.treeToValue(jsonNode, Comment.class);
+                    addedContent = commentService.addContent(comment, user);
                     break;
                 case "post":
-                    savedContent = postService.addContent(content, user);
-                    break;
-                case "thread":
-                    savedContent = threadService.addContent(content, user);
+                    Post post = objectMapper.treeToValue(jsonNode, Post.class);
+                    addedContent = postService.addContent(post, user);
                     break;
                 default:
                     throw new IllegalArgumentException("Invalid content type: " + contentType);
             }
-            return new ResponseEntity<>(savedContent, HttpStatus.CREATED);
+            return new ResponseEntity<>(addedContent, HttpStatus.CREATED);
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error processing request: " + ex.getMessage());
         }
-    }
-
-    @ExceptionHandler({ MethodArgumentNotValidException.class })
-    public ResponseEntity<String> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        String errorMessage = ex.getBindingResult().getFieldErrors().stream()
-                .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
-                .collect(Collectors.joining(", "));
-        return ResponseEntity.badRequest().body(errorMessage);
-    }
-
-    @ExceptionHandler({ IllegalArgumentException.class })
-    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
-        return ResponseEntity.badRequest().body("Invalid argument: " + ex.getMessage());
     }
 
     @PutMapping("/{contentType}/{id}")
