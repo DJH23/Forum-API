@@ -100,6 +100,11 @@ public class UserService {
             throw new IllegalArgumentException("Status cannot be null");
         }
         List<User> users = userRepository.findByStatus(status);
+    
+        // Print status and users
+        System.out.println("Status: " + status);
+        System.out.println("Users: " + users);
+    
         if (users.isEmpty()) {
             return Collections.emptyList();  // Adjust based on expected application behavior
         }

@@ -1,8 +1,6 @@
 package com.LessonLab.forum.ControllerTests;
 
 import org.junit.Before;
-import org.eclipse.angus.mail.imap.protocol.Status;
-import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -10,8 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,7 +25,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import com.LessonLab.forum.Services.CommentService;
 import com.LessonLab.forum.Services.PostService;
@@ -37,8 +32,6 @@ import com.LessonLab.forum.Services.ThreadService;
 import com.LessonLab.forum.Services.UserService;
 import com.LessonLab.forum.Models.Comment;
 import com.LessonLab.forum.Models.Content;
-import com.LessonLab.forum.Models.User;
-import com.LessonLab.forum.Models.Enums.Role;
 import com.LessonLab.forum.Repositories.UserRepository;
 
 import org.springframework.boot.test.mock.mockito.MockBean;
