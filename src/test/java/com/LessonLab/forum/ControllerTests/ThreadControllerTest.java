@@ -166,22 +166,23 @@ public class ThreadControllerTest {
 
         String threadJson = serializeThread(updatedThread);
 
-        // Assume that the threadService returns the updatedThread when called with the thread
+        // Assume that the threadService returns the updatedThread when called with the
+        // thread
         when(threadService.updateThread(any(Long.class), any(Thread.class))).thenReturn(updatedThread);
 
         // Act and Assert
         mockMvc.perform(put("/api/threads/" + thread.getContentId())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(threadJson)) // Use the serialized threadJson
-            .andExpect(status().isOk())
-            .andReturn();
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(threadJson)) // Use the serialized threadJson
+                .andExpect(status().isOk())
+                .andReturn();
 
         // Verify that the updateThread method was called with the expected thread
         verify(threadService, times(1)).updateThread(any(Long.class), argThat(new ArgumentMatcher<Thread>() {
             @Override
             public boolean matches(Thread argument) {
                 return argument.getTitle().equals(updatedThread.getTitle())
-                    && argument.getDescription().equals(updatedThread.getDescription());
+                        && argument.getDescription().equals(updatedThread.getDescription());
             }
         }));
     }
@@ -194,7 +195,7 @@ public class ThreadControllerTest {
     }
 
     @Test
-    public void testGetThreadsByTitle() {
+    public void testGetThreadsByTitle() throws Exception {
         // Arrange
         List<Thread> threads = new ArrayList<>();
         String titleText = "Test thread";
@@ -203,21 +204,60 @@ public class ThreadControllerTest {
             threads.add(thread);
         }
 
-        System.out.println("Title text: " + titleText);
-        System.out.println("Threads: " + threads);
+        // Assume that the threadService returns the threads when getThreadsByTitle is
+        // called
+        when(threadService.getThreadsByTitle(titleText)).thenReturn(threads);
 
-        // Assume that the threadRepository returns the threads when findByTitleContaining is called
-        when(threadRepository.findByTitleContaining(titleText)).thenReturn(threads);
-
-        // Act
-        List<Thread> retrievedThreads = threadService.getThreadsByTitle(titleText);
-
-        System.out.println("Retrieved threads: " + retrievedThreads);
-
-        // Assert
-        assertNotNull(retrievedThreads);
-        assertEquals(threads, retrievedThreads);
+        // Act and Assert
+        mockMvc.perform(get("/api/threads/title/" + titleText))
+                .andExpect(status().isOk())
+                .andExpect(content().json(serializeThreads(threads)));
     }
 
-    
+    private String serializeThreads(List<Thread> threads) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        return mapper.writeValueAsString(threads);
+    }
+
+    @Test
+    public void testGetThreadsByDescription() throws Exception {
+        // Arrange
+        List<Thread> threads = new ArrayList<>();
+        String descriptionText = "Test thread description";
+        for (int i = 0; i < 3; i++) {
+            Thread thread = new Thread("Test thread " + i, descriptionText);
+            threads.add(thread);
+        }
+
+        // Assume that the threadService returns the threads when
+        // getThreadsByDescription is called
+        when(threadService.getThreadsByDescription(descriptionText)).thenReturn(threads);
+
+        // Act and Assert
+        mockMvc.perform(get("/api/threads/description/" + descriptionText))
+                .andExpect(status().isOk())
+                .andExpect(content().json(serializeThreads(threads)));
+    }
+
+    @Test
+    public void testGetRecentThreads() throws Exception {
+        // Arrange
+        List<Thread> threads = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            Thread thread = new Thread("Test thread " + i, "Test thread description");
+            threads.add(thread);
+        }
+
+        // Assume that the threadService returns the threads when getRecentThreads is
+        // called
+        when(threadService.getRecentThreads()).thenReturn(threads);
+
+        // Act and Assert
+        mockMvc.perform(get("/api/threads/recent"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(serializeThreads(threads))); 
+    }
+
 }
