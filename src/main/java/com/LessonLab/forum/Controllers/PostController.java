@@ -26,32 +26,41 @@ public class PostController {
     @Autowired
     private ThreadService threadService;
 
-    /* @PostMapping("/")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
-    public ResponseEntity<?> addPost(@RequestBody Post post) {
-        Post savedPost = postService.addPost(post, null);
-        return new ResponseEntity<>(savedPost, HttpStatus.CREATED);
-    } */
+    /*
+     * @PostMapping("/")
+     * 
+     * @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
+     * public ResponseEntity<?> addPost(@RequestBody Post post) {
+     * Post savedPost = postService.addPost(post, null);
+     * return new ResponseEntity<>(savedPost, HttpStatus.CREATED);
+     * }
+     */
 
-    /* @PutMapping("/{id}")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
-    public ResponseEntity<?> updatePost(@PathVariable Long id, @RequestBody String newContent) {
-        Post updatedPost = postService.updatePost(id, newContent, null);
-        return new ResponseEntity<>(updatedPost, HttpStatus.OK);
-    } */
+    /*
+     * @PutMapping("/{id}")
+     * 
+     * @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
+     * public ResponseEntity<?> updatePost(@PathVariable Long id, @RequestBody
+     * String newContent) {
+     * Post updatedPost = postService.updatePost(id, newContent, null);
+     * return new ResponseEntity<>(updatedPost, HttpStatus.OK);
+     * }
+     */
 
-    /* @GetMapping("/{id}")
-    public ResponseEntity<?> getPost(@PathVariable Long id) {
-        Post post = postService.getPost(id);
-        return new ResponseEntity<>(post, HttpStatus.OK);
-    } */
+    /*
+     * @GetMapping("/{id}")
+     * public ResponseEntity<?> getPost(@PathVariable Long id) {
+     * Post post = postService.getPost(id);
+     * return new ResponseEntity<>(post, HttpStatus.OK);
+     * }
+     */
 
-    /* @GetMapping("/thread/{threadId}")
+    @GetMapping("/thread/{threadId}")
     public ResponseEntity<?> getPostsByThread(@PathVariable Long threadId) {
-        Thread thread = threadService.getThread(threadId);
+        Thread thread = (Thread) threadService.getContent(threadId);
         List<Post> posts = postService.getPostsByThread(thread);
         return new ResponseEntity<>(posts, HttpStatus.OK);
-    } */
+    }
 
     @GetMapping("/comment-content/{content}")
     public ResponseEntity<?> getPostsByCommentContent(@PathVariable String content) {
@@ -66,48 +75,69 @@ public class PostController {
         return new ResponseEntity<>(posts, HttpStatus.OK);
     }
 
-    /* @GetMapping("/search/{searchText}")
-    public ResponseEntity<?> searchPosts(@PathVariable String searchText) {
-        List<Post> posts = postService.searchPosts(searchText);
-        return new ResponseEntity<>(posts, HttpStatus.OK);
-    } */
+    /*
+     * @GetMapping("/search/{searchText}")
+     * public ResponseEntity<?> searchPosts(@PathVariable String searchText) {
+     * List<Post> posts = postService.searchPosts(searchText);
+     * return new ResponseEntity<>(posts, HttpStatus.OK);
+     * }
+     */
 
-    /* @GetMapping("/user/{userId}")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
-    public ResponseEntity<?> getPagedPostsByUser(@PathVariable Long userId, Pageable pageable) {
-        Page<Post> posts = postService.getPagedPostsByUser(userId, pageable);
-        return new ResponseEntity<>(posts, HttpStatus.OK);
-    } */
+    /*
+     * @GetMapping("/user/{userId}")
+     * 
+     * @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
+     * public ResponseEntity<?> getPagedPostsByUser(@PathVariable Long userId,
+     * Pageable pageable) {
+     * Page<Post> posts = postService.getPagedPostsByUser(userId, pageable);
+     * return new ResponseEntity<>(posts, HttpStatus.OK);
+     * }
+     */
 
-    /* @GetMapping("/created-at-between")
-    public ResponseEntity<?> getPostsByCreatedAtBetween(@RequestParam LocalDateTime start, @RequestParam LocalDateTime end) {
-        List<Post> posts = postService.getPostsByCreatedAtBetween(start, end);
-        return new ResponseEntity<>(posts, HttpStatus.OK);
-    } */
+    /*
+     * @GetMapping("/created-at-between")
+     * public ResponseEntity<?> getPostsByCreatedAtBetween(@RequestParam
+     * LocalDateTime start, @RequestParam LocalDateTime end) {
+     * List<Post> posts = postService.getPostsByCreatedAtBetween(start, end);
+     * return new ResponseEntity<>(posts, HttpStatus.OK);
+     * }
+     */
 
-    /* @GetMapping("/content-containing/{text}")
-    public ResponseEntity<?> getPostsByContentContaining(@PathVariable String text) {
-        List<Post> posts = postService.getPostsByContentContaining(text);
-        return new ResponseEntity<>(posts, HttpStatus.OK);
-    } */
+    /*
+     * @GetMapping("/content-containing/{text}")
+     * public ResponseEntity<?> getPostsByContentContaining(@PathVariable String
+     * text) {
+     * List<Post> posts = postService.getPostsByContentContaining(text);
+     * return new ResponseEntity<>(posts, HttpStatus.OK);
+     * }
+     */
 
-    /* @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
-    public ResponseEntity<?> deletePost(@PathVariable Long id) {
-        postService.deletePost(id, null);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    } */
+    /*
+     * @DeleteMapping("/{id}")
+     * 
+     * @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
+     * public ResponseEntity<?> deletePost(@PathVariable Long id) {
+     * postService.deletePost(id, null);
+     * return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+     * }
+     */
 
-    /* @GetMapping("/")
-    public ResponseEntity<?> listPosts() {
-        List<Post> posts = postService.listPosts();
-        return new ResponseEntity<>(posts, HttpStatus.OK);
-    } */
+    /*
+     * @GetMapping("/")
+     * public ResponseEntity<?> listPosts() {
+     * List<Post> posts = postService.listPosts();
+     * return new ResponseEntity<>(posts, HttpStatus.OK);
+     * }
+     */
 
-    /* @PostMapping("/{id}/vote")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
-    public ResponseEntity<?> handlePostVote(@PathVariable Long id, @RequestParam Long userId, @RequestParam boolean isUpVote) {
-        postService.handlePostVote(id, userId, isUpVote);
-        return new ResponseEntity<>(HttpStatus.OK);
-    } */
+    /*
+     * @PostMapping("/{id}/vote")
+     * 
+     * @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
+     * public ResponseEntity<?> handlePostVote(@PathVariable Long id, @RequestParam
+     * Long userId, @RequestParam boolean isUpVote) {
+     * postService.handlePostVote(id, userId, isUpVote);
+     * return new ResponseEntity<>(HttpStatus.OK);
+     * }
+     */
 }
