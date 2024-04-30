@@ -1,6 +1,7 @@
 package com.LessonLab.forum.ControllerTests;
 
 import com.LessonLab.forum.Models.User;
+import com.LessonLab.forum.Models.Enums.Account;
 import com.LessonLab.forum.Models.Enums.Role;
 import com.LessonLab.forum.Models.Enums.Status;
 import com.LessonLab.forum.Repositories.UserRepository;
@@ -12,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -23,6 +25,7 @@ import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
@@ -157,26 +161,72 @@ public class UserControllerTest {
         user.setUsername("testUser");
         user.setStatus(status);
         users.add(user);
-
-        // Print status and users
-        System.out.println("Status: " + status);
-        System.out.println("Users: " + users);
-
-        // Define the behavior of userService.getUsersByStatus(status)
+    
         when(userService.getUsersByStatus(status)).thenReturn(users);
+    
+        // Act and Assert
+        mockMvc.perform(get("/api/users/status/" + status))
+                .andExpect(status().isOk())
+                .andExpect(content().json(new ObjectMapper().writeValueAsString(users)));
+    
+        // Verify that the getUsersByStatus method was called with the expected status
+        verify(userService, times(1)).getUsersByStatus(status);
+    }
+
+    @Test
+    public void testGetUsersByAccountStatus() throws Exception {
+        // Arrange
+        Account accountStatus = Account.ACTIVE;
+        List<User> users = new ArrayList<>();
+        User user = new User();
+        user.setUserId(1L);
+        user.setUsername("testUser");
+        user.setAccountStatus(accountStatus);
+        users.add(user);
+
+        when(userService.getUsersByAccountStatus(accountStatus)).thenReturn(users);
 
         // Act and Assert
-        MvcResult result = mockMvc.perform(get("/api/status/" + status))
+        mockMvc.perform(get("/api/users/account-status/" + accountStatus))
                 .andExpect(status().isOk())
-                .andExpect(content().json(new ObjectMapper().writeValueAsString(users)))
-                .andReturn();
+                .andExpect(content().json(new ObjectMapper().writeValueAsString(users)));
 
-        // Print response
-        System.out.println("Response: " + result.getResponse().getContentAsString());
+        // Verify that the getUsersByAccountStatus method was called with the expected
+        // account status
+        verify(userService, times(1)).getUsersByAccountStatus(accountStatus);
+    }
 
-        // Verify that userService.getUsersByStatus(status) was called with the correct
-        // status
-        verify(userService, times(1)).getUsersByStatus(status);
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    public void testDeleteUserById() throws Exception {
+        // Arrange
+        Long userId = 1L;
+
+        doNothing().when(userService).deleteUserById(userId);
+
+        // Act and Assert
+        mockMvc.perform(delete("/api/users/" + userId))
+                .andExpect(status().isNoContent());
+
+        // Verify that the deleteUserById method was called with the expected user ID
+        verify(userService, times(1)).deleteUserById(userId);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = { "ADMIN" })
+    public void testDeleteUserByUsername() throws Exception {
+        // Arrange
+        String username = "testUser";
+
+        doNothing().when(userService).deleteUserByUsername(username);
+
+        // Act and Assert
+        mockMvc.perform(delete("/api/users/username/" + username))
+                .andExpect(status().isNoContent());
+
+        // Verify that the deleteUserByUsername method was called with the expected
+        // username
+        verify(userService, times(1)).deleteUserByUsername(username);
     }
 
 }
