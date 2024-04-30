@@ -14,6 +14,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.junit.Before;
@@ -147,7 +148,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void testGetUsersByStatus() {
+    public void testGetUsersByStatus() throws Exception {
         // Arrange
         Status status = Status.ONLINE;
         List<User> users = new ArrayList<>();
@@ -157,23 +158,25 @@ public class UserControllerTest {
         user.setStatus(status);
         users.add(user);
 
-        // Print the User objects in the repository before and after setting the Status
-        System.out.println("Before setting Status: " + userRepository.findAll());
-        when(userRepository.findByStatus(status)).thenReturn(users);
-        System.out.println("After setting Status: " + userRepository.findAll());
-
-        // Act
-        List<User> returnedUsers = userService.getUsersByStatus(status);
-
-        // Print status and returnedUsers
+        // Print status and users
         System.out.println("Status: " + status);
-        System.out.println("Returned Users: " + returnedUsers);
+        System.out.println("Users: " + users);
 
-        // Assert
-        assertEquals(users, returnedUsers);
+        // Define the behavior of userService.getUsersByStatus(status)
+        when(userService.getUsersByStatus(status)).thenReturn(users);
 
-        // Verify that the findByStatus method was called with the expected status
-        verify(userRepository, times(1)).findByStatus(status);
+        // Act and Assert
+        MvcResult result = mockMvc.perform(get("/api/status/" + status))
+                .andExpect(status().isOk())
+                .andExpect(content().json(new ObjectMapper().writeValueAsString(users)))
+                .andReturn();
+
+        // Print response
+        System.out.println("Response: " + result.getResponse().getContentAsString());
+
+        // Verify that userService.getUsersByStatus(status) was called with the correct
+        // status
+        verify(userService, times(1)).getUsersByStatus(status);
     }
 
 }

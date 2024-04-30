@@ -31,8 +31,10 @@ public class UserService {
     }
 
     public User getCurrentUser() {
-        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
-        return userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
+                .getUsername();
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
 
     @Transactional
@@ -62,7 +64,8 @@ public class UserService {
         if (id == null) {
             throw new IllegalArgumentException("User ID cannot be null");
         }
-        return userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + id));
+        return userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + id));
     }
 
     @Transactional
@@ -90,7 +93,7 @@ public class UserService {
         }
         List<User> users = userRepository.findByRole(role);
         if (users.isEmpty()) {
-            return Collections.emptyList();  // Consider your use case: throw exception or return empty list
+            return Collections.emptyList(); // Consider your use case: throw exception or return empty list
         }
         return users;
     }
@@ -100,13 +103,9 @@ public class UserService {
             throw new IllegalArgumentException("Status cannot be null");
         }
         List<User> users = userRepository.findByStatus(status);
-    
-        // Print status and users
-        System.out.println("Status: " + status);
-        System.out.println("Users: " + users);
-    
+
         if (users.isEmpty()) {
-            return Collections.emptyList();  // Adjust based on expected application behavior
+            return Collections.emptyList(); // Adjust based on expected application behavior
         }
         return users;
     }
@@ -117,7 +116,7 @@ public class UserService {
         }
         List<User> users = userRepository.findByAccountStatus(accountStatus);
         if (users.isEmpty()) {
-            return Collections.emptyList();  // Adjust based on expected application behavior
+            return Collections.emptyList(); // Adjust based on expected application behavior
         }
         return users;
     }
@@ -132,7 +131,7 @@ public class UserService {
         if (id == null) {
             throw new IllegalArgumentException("User ID cannot be null");
         }
-        if(!userRepository.existsById(id)) {
+        if (!userRepository.existsById(id)) {
             throw new IllegalArgumentException("Cannot delete non-existing user with ID: " + id);
         }
         userRepository.deleteById(id);
@@ -144,7 +143,7 @@ public class UserService {
         if (!hasPermission(currentUser, Permission.DELETE_USER)) {
             throw new AccessDeniedException("You do not have permission to delete users.");
         }
-    
+
         if (!userRepository.existsByUsername(username)) {
             throw new IllegalArgumentException("Cannot delete non-existing user with username: " + username);
         }
