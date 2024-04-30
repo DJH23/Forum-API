@@ -4,12 +4,15 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 @Entity
-@Table(name = "threads") 
+@Table(name = "threads")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contentId")
+@Inheritance(strategy = InheritanceType.JOINED)
 
-@Inheritance(strategy = InheritanceType.JOINED) 
 public class Thread extends Content {
 
     @Column(nullable = false)
@@ -20,13 +23,13 @@ public class Thread extends Content {
 
     // One-to-many relationship with Post
     @OneToMany(mappedBy = "thread", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    //@JsonManagedReference
+    // @JsonManagedReference
     private List<Post> posts = new ArrayList<>();
 
     // Constructors
     public Thread() {
     }
-    
+
     public Thread(String title, String description) {
         this.title = title;
         this.description = description;

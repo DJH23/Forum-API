@@ -14,13 +14,6 @@ import jakarta.persistence.*;
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Content {
 
-    /* @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-    @JsonSubTypes({
-            @JsonSubTypes.Type(value = Thread.class, name = "thread"),
-            @JsonSubTypes.Type(value = Post.class, name = "post"),
-            @JsonSubTypes.Type(value = Comment.class, name = "comment"),
-    }) */
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "content_id")

@@ -5,21 +5,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 @Entity
 @Table(name = "posts")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contentId")
+
 public class Post extends Content {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    
+
     @JoinColumn(name = "thread_id")
     @JsonBackReference
-    private Thread thread;  // Each post belongs to one thread
+    private Thread thread; // Each post belongs to one thread
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-   // @JsonManagedReference
-    private List<Comment> comments = new ArrayList<>();  // One post can have many comments
+    // @JsonManagedReference
+    private List<Comment> comments = new ArrayList<>(); // One post can have many comments
 
     // No-args constructor
     public Post() {

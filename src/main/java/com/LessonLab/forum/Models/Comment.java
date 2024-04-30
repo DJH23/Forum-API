@@ -9,12 +9,14 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "comments")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contentId")
+
 public class Comment extends Content {
 
-    //@JsonManagedReference
+    // @JsonManagedReference
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id")
-    //@JsonBackReference
+    // @JsonBackReference
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contentId")
     private Post post; // Each comment is associated with one post
 

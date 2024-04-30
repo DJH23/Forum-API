@@ -213,7 +213,7 @@ public class ContentControllerTest {
     }
 
     @Test
-    public void testGetPagedContentByUser() throws Exception {
+    public void testGetPagedContentByUserForComments() throws Exception {
         // Arrange
         Long userId = 1L;
         Pageable pageable = PageRequest.of(0, 10);
@@ -221,10 +221,9 @@ public class ContentControllerTest {
         Comment comment = new Comment();
         comment.setContent("This is a test comment");
         commentList.add(comment);
-        Page<Content> comments = new PageImpl<>(commentList);
+        Page<Content> comments = new PageImpl<>(commentList, pageable, commentList.size());
 
-        // Assume that the commentService returns the comments when called with the user
-        // ID and pageable
+        // Assume that the commentService returns the comments when called with the user ID and pageable
         when(commentService.getPagedContentByUser(userId, pageable)).thenReturn(comments);
 
         // Act and Assert
@@ -234,8 +233,7 @@ public class ContentControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(new ObjectMapper().writeValueAsString(comments)));
 
-        // Verify that the commentService was called with the expected user ID and
-        // pageable
+        // Verify that the getPagedContentByUser method was called with the expected user ID and pageable
         verify(commentService, times(1)).getPagedContentByUser(userId, pageable);
     }
 
