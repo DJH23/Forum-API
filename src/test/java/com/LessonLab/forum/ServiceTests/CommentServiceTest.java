@@ -1,9 +1,13 @@
 package com.LessonLab.forum.ServiceTests;
 
+
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -440,32 +444,28 @@ public class CommentServiceTest {
      * }
      */
 
-    @Test
-    public void testGetRecentCommentContents() {
-        Pageable pageable = PageRequest.of(0, 10);
-        Comment comment1 = new Comment("Comment content 1", null);
-        Comment comment2 = new Comment("Comment content 2", null);
-        Post post = new Post("Post content", null); // Post as a different type of Content
-
-        List<Content> mixedContents = Arrays.asList(comment1, post, comment2);
-
-        // Mock the ContentRepository to return mixed content types
-        when(contentRepository.findRecentContents(pageable)).thenReturn(new PageImpl<>(mixedContents));
-
-        // Fetch using CommentService
-        Page<Comment> result = commentService.getRecentContents(pageable);
-
-        assertNotNull(result);
-        assertEquals(2, result.getNumberOfElements(), "Should filter and return only Comment instances");
-        assertTrue(result.getContent().stream().allMatch(c -> c instanceof Comment),
-                "All returned items must be of type Comment");
-
-        // Check the content of returned comments
-        assertEquals("Comment content 1", result.getContent().get(0).getContent(),
-                "The content of the first comment should match");
-        assertEquals("Comment content 2", result.getContent().get(1).getContent(),
-                "The content of the second comment should match");
-    }
+     @Test
+     public void testGetRecentCommentContents() {
+         Pageable pageable = PageRequest.of(0, 10);
+         Comment comment1 = new Comment("Comment content 1", null);
+         Comment comment2 = new Comment("Comment content 2", null);
+         Post post = new Post(); // Assume Post is another subclass of Content
+ 
+         List<Content> mixedContents = Arrays.asList(comment1, post, comment2);
+ 
+         // Mock the ContentRepository to return mixed contents
+         when(contentRepository.findRecentContents(pageable)).thenReturn(new PageImpl<>(mixedContents));
+ 
+         // Fetch using CommentService
+         Page<Comment> result = commentService.getRecentContents(pageable);
+ 
+         assertNotNull(result);
+         assertEquals(2, result.getTotalElements(), "Should filter and return only Comment instances");
+         assertTrue(result.getContent().stream().allMatch(c -> c instanceof Comment), "All returned items must be of type Comment");
+ 
+         assertEquals("Comment content 1", result.getContent().get(0).getContent(), "The content of the first comment should match");
+         assertEquals("Comment content 2", result.getContent().get(1).getContent(), "The content of the second comment should match");
+     }
 
     @Test
     public void testCountCommentsByPostAndUserNot() {
