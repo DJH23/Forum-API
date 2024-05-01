@@ -228,7 +228,7 @@ public class ThreadControllerTest {
                 .andExpect(content().json(serializeThreads(threads)));
     }
 
-    @Test
+    /* @Test
     public void testGetRecentThreads() throws Exception {
         // Arrange
         List<Thread> threads = new ArrayList<>();
@@ -245,6 +245,6 @@ public class ThreadControllerTest {
         mockMvc.perform(get("/api/threads/recent"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(serializeThreads(threads))); 
-    }
+    } */
 
 }

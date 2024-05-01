@@ -90,12 +90,12 @@ public class CommentController {
         return new ResponseEntity<>(comments, HttpStatus.OK);
     } */
     
-    @GetMapping("/recent")
+    /* @GetMapping("/recent")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
     public ResponseEntity<?> getRecentComments(Pageable pageable) {
         List<Comment> comments = commentService.getRecentComments(pageable);
         return new ResponseEntity<>(comments, HttpStatus.OK);
-    }
+    } */
     
     /* @GetMapping("/count/{postId}/{userId}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")

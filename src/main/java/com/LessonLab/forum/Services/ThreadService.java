@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class ThreadService extends ContentService{
+public class ThreadService extends ContentService {
 
     @Autowired
     private ThreadRepository threadRepository;
@@ -40,29 +40,45 @@ public class ThreadService extends ContentService{
         return (Thread) contentRepository.save(thread);
     }
 
-    /* public Thread getThread(Long id) {
-        return (Thread) getContent(id);
-    } */
+    /*
+     * public Thread getThread(Long id) {
+     * return (Thread) getContent(id);
+     * }
+     */
 
-    /* public List<Thread> searchThreads(String searchText) {
-        List<Content> contents = searchContent(searchText);
-        return contents.stream().map(content -> (Thread) content).collect(Collectors.toList());
-    } */
+    /*
+     * public List<Thread> searchThreads(String searchText) {
+     * List<Content> contents = searchContent(searchText);
+     * return contents.stream().map(content -> (Thread)
+     * content).collect(Collectors.toList());
+     * }
+     */
 
-    /* public Page<Thread> getPagedThreadsByUser(Long userId, Pageable pageable) {
-        Page<Content> contents = getPagedContentByUser(userId, pageable);
-        return new PageImpl<>(contents.getContent().stream().map(content -> (Thread) content).collect(Collectors.toList()), pageable, contents.getTotalElements());
-    } */
+    /*
+     * public Page<Thread> getPagedThreadsByUser(Long userId, Pageable pageable) {
+     * Page<Content> contents = getPagedContentByUser(userId, pageable);
+     * return new PageImpl<>(contents.getContent().stream().map(content -> (Thread)
+     * content).collect(Collectors.toList()), pageable,
+     * contents.getTotalElements());
+     * }
+     */
 
-    /* public List<Thread> getThreadsByCreatedAtBetween(LocalDateTime start, LocalDateTime end) {
-        List<Content> contents = getContentsByCreatedAtBetween(start, end);
-        return contents.stream().map(content -> (Thread) content).collect(Collectors.toList());
-    } */
+    /*
+     * public List<Thread> getThreadsByCreatedAtBetween(LocalDateTime start,
+     * LocalDateTime end) {
+     * List<Content> contents = getContentsByCreatedAtBetween(start, end);
+     * return contents.stream().map(content -> (Thread)
+     * content).collect(Collectors.toList());
+     * }
+     */
 
-    /* public List<Thread> getThreadsByContentContaining(String text) {
-        List<Content> contents = getContentsByContentContaining(text);
-        return contents.stream().map(content -> (Thread) content).collect(Collectors.toList());
-    } */
+    /*
+     * public List<Thread> getThreadsByContentContaining(String text) {
+     * List<Content> contents = getContentsByContentContaining(text);
+     * return contents.stream().map(content -> (Thread)
+     * content).collect(Collectors.toList());
+     * }
+     */
 
     public List<Thread> getThreadsByTitle(String title) {
         try {
@@ -90,34 +106,49 @@ public class ThreadService extends ContentService{
         }
     }
 
-    public List<Thread> getRecentThreads() {
-        try {
-            Pageable pageable = PageRequest.of(0, 10); // Get the first 10 recent threads
-            return threadRepository.findRecentThreads(pageable);
-        } catch (Exception e) {
-            // Log the exception and rethrow it
-            System.err.println("Error getting recent threads: " + e.getMessage());
-            throw e;
-        }
+    /*
+     * public List<Thread> getRecentThreads() {
+     * try {
+     * Pageable pageable = PageRequest.of(0, 10); // Get the first 10 recent threads
+     * return threadRepository.findRecentThreads(pageable);
+     * } catch (Exception e) {
+     * // Log the exception and rethrow it
+     * System.err.println("Error getting recent threads: " + e.getMessage());
+     * throw e;
+     * }
+     * }
+     */
+
+    public Page<Thread> getRecentContents(Pageable pageable) {
+        Page<Content> contents = super.contentRepository.findRecentContents(pageable);
+        List<Thread> threads = contents.stream()
+                .filter(content -> content instanceof Thread)
+                .map(content -> (Thread) content)
+                .collect(Collectors.toList());
+        return new PageImpl<>(threads, pageable, threads.size());
     }
 
-    /* @Transactional
-    public void deleteThread(Long threadId, User user) {
-        super.deleteContent(threadId, user);
-    } */
+    /*
+     * @Transactional
+     * public void deleteThread(Long threadId, User user) {
+     * super.deleteContent(threadId, user);
+     * }
+     */
 
-    /* public List<Thread> listThreads() {
-        List<Content> contents = super.listContent();
-        return contents.stream()
-            .filter(content -> content instanceof Thread)
-            .map(content -> (Thread) content)
-            .collect(Collectors.toList());
-    } */
+    /*
+     * public List<Thread> listThreads() {
+     * List<Content> contents = super.listContent();
+     * return contents.stream()
+     * .filter(content -> content instanceof Thread)
+     * .map(content -> (Thread) content)
+     * .collect(Collectors.toList());
+     * }
+     */
 
-    /* public void handleThreadVote(Long threadId, Long userId, boolean isUpVote) {
-        super.handleVote(threadId, userId, isUpVote);
-    } */
+    /*
+     * public void handleThreadVote(Long threadId, Long userId, boolean isUpVote) {
+     * super.handleVote(threadId, userId, isUpVote);
+     * }
+     */
 
 }
-
-

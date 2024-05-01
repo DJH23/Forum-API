@@ -26,4 +26,7 @@ public interface ContentRepository extends JpaRepository<Content, Long>{
     Page<Content> findByUserUserId(@Param("userId") Long userId, Pageable pageable);
 
     List<Content> findByContentContaining(String text);
+
+    @Query("SELECT c FROM #{#entityName} c ORDER BY c.createdAt DESC")
+    Page<Content> findRecentContents(Pageable pageable);
 }

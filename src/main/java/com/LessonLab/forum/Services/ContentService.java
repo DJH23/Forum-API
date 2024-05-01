@@ -1,6 +1,7 @@
 package com.LessonLab.forum.Services;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -11,7 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.data.domain.Page;
-
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -82,6 +83,24 @@ public abstract class ContentService {
         }
         return contentRepository.findByContentContaining(searchText);
     }
+
+    /* public Page<? extends Content> getRecentContents(Pageable pageable) {
+        try {
+            if (pageable == null) {
+                throw new IllegalArgumentException("Pageable cannot be null");
+            }
+            Page<Content> contents = contentRepository.findRecentContents(pageable);
+            if (contents == null) {
+                return new PageImpl<>(new ArrayList<>());
+            }
+            return contents;
+        } catch (Exception e) {
+            // Log the exception and rethrow it
+            System.err.println("Error getting recent contents: " + e.getMessage());
+            throw e;
+        }
+    } */
+
 
     public Page<Content> getPagedContentByUser(Long userId, Pageable pageable) {
         try {

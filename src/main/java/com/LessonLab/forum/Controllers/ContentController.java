@@ -25,7 +25,6 @@ import com.LessonLab.forum.Services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 
-
 @RestController
 @RequestMapping("/api/contents")
 public class ContentController {
@@ -41,7 +40,6 @@ public class ContentController {
 
     @Autowired
     private ThreadService threadService;
-    
 
     @PostMapping("/{contentType}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
@@ -122,6 +120,25 @@ public class ContentController {
                 break;
             case "thread":
                 contents = threadService.searchContent(searchText);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid content type: " + contentType);
+        }
+        return new ResponseEntity<>(contents, HttpStatus.OK);
+    }
+
+    @GetMapping("/recent/{contentType}")
+    public ResponseEntity<?> getRecentContents(@PathVariable String contentType, Pageable pageable) {
+        Page<? extends Content> contents;
+        switch (contentType.toLowerCase()) {
+            case "comment":
+                contents = commentService.getRecentContents(pageable);
+                break;
+            case "post":
+                contents = postService.getRecentContents(pageable);
+                break;
+            case "thread":
+                contents = threadService.getRecentContents(pageable);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid content type: " + contentType);

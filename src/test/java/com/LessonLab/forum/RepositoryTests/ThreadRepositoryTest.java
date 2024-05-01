@@ -53,7 +53,7 @@ public class ThreadRepositoryTest {
         threads.forEach(thread -> assertTrue(thread.getDescription().contains("test")));
     }
 
-    @Test
+    /* @Test
     public void testFindRecentThreads() {
         // Arrange
         PageRequest pageable = PageRequest.of(0, 10);
@@ -67,7 +67,7 @@ public class ThreadRepositoryTest {
         for (int i = 1; i < threads.size(); i++) {
             assertTrue(threads.get(i - 1).getCreatedAt().isAfter(threads.get(i).getCreatedAt()));
         }
-    }
+    } */
 
     @AfterEach
     public void tearDown() {

@@ -18,6 +18,6 @@ public interface ThreadRepository extends JpaRepository<Thread, Long>{
     List<Thread> findByDescriptionContaining(String description);
 
     // Custom query to find the most recent threads
-    @Query("SELECT t FROM Thread t ORDER BY t.createdAt DESC")
-    List<Thread> findRecentThreads(Pageable pageable);
+    /* @Query("SELECT t FROM Thread t ORDER BY t.createdAt DESC")
+    List<Thread> findRecentThreads(Pageable pageable); */
 }

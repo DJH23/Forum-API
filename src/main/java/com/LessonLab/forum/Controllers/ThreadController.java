@@ -87,10 +87,10 @@ public class ThreadController {
         return new ResponseEntity<>(threadService.getThreadsByDescription(description), HttpStatus.OK);
     }
 
-    @GetMapping("/recent")
+    /* @GetMapping("/recent")
     public ResponseEntity<?> getRecentThreads() {
         return new ResponseEntity<>(threadService.getRecentThreads(), HttpStatus.OK);
-    }
+    } */
 
     /*
      * @DeleteMapping("/{id}")
