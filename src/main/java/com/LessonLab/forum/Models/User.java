@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 
 import com.LessonLab.forum.Models.Enums.Role;
 import com.LessonLab.forum.Models.Enums.Status;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.LessonLab.forum.Models.Enums.Account;
 
 @Entity
@@ -27,6 +28,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Account accountStatus;
 
+   // @JsonBackReference
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Content> contents;  
 

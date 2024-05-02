@@ -3,6 +3,7 @@ package com.LessonLab.forum.Models;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -22,6 +23,7 @@ public abstract class Content {
     @Lob // Assuming content could be large, use Lob if it is expected to be large text
     private String content;
 
+   // @JsonManagedReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;

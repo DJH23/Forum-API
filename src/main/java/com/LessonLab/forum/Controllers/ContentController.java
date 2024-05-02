@@ -17,6 +17,7 @@ import com.LessonLab.forum.Models.Comment;
 import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Models.Post;
 import com.LessonLab.forum.Models.User;
+import com.LessonLab.forum.Models.Enums.Role;
 import com.LessonLab.forum.Services.CommentService;
 import com.LessonLab.forum.Services.PostService;
 import com.LessonLab.forum.Services.ThreadService;
@@ -45,7 +46,8 @@ public class ContentController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
     public ResponseEntity<?> addContent(@PathVariable String contentType, @RequestBody JsonNode jsonNode,
             Principal principal) {
-        User user = userService.getCurrentUser();
+       //User user = userService.getCurrentUser();
+        User user = userService.getUsersByRole(Role.USER).get(0);
         Content addedContent;
         ObjectMapper objectMapper = new ObjectMapper();
         try {
