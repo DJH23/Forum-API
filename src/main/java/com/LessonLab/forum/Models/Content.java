@@ -2,16 +2,27 @@ package com.LessonLab.forum.Models;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
 
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contentId")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+/* @JsonSubTypes({
+        @JsonSubTypes.Type(value = Post.class, name = "post"),
+        @JsonSubTypes.Type(value = Thread.class, name = "thread"),
+        @JsonSubTypes.Type(value = Comment.class, name = "comment")
+}) */
 @Entity
+// @MappedSuperclass
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Content {
 
@@ -23,9 +34,10 @@ public abstract class Content {
     @Lob // Assuming content could be large, use Lob if it is expected to be large text
     private String content;
 
-   // @JsonManagedReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    // @JsonManagedReference
+    // @JsonBackReference
     private User user;
 
     @Column(name = "created_at")

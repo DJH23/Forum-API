@@ -22,7 +22,7 @@ public class Post extends Content {
     private Thread thread; // Each post belongs to one thread
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    // @JsonManagedReference
+    //@JsonManagedReference
     private List<Comment> comments = new ArrayList<>(); // One post can have many comments
 
     // No-args constructor

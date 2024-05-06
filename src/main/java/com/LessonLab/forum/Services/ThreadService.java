@@ -22,11 +22,31 @@ public class ThreadService extends ContentService {
     @Autowired
     private ThreadRepository threadRepository;
 
+    @Autowired
+    private UserService userService;
+
+    /*
+     * @Transactional
+     * public Thread createThread(Thread thread) {
+     * if (thread == null) {
+     * throw new IllegalArgumentException("Thread cannot be null");
+     * }
+     * return (Thread) contentRepository.save(thread);
+     * }
+     */
+
     @Transactional
-    public Thread createThread(Thread thread) {
-        if (thread == null) {
-            throw new IllegalArgumentException("Thread cannot be null");
+    public Thread createThread(Long userId, String threadTitle, String threadDescription) {
+        if (userId == null) {
+            throw new IllegalArgumentException("UserId cannot be null");
         }
+
+        User user = userService.getUser(userId);
+        Thread thread = new Thread();
+        thread.setUser(user);
+        thread.setTitle(threadTitle);
+        thread.setDescription(threadDescription);
+
         return (Thread) contentRepository.save(thread);
     }
 

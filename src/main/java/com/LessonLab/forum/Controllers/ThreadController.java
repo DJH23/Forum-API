@@ -19,10 +19,21 @@ public class ThreadController {
     @Autowired
     private ThreadService threadService;
 
+    /*
+     * @PostMapping("/")
+     * 
+     * @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
+     * public ResponseEntity<?> createThread(@RequestBody Thread thread) {
+     * Thread savedThread = threadService.createThread(thread);
+     * return new ResponseEntity<>(savedThread, HttpStatus.CREATED);
+     * }
+     */
+
     @PostMapping("/")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
-    public ResponseEntity<?> createThread(@RequestBody Thread thread) {
-        Thread savedThread = threadService.createThread(thread);
+    public ResponseEntity<?> createThread(@RequestParam Long userId, @RequestParam String threadTitle,
+            @RequestParam String threadDescription) {
+        Thread savedThread = threadService.createThread(userId, threadTitle, threadDescription);
         return new ResponseEntity<>(savedThread, HttpStatus.CREATED);
     }
 

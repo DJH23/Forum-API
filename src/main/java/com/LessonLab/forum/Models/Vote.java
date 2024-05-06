@@ -50,4 +50,3 @@ public class Vote {
         this.upVote = upVote;
     }
 }
-

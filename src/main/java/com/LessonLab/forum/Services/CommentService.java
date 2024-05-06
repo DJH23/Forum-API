@@ -14,14 +14,19 @@ import org.springframework.transaction.annotation.Transactional;
 import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Models.Comment;
+import com.LessonLab.forum.Models.CommentDTO;
 import com.LessonLab.forum.Models.Post;
 import com.LessonLab.forum.Repositories.CommentRepository;
+import com.LessonLab.forum.Repositories.PostRepository;
 
 @Service
 public class CommentService extends ContentService {
 
     @Autowired
     private CommentRepository commentRepository;
+
+    @Autowired
+    private PostRepository postRepository;
 
     /*
      * public Comment addComment(Comment comment, User user) {
@@ -148,5 +153,16 @@ public class CommentService extends ContentService {
      * super.handleVote(commentId, userId, isUpVote);
      * }
      */
+
+      public Comment addContent(CommentDTO dto, User user) {
+        Comment comment = convertToCommentEntity(dto, user);
+        return commentRepository.save(comment);
+    }
+
+    private Comment convertToCommentEntity(CommentDTO dto, User user) {
+        Post post = postRepository.findById(dto.getPostId())
+            .orElseThrow(() -> new RuntimeException("Post not found"));
+        return new Comment(dto.getContent(), user, post);
+    }
 
 }

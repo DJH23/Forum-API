@@ -21,26 +21,26 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/")
-    public ResponseEntity<?> addUser(@RequestBody User user) {
-        User savedUser = userService.addUser(user);
-        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+    @PostMapping("/addUser")
+    public ResponseEntity<User> addUser(@RequestParam String username) {
+        User user = userService.addUser(username); 
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasPermission(#id, 'READ_USER')")
+    //@PreAuthorize("hasPermission(#id, 'READ_USER')")
     public ResponseEntity<?> getUser(@PathVariable Long id) {
         User user = userService.getUser(id);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @PutMapping("/{id}")
+    /* @PutMapping("/{id}")
     @PreAuthorize("hasPermission(#id, 'WRITE_USER')")
     public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody User user) {
         user.setUserId(id);
         User updatedUser = userService.updateUser(user);
         return new ResponseEntity<>(updatedUser, HttpStatus.OK);
-    }
+    } */
 
     @GetMapping("/role/{role}")
     public ResponseEntity<?> getUsersByRole(@PathVariable Role role) {

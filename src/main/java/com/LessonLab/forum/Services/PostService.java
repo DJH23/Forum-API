@@ -13,15 +13,20 @@ import org.springframework.data.domain.PageImpl;
 
 import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.Post;
+import com.LessonLab.forum.Models.PostDTO;
 import com.LessonLab.forum.Models.Thread;
 import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Repositories.PostRepository;
+import com.LessonLab.forum.Repositories.ThreadRepository;
 
 @Service
 public class PostService extends ContentService {
 
     @Autowired
     private PostRepository postRepository;
+
+    @Autowired
+    private ThreadRepository threadRepository;
 
     @Autowired
     private ThreadService threadService;
@@ -156,4 +161,15 @@ public class PostService extends ContentService {
      * }
      */
 
+     public Post addContent(PostDTO dto, User user) {
+        Post post = convertToPostEntity(dto, user);
+        return postRepository.save(post);
+    }
+
+    private Post convertToPostEntity(PostDTO dto, User user) {
+        Thread thread = threadRepository.findById(dto.getThreadId())
+            .orElseThrow(() -> new RuntimeException("Thread not found"));
+        return new Post(dto.getContent(), user, thread);
+    }
 }
+

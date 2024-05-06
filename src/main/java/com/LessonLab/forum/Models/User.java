@@ -7,11 +7,16 @@ import jakarta.persistence.*;
 import com.LessonLab.forum.Models.Enums.Role;
 import com.LessonLab.forum.Models.Enums.Status;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.LessonLab.forum.Models.Enums.Account;
 
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "userId")
 @Entity
 @Table(name = "users")
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) 
     @Column(name = "user_id")
@@ -20,16 +25,16 @@ public class User {
     private String username;
 
     @Enumerated(EnumType.STRING) 
-    private Role role;
+    private Role role = Role.USER;
 
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private Status status = Status.ONLINE;
 
     @Enumerated(EnumType.STRING)
-    private Account accountStatus;
+    private Account accountStatus = Account.ACTIVE;
 
-   // @JsonBackReference
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    //@JsonManagedReference
     private List<Content> contents;  
 
     public User() {} 

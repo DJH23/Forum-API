@@ -30,6 +30,26 @@ public class UserService {
         return user.getRole().getPermissions().contains(permission);
     }
 
+    /*
+     * public User getCurrentUser() {
+     * Object principal =
+     * SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+     * 
+     * String username;
+     * 
+     * if (principal instanceof UserDetails) {
+     * username = ((UserDetails) principal).getUsername();
+     * } else {
+     * username = principal.toString();
+     * }
+     * 
+     * System.out.println("Current username: " + username); // Debugging line
+     * 
+     * return userRepository.findByUsername(username)
+     * .orElseThrow(() -> new IllegalArgumentException("User not found"));
+     * }
+     */
+
     public User getCurrentUser() {
         String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
                 .getUsername();
@@ -37,29 +57,13 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
 
-    @Transactional
-    public User addUser(User user) {
-        if (user == null) {
-            throw new IllegalArgumentException("User cannot be null");
-        }
-        if (user.getUsername() == null || user.getUsername().isEmpty()) {
-            throw new IllegalArgumentException("Username cannot be null or empty");
-        }
-        if (!user.getUsername().matches("[A-Za-z0-9_]+")) {
-            throw new IllegalArgumentException("Username contains invalid characters");
-        }
-        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            throw new IllegalArgumentException("Username already exists!");
-        }
-        User savedUser = userRepository.save(user);
-        return savedUser;
-    }
+    
 
     public User getUser(Long id) {
-        User currentUser = getCurrentUser();
+        /* User currentUser = getCurrentUser();
         if (!hasPermission(currentUser, Permission.READ_USER)) {
             throw new AccessDeniedException("You do not have permission to read user data.");
-        }
+        } */
 
         if (id == null) {
             throw new IllegalArgumentException("User ID cannot be null");
@@ -69,11 +73,32 @@ public class UserService {
     }
 
     @Transactional
+    public User addUser(String username) {
+        if (username == null || username.isEmpty()) {
+            throw new IllegalArgumentException("Username cannot be null or empty");
+        }
+        if (!username.matches("[A-Za-z0-9_]+")) {
+            throw new IllegalArgumentException("Username contains invalid characters");
+        }
+        if (userRepository.findByUsername(username).isPresent()) {
+            throw new IllegalArgumentException("Username already exists!");
+        }
+
+        User user = new User();
+        user.setUsername(username);
+        user.setStatus(Status.ONLINE); // Default status
+        user.setAccountStatus(Account.ACTIVE); // Default account status
+        user.setRole(Role.USER); // Consider having a default role or handling roles appropriately.
+
+        return userRepository.save(user);
+    }
+
+    @Transactional
     public User updateUser(User user) {
-        User currentUser = getCurrentUser();
+        /* User currentUser = getCurrentUser();
         if (!hasPermission(currentUser, Permission.WRITE_USER)) {
             throw new AccessDeniedException("You do not have permission to update users.");
-        }
+        } */
 
         if (user == null) {
             throw new IllegalArgumentException("Cannot update a null user");
@@ -123,10 +148,10 @@ public class UserService {
 
     @Transactional
     public void deleteUserById(Long id) {
-        User currentUser = getCurrentUser();
+        /* User currentUser = getCurrentUser();
         if (!hasPermission(currentUser, Permission.DELETE_USER)) {
             throw new AccessDeniedException("You do not have permission to delete users.");
-        }
+        } */
 
         if (id == null) {
             throw new IllegalArgumentException("User ID cannot be null");
@@ -139,10 +164,10 @@ public class UserService {
 
     @Transactional
     public void deleteUserByUsername(String username) {
-        User currentUser = getCurrentUser();
+        /* User currentUser = getCurrentUser();
         if (!hasPermission(currentUser, Permission.DELETE_USER)) {
             throw new AccessDeniedException("You do not have permission to delete users.");
-        }
+        } */
 
         if (!userRepository.existsByUsername(username)) {
             throw new IllegalArgumentException("Cannot delete non-existing user with username: " + username);

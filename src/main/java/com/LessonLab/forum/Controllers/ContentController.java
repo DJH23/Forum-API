@@ -14,8 +14,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.LessonLab.forum.Models.Comment;
+import com.LessonLab.forum.Models.CommentDTO;
 import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Models.Post;
+import com.LessonLab.forum.Models.PostDTO;
 import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.Enums.Role;
 import com.LessonLab.forum.Services.CommentService;
@@ -42,32 +44,69 @@ public class ContentController {
     @Autowired
     private ThreadService threadService;
 
+    /*
+     * @PostMapping("/{contentType}")
+     * 
+     * @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
+     * public ResponseEntity<?> addContent(@PathVariable String
+     * contentType, @RequestBody JsonNode jsonNode,
+     * Principal principal) {
+     * // User user = userService.getCurrentUser();
+     * // User user = userService.getUsersByRole(Role.USER).get(0);
+     * User user = userService.getUser(1L);
+     * Content addedContent;
+     * ObjectMapper objectMapper = new ObjectMapper();
+     * try {
+     * switch (contentType.toLowerCase()) {
+     * case "comment":
+     * Comment comment = objectMapper.treeToValue(jsonNode, Comment.class);
+     * addedContent = commentService.addContent(comment, user);
+     * break;
+     * case "post":
+     * Post post = objectMapper.treeToValue(jsonNode, Post.class);
+     * addedContent = postService.addContent(post, user);
+     * break;
+     * default:
+     * throw new IllegalArgumentException("Invalid content type: " + contentType);
+     * }
+     * return new ResponseEntity<>(addedContent, HttpStatus.CREATED);
+     * } catch (Exception ex) {
+     * return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+     * .body("Error processing request: " + ex.getMessage());
+     * }
+     * }
+     */
+
     @PostMapping("/{contentType}")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
-    public ResponseEntity<?> addContent(@PathVariable String contentType, @RequestBody JsonNode jsonNode,
-            Principal principal) {
-       //User user = userService.getCurrentUser();
-        User user = userService.getUsersByRole(Role.USER).get(0);
+    public ResponseEntity<?> addContent(@PathVariable String contentType, @RequestBody Object contentDTO) {
+        User user = userService.getUser(1L); // Ensure real user retrieval
         Content addedContent;
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            switch (contentType.toLowerCase()) {
-                case "comment":
-                    Comment comment = objectMapper.treeToValue(jsonNode, Comment.class);
-                    addedContent = commentService.addContent(comment, user);
-                    break;
-                case "post":
-                    Post post = objectMapper.treeToValue(jsonNode, Post.class);
-                    addedContent = postService.addContent(post, user);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Invalid content type: " + contentType);
-            }
-            return new ResponseEntity<>(addedContent, HttpStatus.CREATED);
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error processing request: " + ex.getMessage());
+
+        switch (contentType.toLowerCase()) {
+            case "post":
+                addedContent = postService.addContent((PostDTO) contentDTO, user);
+                break;
+            case "comment":
+                addedContent = commentService.addContent((CommentDTO) contentDTO, user);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid content type: " + contentType);
         }
+        return new ResponseEntity<>(addedContent, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/post")
+    public ResponseEntity<?> addPostContent(@RequestBody PostDTO postDTO) {
+        User user = userService.getUser(1L);
+        Content addedContent = postService.addContent(postDTO, user);
+        return new ResponseEntity<>(addedContent, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/comment")
+    public ResponseEntity<?> addCommentContent(@RequestBody CommentDTO commentDTO) {
+        User user = userService.getUser(1L);
+        Content addedContent = commentService.addContent(commentDTO, user);
+        return new ResponseEntity<>(addedContent, HttpStatus.CREATED);
     }
 
     @PutMapping("/{contentType}/{id}")

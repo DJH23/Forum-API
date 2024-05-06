@@ -9,34 +9,39 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "comments")
-//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contentId")
-
 public class Comment extends Content {
 
-    // @JsonManagedReference
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id")
-    // @JsonBackReference
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contentId")
+    @JsonBackReference
     private Post post; // Each comment is associated with one post
 
-    // Constructors
     public Comment() {
-
     }
 
+    // Existing constructor for other uses
     public Comment(String content, User user) {
         super(content, user);
     }
 
-    // Getter and setter for post
+    // New constructor to be used in service for creating a new comment with a post
+    // relation
+    public Comment(String content, User user, Post post) {
+        super(content, user);
+        this.post = post;
+        if (post != null && !post.getComments().contains(this)) {
+            post.getComments().add(this);
+        }
+    }
+
+    // Getters and setters
     public Post getPost() {
         return post;
     }
 
     public void setPost(Post post) {
         this.post = post;
-        // Ensure the comment is added to the post's comment collection
         if (post != null && !post.getComments().contains(this)) {
             post.getComments().add(this);
         }
