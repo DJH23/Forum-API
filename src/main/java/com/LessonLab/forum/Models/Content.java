@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -14,16 +15,18 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
 
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contentId")
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contentId")
+//@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 /* @JsonSubTypes({
         @JsonSubTypes.Type(value = Post.class, name = "post"),
         @JsonSubTypes.Type(value = Thread.class, name = "thread"),
         @JsonSubTypes.Type(value = Comment.class, name = "comment")
 }) */
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contentId")
 @Entity
 // @MappedSuperclass
 @Inheritance(strategy = InheritanceType.JOINED)
+@JsonPropertyOrder({ "user", "contentId", "content", "createdAt", "upvotes", "downvotes", "title", "description", "posts" })
 public abstract class Content {
 
     @Id
@@ -34,10 +37,10 @@ public abstract class Content {
     @Lob // Assuming content could be large, use Lob if it is expected to be large text
     private String content;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
-    // @JsonManagedReference
-    // @JsonBackReference
+    //@JsonManagedReference
+    @JsonBackReference
     private User user;
 
     @Column(name = "created_at")

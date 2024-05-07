@@ -3,7 +3,9 @@ package com.LessonLab.forum.Services;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,9 +74,27 @@ public abstract class ContentService {
         }
     }
 
-    public Content getContent(Long id) {
-        return contentRepository.findById(id)
+    public Content getContent(Long id, String expectedContentType) {
+        Content content = contentRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Content not found with ID: " + id));
+
+        String actualContentType;
+        if (content instanceof Post) {
+            actualContentType = "post";
+        } else if (content instanceof Thread) {
+            actualContentType = "thread";
+        } else if (content instanceof Comment) {
+            actualContentType = "comment";
+        } else {
+            throw new IllegalArgumentException("Content with ID: " + id + " is not a Post, Thread, or Comment");
+        }
+
+        if (!expectedContentType.equalsIgnoreCase(actualContentType)) {
+            throw new IllegalArgumentException(
+                    "ID not found for Content type: " + expectedContentType + ". This ID exists for Content type: " + actualContentType);
+        }
+
+        return content;
     }
 
     public List<Content> searchContent(String searchText) {
@@ -84,23 +104,24 @@ public abstract class ContentService {
         return contentRepository.findByContentContaining(searchText);
     }
 
-    /* public Page<? extends Content> getRecentContents(Pageable pageable) {
-        try {
-            if (pageable == null) {
-                throw new IllegalArgumentException("Pageable cannot be null");
-            }
-            Page<Content> contents = contentRepository.findRecentContents(pageable);
-            if (contents == null) {
-                return new PageImpl<>(new ArrayList<>());
-            }
-            return contents;
-        } catch (Exception e) {
-            // Log the exception and rethrow it
-            System.err.println("Error getting recent contents: " + e.getMessage());
-            throw e;
-        }
-    } */
-
+    /*
+     * public Page<? extends Content> getRecentContents(Pageable pageable) {
+     * try {
+     * if (pageable == null) {
+     * throw new IllegalArgumentException("Pageable cannot be null");
+     * }
+     * Page<Content> contents = contentRepository.findRecentContents(pageable);
+     * if (contents == null) {
+     * return new PageImpl<>(new ArrayList<>());
+     * }
+     * return contents;
+     * } catch (Exception e) {
+     * // Log the exception and rethrow it
+     * System.err.println("Error getting recent contents: " + e.getMessage());
+     * throw e;
+     * }
+     * }
+     */
 
     public Page<Content> getPagedContentByUser(Long userId, Pageable pageable) {
         try {
@@ -236,6 +257,14 @@ public abstract class ContentService {
             System.err.println("Error handling vote: " + e.getMessage());
             throw e;
         }
+    }
+
+    public Map<Long, User> mapUsersFromContents(List<Content> contents) {
+        Map<Long, User> users = new HashMap<>();
+        for (Content content : contents) {
+            users.put(content.getUser().getUserId(), content.getUser());
+        }
+        return users;
     }
 
     /*

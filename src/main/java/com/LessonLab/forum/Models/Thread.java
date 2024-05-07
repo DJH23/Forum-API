@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 @Entity
@@ -20,9 +22,13 @@ public class Thread extends Content {
     @Column(length = 1000) // Example length setting
     private String description;
 
+    @JsonIgnore
+    @Transient
+    private String content;
+
     // One-to-many relationship with Post
     @OneToMany(mappedBy = "thread", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    //@JsonManagedReference
+    // @JsonManagedReference
     private List<Post> posts = new ArrayList<>();
 
     // Constructors
@@ -35,6 +41,12 @@ public class Thread extends Content {
     }
 
     // Getters and setters
+
+    @JsonProperty("threadId")
+    public Long getContentId() {
+        return super.getContentId();
+    }
+
     public String getTitle() {
         return title;
     }

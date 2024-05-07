@@ -1,6 +1,8 @@
 package com.LessonLab.forum.Controllers;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -130,18 +132,38 @@ public class ContentController {
         return new ResponseEntity<>(updatedContent, HttpStatus.OK);
     }
 
+    /* @GetMapping("/user/{contentType}/{userId}")
+public ResponseEntity<?> getPagedContentByUser(@PathVariable String contentType, @PathVariable Long userId,
+        Pageable pageable) {
+    Page<? extends Content> contents;
+    switch (contentType.toLowerCase()) {
+        case "comment":
+            contents = commentService.getPagedContentByUser(userId, pageable);
+            break;
+        case "post":
+            contents = postService.getPagedContentByUser(userId, pageable);
+            break;
+        case "thread":
+            contents = threadService.getPagedContentByUser(userId, pageable);
+            break;
+        default:
+            throw new IllegalArgumentException("Invalid content type: " + contentType);
+    }
+    return new ResponseEntity<>(contents, HttpStatus.OK);
+} */
+
     @GetMapping("/{contentType}/{id}")
     public ResponseEntity<?> getContent(@PathVariable String contentType, @PathVariable Long id) {
         Content content;
         switch (contentType.toLowerCase()) {
             case "comment":
-                content = commentService.getContent(id);
+                content = commentService.getContent(id, contentType);
                 break;
             case "post":
-                content = postService.getContent(id);
+                content = postService.getContent(id, contentType);
                 break;
             case "thread":
-                content = threadService.getContent(id);
+                content = threadService.getContent(id, contentType);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid content type: " + contentType);

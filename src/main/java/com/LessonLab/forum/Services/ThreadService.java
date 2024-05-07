@@ -2,6 +2,7 @@ package com.LessonLab.forum.Services;
 
 import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Models.Thread;
+import com.LessonLab.forum.Models.ThreadDTO;
 import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Repositories.ThreadRepository;
 
@@ -170,5 +171,11 @@ public class ThreadService extends ContentService {
      * super.handleVote(threadId, userId, isUpVote);
      * }
      */
+
+    public static ThreadDTO createWithThreadId(Long newThreadId) {
+        ThreadDTO thread = new ThreadDTO();
+        thread.setThreadId(newThreadId);
+        return thread;
+    }
 
 }
