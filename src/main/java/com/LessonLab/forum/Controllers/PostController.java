@@ -57,7 +57,8 @@ public class PostController {
 
     @GetMapping("/thread/{threadId}")
     public ResponseEntity<?> getPostsByThread(@PathVariable Long threadId) {
-        Thread thread = (Thread) threadService.getContent(threadId);
+        
+        Thread thread = (Thread) threadService.getThreadWithId(threadId);
         List<Post> posts = postService.getPostsByThread(thread);
         return new ResponseEntity<>(posts, HttpStatus.OK);
     }

@@ -14,7 +14,7 @@ public class Comment extends Content {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id")
-    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "contentId")
+    //@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "postId")
     @JsonBackReference
     private Post post; // Each comment is associated with one post
 

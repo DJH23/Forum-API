@@ -24,4 +24,10 @@ public interface PostRepository extends JpaRepository<Post, Long>{
     // Custom query to find the most commented posts
     @Query("SELECT p, COUNT(c) FROM Post p JOIN p.comments c GROUP BY p ORDER BY COUNT(c) DESC")
     List<Post> findMostCommentedPosts(Pageable pageable);
+
+    @Query("SELECT p FROM Post p JOIN FETCH p.comments")
+    List<Post> findAllWithComments();
+
+    @Query("SELECT p FROM Post p")  // No JOIN FETCH, should not pull comments
+    List<Post> findAllWithoutComments();
 }

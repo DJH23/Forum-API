@@ -29,4 +29,7 @@ public interface ContentRepository extends JpaRepository<Content, Long>{
 
     @Query("SELECT c FROM #{#entityName} c ORDER BY c.createdAt DESC")
     Page<Content> findRecentContents(Pageable pageable);
+
+    @Query("SELECT c FROM Content c WHERE TYPE(c) = :contentType")
+    List<Content> findByContentType(@Param("contentType") Class<?> contentType);
 }

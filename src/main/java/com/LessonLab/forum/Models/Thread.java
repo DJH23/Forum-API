@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 @Entity
 @Table(name = "threads")
 @Inheritance(strategy = InheritanceType.JOINED)
-
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "threadId")
 public class Thread extends Content {
 
     @Column(nullable = false)
@@ -28,7 +28,7 @@ public class Thread extends Content {
 
     // One-to-many relationship with Post
     @OneToMany(mappedBy = "thread", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    // @JsonManagedReference
+    @JsonManagedReference
     private List<Post> posts = new ArrayList<>();
 
     // Constructors

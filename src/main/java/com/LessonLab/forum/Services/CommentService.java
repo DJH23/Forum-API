@@ -154,15 +154,19 @@ public class CommentService extends ContentService {
      * }
      */
 
-      public Comment addContent(CommentDTO dto, User user) {
+    public Comment addContent(CommentDTO dto, User user) {
         Comment comment = convertToCommentEntity(dto, user);
         return commentRepository.save(comment);
     }
 
     private Comment convertToCommentEntity(CommentDTO dto, User user) {
         Post post = postRepository.findById(dto.getPostId())
-            .orElseThrow(() -> new RuntimeException("Post not found"));
+                .orElseThrow(() -> new RuntimeException("Post not found"));
         return new Comment(dto.getContent(), user, post);
+    }
+
+    public List<Comment> listContent() {
+        return commentRepository.findAll();
     }
 
 }

@@ -24,9 +24,13 @@ import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.Vote;
 import com.LessonLab.forum.Models.Thread;
 import com.LessonLab.forum.Models.Post;
+import com.LessonLab.forum.Models.Enums.Account;
 import com.LessonLab.forum.Models.Enums.Role;
+import com.LessonLab.forum.Models.Enums.Status;
 import com.LessonLab.forum.Repositories.CommentRepository;
 import com.LessonLab.forum.Repositories.ContentRepository;
+import com.LessonLab.forum.Repositories.PostRepository;
+import com.LessonLab.forum.Repositories.ThreadRepository;
 import com.LessonLab.forum.Repositories.UserRepository;
 import com.LessonLab.forum.Repositories.VoteRepository;
 
@@ -35,6 +39,10 @@ public abstract class ContentService {
 
     @Autowired
     protected ContentRepository contentRepository;
+    @Autowired
+    private PostRepository postRepository;
+    @Autowired
+    private ThreadRepository threadRepository;
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -91,7 +99,8 @@ public abstract class ContentService {
 
         if (!expectedContentType.equalsIgnoreCase(actualContentType)) {
             throw new IllegalArgumentException(
-                    "ID not found for Content type: " + expectedContentType + ". This ID exists for Content type: " + actualContentType);
+                    "ID not found for Content type: " + expectedContentType + ". This ID exists for Content type: "
+                            + actualContentType);
         }
 
         return content;
@@ -148,8 +157,16 @@ public abstract class ContentService {
     }
 
     @Transactional
-    public void deleteContent(Long contentId, User user) {
-        Content content = getContent(contentId);
+    public void deleteContent(Long contentId, User user, String contentType) {
+        /*
+         * user.setUserId(1L);
+         * user.setRole(Role.ADMIN);
+         * user.setStatus(Status.ONLINE);
+         * user.setAccountStatus(Account.ACTIVE);
+         * user.setUsername("User");
+         * user.setContents(null);
+         */
+        Content content = getContent(contentId, contentType);
 
         if (!hasPermissionToDelete(content, user)) {
             throw new SecurityException("You do not have permission to delete this content");
@@ -213,22 +230,12 @@ public abstract class ContentService {
         return "Generic Content"; // Fallback for other or undefined content types
     }
 
-    public List<Content> listContent() {
-        try {
-            return contentRepository.findAll();
-        } catch (Exception e) {
-            // Log the exception and rethrow it
-            System.err.println("Error listing content: " + e.getMessage());
-            throw e;
-        }
-    }
-
     @Transactional
-    public void handleVote(Long contentId, Long userId, boolean isUpVote) {
+    public void handleVote(Long contentId, Long userId, boolean isUpVote, String contentType) {
         try {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new IllegalArgumentException("User not found"));
-            Content content = getContent(contentId);
+            Content content = getContent(contentId, contentType);
             Vote existingVote = voteRepository.findByUserAndContent(user, content).orElse(null);
 
             if (existingVote != null) {

@@ -161,15 +161,22 @@ public class PostService extends ContentService {
      * }
      */
 
-     public Post addContent(PostDTO dto, User user) {
+    public Post addContent(PostDTO dto, User user) {
         Post post = convertToPostEntity(dto, user);
         return postRepository.save(post);
     }
 
     private Post convertToPostEntity(PostDTO dto, User user) {
         Thread thread = threadRepository.findById(dto.getThreadId())
-            .orElseThrow(() -> new RuntimeException("Thread not found"));
+                .orElseThrow(() -> new RuntimeException("Thread not found"));
         return new Post(dto.getContent(), user, thread);
     }
-}
 
+    public List<Post> listContent(boolean includeNested) {
+        if (includeNested) {
+            return postRepository.findAllWithComments();
+        } else {
+            return postRepository.findAllWithoutComments();
+        }
+    }
+}

@@ -178,4 +178,21 @@ public class ThreadService extends ContentService {
         return thread;
     }
 
+    public Thread getThreadWithId(Long id) {
+        Content content = getContent(id, "thread");
+        if (content instanceof Thread) {
+            return (Thread) content;
+        } else {
+            throw new IllegalArgumentException("Content with ID: " + id + " is not a Thread");
+        }
+    }
+
+    public List<Thread> listContent(boolean includeNested) {
+        if (includeNested) {
+            return threadRepository.findAllWithPosts();
+        } else {
+            return threadRepository.findAll();
+        }
+    }
+
 }

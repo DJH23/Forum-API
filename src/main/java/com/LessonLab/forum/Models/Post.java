@@ -12,9 +12,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 @Entity
 @Table(name = "posts")
-// @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,
-// property = "contentId")
-
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "postId")
 public class Post extends Content {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -24,7 +22,7 @@ public class Post extends Content {
     private Thread thread; // Each post belongs to one thread
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    // @JsonManagedReference
+    @JsonManagedReference
     private List<Comment> comments = new ArrayList<>(); // One post can have many comments
 
     // No-args constructor
