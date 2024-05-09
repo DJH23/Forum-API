@@ -169,4 +169,15 @@ public class CommentService extends ContentService {
         return commentRepository.findAll();
     }
 
+    public Page<Comment> getPagedCommentsByUser(Long userId, Pageable pageable) {
+        return commentRepository.findCommentsByUserId(userId, pageable);
+    }
+
+    public Comment addCommentToPost(Long postId, String content, User user) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+        Comment newComment = new Comment(content, user, post); 
+        return commentRepository.save(newComment);
+    }
+
 }

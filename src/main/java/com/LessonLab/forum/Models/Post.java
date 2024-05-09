@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 @Entity
 @Table(name = "posts")
-//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "postId")
+@DiscriminatorValue("Post")
 public class Post extends Content {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

@@ -39,7 +39,9 @@ public class ThreadController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
-    public ResponseEntity<?> updateThread(@PathVariable Long id, @RequestBody Thread thread) {
+    public ResponseEntity<?> updateThread(@PathVariable Long id, @RequestParam String newTitle,
+            @RequestParam String newDescription) {
+        Thread thread = new Thread(newTitle, newDescription);
         Thread updatedThread = threadService.updateThread(id, thread);
         return new ResponseEntity<>(updatedThread, HttpStatus.OK);
     }

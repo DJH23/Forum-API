@@ -26,7 +26,9 @@ import jakarta.persistence.*;
 @Entity
 // @MappedSuperclass
 @Inheritance(strategy = InheritanceType.JOINED)
-@JsonPropertyOrder({ "user", "contentId", "content", "createdAt", "upvotes", "downvotes", "title", "description", "posts" })
+@DiscriminatorColumn(name = "content_type", discriminatorType = DiscriminatorType.STRING)
+@JsonPropertyOrder({ "user", "contentId", "content", "createdAt", "upvotes", "downvotes", "title", "description",
+        "posts" })
 public abstract class Content {
 
     @Id
@@ -39,7 +41,7 @@ public abstract class Content {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
-    //@JsonManagedReference
+    // @JsonManagedReference
     @JsonBackReference
     private User user;
 

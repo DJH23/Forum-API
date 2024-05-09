@@ -179,7 +179,7 @@ public class ThreadService extends ContentService {
     }
 
     public Thread getThreadWithId(Long id) {
-        Content content = getContent(id, "thread");
+        Content content = getContentById(id, "thread");
         if (content instanceof Thread) {
             return (Thread) content;
         } else {
@@ -193,6 +193,10 @@ public class ThreadService extends ContentService {
         } else {
             return threadRepository.findAll();
         }
+    }
+
+    public Page<Thread> getPagedThreadsByUser(Long userId, Pageable pageable) {
+        return threadRepository.findThreadsByUserId(userId, pageable);
     }
 
 }

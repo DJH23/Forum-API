@@ -82,14 +82,16 @@ public class PostService extends ContentService {
         }
     }
 
-    public List<Post> getMostCommentedPosts(Pageable pageable) {
+    public List<PostDTO> getMostCommentedPostDTOs(Pageable pageable, boolean includeNested) {
         try {
             if (pageable == null) {
                 throw new IllegalArgumentException("Pageable cannot be null");
             }
-            return postRepository.findMostCommentedPosts(pageable);
+            List<PostDTO> posts = postRepository.findMostCommentedPostDTOs(pageable); // Pass an empty string as the
+                                                                                      // second argument
+            posts.forEach(post -> post.setShowNestedComments(includeNested)); // Set based on function parameter
+            return posts;
         } catch (Exception e) {
-            // Log the exception and rethrow it
             System.err.println("Error getting most commented posts: " + e.getMessage());
             throw e;
         }
@@ -161,7 +163,7 @@ public class PostService extends ContentService {
      * }
      */
 
-    public Post addContent(PostDTO dto, User user) {
+    /* public Post addContent(PostDTO dto, User user) {
         Post post = convertToPostEntity(dto, user);
         return postRepository.save(post);
     }
@@ -170,6 +172,13 @@ public class PostService extends ContentService {
         Thread thread = threadRepository.findById(dto.getThreadId())
                 .orElseThrow(() -> new RuntimeException("Thread not found"));
         return new Post(dto.getContent(), user, thread);
+    } */
+
+    public Post addPostToThread(Long threadId, String content, User user) {
+        Thread thread = threadRepository.findById(threadId)
+            .orElseThrow(() -> new RuntimeException("Thread not found"));
+        Post newPost = new Post(content, user, thread);  
+        return postRepository.save(newPost);
     }
 
     public List<Post> listContent(boolean includeNested) {
@@ -178,5 +187,9 @@ public class PostService extends ContentService {
         } else {
             return postRepository.findAllWithoutComments();
         }
+    }
+
+    public Page<Post> getPagedPostsByUser(Long userId, Pageable pageable) {
+        return postRepository.findPostsByUserId(userId, pageable);
     }
 }

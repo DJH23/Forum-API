@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.LessonLab.forum.Models.Comment;
 import com.LessonLab.forum.Models.Content;
+import com.LessonLab.forum.Models.ContentUpdateDTO;
 import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.Vote;
 import com.LessonLab.forum.Models.Thread;
@@ -64,11 +66,11 @@ public abstract class ContentService {
     }
 
     @Transactional
-    public Content updateContent(Long id, String newContent, User user) {
+    public Content updateContent(Long id, ContentUpdateDTO updateDTO, User user) {
         Content content = contentRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Content not found with ID: " + id));
         checkRole(user, Role.ADMIN, Role.MODERATOR, Role.USER);
-        content.setContent(newContent);
+        content.setContent(updateDTO.getNewContent());
         return contentRepository.save(content);
     }
 
@@ -82,7 +84,7 @@ public abstract class ContentService {
         }
     }
 
-    public Content getContent(Long id, String expectedContentType) {
+    public Content getContentById(Long id, String expectedContentType) {
         Content content = contentRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Content not found with ID: " + id));
 
@@ -132,13 +134,27 @@ public abstract class ContentService {
      * }
      */
 
-    public Page<Content> getPagedContentByUser(Long userId, Pageable pageable) {
-        try {
-            return contentRepository.findByUserUserId(userId, pageable);
-        } catch (Exception e) {
-            throw new RuntimeException("Error getting paged content by user", e);
-        }
-    }
+    /*
+     * public Page<Content> getPagedContentByUserId(Long userId, Pageable pageable,
+     * String contentType) {
+     * try {
+     * Page<Content> contents = contentRepository.findByUserUserId(userId,
+     * pageable);
+     * List<Content> filteredContents = contents.stream()
+     * .filter(c -> {
+     * boolean typeMatches = (contentType.equalsIgnoreCase("post") && c instanceof
+     * Post) ||
+     * (contentType.equalsIgnoreCase("comment") && c instanceof Comment) ||
+     * (contentType.equalsIgnoreCase("thread") && c instanceof Thread);
+     * return typeMatches;
+     * })
+     * .collect(Collectors.toList());
+     * return new PageImpl<>(filteredContents, pageable, filteredContents.size());
+     * } catch (Exception e) {
+     * throw new RuntimeException("Error getting paged content by user", e);
+     * }
+     * }
+     */
 
     public List<Content> getContentsByCreatedAtBetween(LocalDateTime start, LocalDateTime end) {
         try {
@@ -158,15 +174,8 @@ public abstract class ContentService {
 
     @Transactional
     public void deleteContent(Long contentId, User user, String contentType) {
-        /*
-         * user.setUserId(1L);
-         * user.setRole(Role.ADMIN);
-         * user.setStatus(Status.ONLINE);
-         * user.setAccountStatus(Account.ACTIVE);
-         * user.setUsername("User");
-         * user.setContents(null);
-         */
-        Content content = getContent(contentId, contentType);
+
+        Content content = getContentById(contentId, contentType);
 
         if (!hasPermissionToDelete(content, user)) {
             throw new SecurityException("You do not have permission to delete this content");
@@ -235,7 +244,7 @@ public abstract class ContentService {
         try {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new IllegalArgumentException("User not found"));
-            Content content = getContent(contentId, contentType);
+            Content content = getContentById(contentId, contentType);
             Vote existingVote = voteRepository.findByUserAndContent(user, content).orElse(null);
 
             if (existingVote != null) {

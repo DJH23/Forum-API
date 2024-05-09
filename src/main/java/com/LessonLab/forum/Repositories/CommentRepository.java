@@ -2,6 +2,7 @@ package com.LessonLab.forum.Repositories;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,7 +14,7 @@ import com.LessonLab.forum.Models.Post;
 import com.LessonLab.forum.Models.User;
 
 @Repository
-public interface CommentRepository extends JpaRepository<Comment, Long>{
+public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     // Find comments by post
     List<Comment> findByPost(Post post);
@@ -24,4 +25,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long>{
 
     @Query("SELECT COUNT(c) FROM Comment c WHERE c.post = :post AND c.user != :user")
     long countByPostAndUserNot(@Param("post") Post post, @Param("user") User user);
+
+    @Query("SELECT p FROM Post p WHERE p.user.id = :userId")
+    Page<Comment> findCommentsByUserId(@Param("userId") Long userId, Pageable pageable);
 }

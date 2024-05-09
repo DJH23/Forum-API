@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 
 @Entity
+@DiscriminatorValue("Comment")
 @Table(name = "comments")
 public class Comment extends Content {
 

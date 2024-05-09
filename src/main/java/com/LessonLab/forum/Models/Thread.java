@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 @Entity
+@DiscriminatorValue("Thread")
 @Table(name = "threads")
 @Inheritance(strategy = InheritanceType.JOINED)
 //@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "threadId")

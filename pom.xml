@@ -127,11 +127,7 @@
       <artifactId>jackson-datatype-hibernate5</artifactId>
       <!-- <version>2.14.2</version>  use the version compatible with your Jackson setup -->
     </dependency>
-    <dependency>
-      <groupId>org.springdoc</groupId>
-      <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-      <version>2.0.0</version>
-    </dependency> 
+
   </dependencies>
 
   <build>

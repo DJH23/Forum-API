@@ -1,13 +1,18 @@
 package com.LessonLab.forum.Controllers;
 
+import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Models.Post;
+import com.LessonLab.forum.Models.PostDTO;
 import com.LessonLab.forum.Models.Thread;
+import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Services.PostService;
 import com.LessonLab.forum.Services.ThreadService;
+import com.LessonLab.forum.Services.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.data.domain.Sort;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -25,6 +31,9 @@ public class PostController {
 
     @Autowired
     private ThreadService threadService;
+
+    @Autowired
+    private UserService userService;
 
     /*
      * @PostMapping("/")
@@ -55,24 +64,53 @@ public class PostController {
      * }
      */
 
-    @GetMapping("/thread/{threadId}")
-    public ResponseEntity<?> getPostsByThread(@PathVariable Long threadId) {
-        
-        Thread thread = (Thread) threadService.getThreadWithId(threadId);
-        List<Post> posts = postService.getPostsByThread(thread);
-        return new ResponseEntity<>(posts, HttpStatus.OK);
+    /*
+     * @PostMapping("/addPost")
+     * public ResponseEntity<?> addPostContent(@RequestBody PostDTO postDTO) {
+     * User user = userService.getUser(1L);
+     * Content addedContent = postService.addContent(postDTO, user);
+     * return new ResponseEntity<>(addedContent, HttpStatus.CREATED);
+     * }
+     */
+
+    @PostMapping("/add-post-to-thread")
+    public ResponseEntity<?> addPostContentToThread(@RequestParam Long threadId, @RequestParam String postContent) {
+        User user = userService.getUser(1L); // This is a placeholder.
+        Post addedPost = postService.addPostToThread(threadId, postContent, user);
+        return new ResponseEntity<>(addedPost, HttpStatus.CREATED);
     }
 
-    @GetMapping("/comment-content/{content}")
-    public ResponseEntity<?> getPostsByCommentContent(@PathVariable String content) {
-        List<Post> posts = postService.getPostsByCommentContent(content);
-        return new ResponseEntity<>(posts, HttpStatus.OK);
+    /*
+     * @GetMapping("/thread/{threadId}")
+     * public ResponseEntity<?> getPostsByThread(@PathVariable Long threadId) {
+     * 
+     * Thread thread = (Thread) threadService.getThreadWithId(threadId);
+     * List<Post> posts = postService.getPostsByThread(thread);
+     * return new ResponseEntity<>(posts, HttpStatus.OK);
+     * }
+     */
+
+    /*
+     * @GetMapping("/comment-content/{content}")
+     * public ResponseEntity<?> getPostsByCommentContent(@PathVariable String
+     * content) {
+     * List<Post> posts = postService.getPostsByCommentContent(content);
+     * return new ResponseEntity<>(posts, HttpStatus.OK);
+     * }
+     */
+
+    // Constructor injection of PostService
+    public PostController(PostService postService) {
+        this.postService = postService;
     }
 
-    @GetMapping("/most-commented")
+    @GetMapping("/most-commented-posts")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
-    public ResponseEntity<?> getMostCommentedPosts(Pageable pageable) {
-        List<Post> posts = postService.getMostCommentedPosts(pageable);
+    public ResponseEntity<List<PostDTO>> getMostCommentedPostDTOs(
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageableMostCommentedPostDTOs,
+            @RequestParam(value = "includeNestedComments", defaultValue = "true") boolean includeNestedComments) {
+        List<PostDTO> posts = postService.getMostCommentedPostDTOs(pageableMostCommentedPostDTOs,
+                includeNestedComments);
         return new ResponseEntity<>(posts, HttpStatus.OK);
     }
 

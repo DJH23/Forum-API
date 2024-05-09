@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import com.LessonLab.forum.Models.Comment;
 import com.LessonLab.forum.Models.CommentDTO;
 import com.LessonLab.forum.Models.Content;
+import com.LessonLab.forum.Models.ContentUpdateDTO;
+import com.LessonLab.forum.Models.Thread;
 import com.LessonLab.forum.Models.Post;
 import com.LessonLab.forum.Models.PostDTO;
 import com.LessonLab.forum.Models.User;
@@ -47,26 +49,23 @@ public class ContentController {
     private ThreadService threadService;
 
     /*
-     * @PostMapping("/{contentType}")
+     * @PostMapping("/addContent/{contentType}")
      * 
      * @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
-     * public ResponseEntity<?> addContent(@PathVariable String
-     * contentType, @RequestBody JsonNode jsonNode,
-     * Principal principal) {
-     * // User user = userService.getCurrentUser();
-     * // User user = userService.getUsersByRole(Role.USER).get(0);
+     * public ResponseEntity<?> addContent(@PathVariable String contentType,
+     * 
+     * @RequestParam(value = "contentToBeAdded", required = true) Object
+     * contentToBeAdded) {
+     * try {
      * User user = userService.getUser(1L);
      * Content addedContent;
-     * ObjectMapper objectMapper = new ObjectMapper();
-     * try {
+     * 
      * switch (contentType.toLowerCase()) {
-     * case "comment":
-     * Comment comment = objectMapper.treeToValue(jsonNode, Comment.class);
-     * addedContent = commentService.addContent(comment, user);
-     * break;
      * case "post":
-     * Post post = objectMapper.treeToValue(jsonNode, Post.class);
-     * addedContent = postService.addContent(post, user);
+     * addedContent = postService.addContent((Post) contentToBeAdded, user);
+     * break;
+     * case "comment":
+     * addedContent = commentService.addContent((Comment) contentToBeAdded, user);
      * break;
      * default:
      * throw new IllegalArgumentException("Invalid content type: " + contentType);
@@ -79,52 +78,42 @@ public class ContentController {
      * }
      */
 
-    @PostMapping("/{contentType}")
-    public ResponseEntity<?> addContent(@PathVariable String contentType, @RequestBody Object contentDTO) {
-        User user = userService.getUser(1L); // Ensure real user retrieval
-        Content addedContent;
-
-        switch (contentType.toLowerCase()) {
-            case "post":
-                addedContent = postService.addContent((PostDTO) contentDTO, user);
-                break;
-            case "comment":
-                addedContent = commentService.addContent((CommentDTO) contentDTO, user);
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid content type: " + contentType);
-        }
-        return new ResponseEntity<>(addedContent, HttpStatus.CREATED);
-    }
-
-    @PostMapping("/post")
-    public ResponseEntity<?> addPostContent(@RequestBody PostDTO postDTO) {
-        User user = userService.getUser(1L);
-        Content addedContent = postService.addContent(postDTO, user);
-        return new ResponseEntity<>(addedContent, HttpStatus.CREATED);
-    }
-
-    @PostMapping("/comment")
-    public ResponseEntity<?> addCommentContent(@RequestBody CommentDTO commentDTO) {
-        User user = userService.getUser(1L);
-        Content addedContent = commentService.addContent(commentDTO, user);
-        return new ResponseEntity<>(addedContent, HttpStatus.CREATED);
-    }
+    /*
+     * @PostMapping("/{contentType}/addContent")
+     * public ResponseEntity<?> addContent(@PathVariable String
+     * contentType, @RequestBody Object contentDTO) {
+     * User user = userService.getUser(1L); // Ensure real user retrieval
+     * Content addedContent;
+     * 
+     * switch (contentType.toLowerCase()) {
+     * case "post":
+     * addedContent = postService.addContent((PostDTO) contentDTO, user);
+     * break;
+     * case "comment":
+     * addedContent = commentService.addContent((CommentDTO) contentDTO, user);
+     * break;
+     * default:
+     * throw new IllegalArgumentException("Invalid content type: " + contentType);
+     * }
+     * return new ResponseEntity<>(addedContent, HttpStatus.CREATED);
+     * }
+     */
 
     @PutMapping("/{contentType}/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
     public ResponseEntity<?> updateContent(@PathVariable String contentType, @PathVariable Long id,
-            @RequestBody String newContent) {
+            @RequestBody ContentUpdateDTO contentUpdate) {
+        // User user = getCurrentUser(); // Fetch the current user
+        User user = userService.getUser(1L); // This is a placeholder.
         Content updatedContent;
         switch (contentType.toLowerCase()) {
             case "comment":
-                updatedContent = commentService.updateContent(id, newContent, null);
+                updatedContent = commentService.updateContent(id, new ContentUpdateDTO(contentUpdate.getNewContent()),
+                        user);
                 break;
             case "post":
-                updatedContent = postService.updateContent(id, newContent, null);
-                break;
-            case "thread":
-                updatedContent = threadService.updateContent(id, newContent, null);
+                updatedContent = postService.updateContent(id, new ContentUpdateDTO(contentUpdate.getNewContent()),
+                        user);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid content type: " + contentType);
@@ -155,18 +144,18 @@ public class ContentController {
      * }
      */
 
-    @GetMapping("/{contentType}/{id}")
+    @GetMapping("/{contentType}/get-content-by-id/{id}")
     public ResponseEntity<?> getContent(@PathVariable String contentType, @PathVariable Long id) {
         Content content;
         switch (contentType.toLowerCase()) {
             case "comment":
-                content = commentService.getContent(id, contentType);
+                content = commentService.getContentById(id, contentType);
                 break;
             case "post":
-                content = postService.getContent(id, contentType);
+                content = postService.getContentById(id, contentType);
                 break;
             case "thread":
-                content = threadService.getContent(id, contentType);
+                content = threadService.getContentById(id, contentType);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid content type: " + contentType);
@@ -212,24 +201,33 @@ public class ContentController {
         return new ResponseEntity<>(contents, HttpStatus.OK);
     }
 
-    @GetMapping("/user/{contentType}/{userId}")
-    public ResponseEntity<?> getPagedContentByUser(@PathVariable String contentType, @PathVariable Long userId,
+    @GetMapping("/user/{contentType}/get-paged-content-by-user/{userId}")
+    public ResponseEntity<?> getPagedContentByUser(
+            @PathVariable String contentType,
+            @PathVariable Long userId,
             Pageable pageable) {
-        Page<? extends Content> contents;
-        switch (contentType.toLowerCase()) {
-            case "comment":
-                contents = commentService.getPagedContentByUser(userId, pageable);
-                break;
-            case "post":
-                contents = postService.getPagedContentByUser(userId, pageable);
-                break;
-            case "thread":
-                contents = threadService.getPagedContentByUser(userId, pageable);
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid content type: " + contentType);
+
+        try {
+            switch (contentType.toLowerCase()) {
+                case "comment":
+                    Page<Comment> comments = commentService.getPagedCommentsByUser(userId, pageable);
+                    return ResponseEntity.ok(comments);
+
+                case "post":
+                    Page<Post> posts = postService.getPagedPostsByUser(userId, pageable);
+                    return ResponseEntity.ok(posts);
+
+                case "thread":
+                    Page<Thread> threads = threadService.getPagedThreadsByUser(userId, pageable);
+                    return ResponseEntity.ok(threads);
+
+                default:
+                    return ResponseEntity.badRequest().body("Invalid content type: " + contentType);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error retrieving data: " + e.getMessage());
         }
-        return new ResponseEntity<>(contents, HttpStatus.OK);
     }
 
     @GetMapping("/created-at-between/{contentType}")
@@ -272,19 +270,21 @@ public class ContentController {
         return new ResponseEntity<>(contents, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{contentType}/{id}")
+    @DeleteMapping("/{contentType}/delete-content-by-id/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
-
     public ResponseEntity<?> deleteContent(@PathVariable String contentType, @PathVariable Long id) {
+        // Fetching a placeholder user; replace with dynamic user fetching in production
+        User user = userService.getUser(1L);
+
         switch (contentType.toLowerCase()) {
             case "comment":
-                commentService.deleteContent(id, null, contentType);
+                commentService.deleteContent(id, user, contentType);
                 break;
             case "post":
-                postService.deleteContent(id, null, contentType);
+                postService.deleteContent(id, user, contentType);
                 break;
             case "thread":
-                threadService.deleteContent(id, null, contentType);
+                threadService.deleteContent(id, user, contentType);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid content type: " + contentType);
@@ -292,7 +292,7 @@ public class ContentController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @GetMapping("/listAllContentOfType/{contentType}")
+    @GetMapping("/list-all-content-of-type/{contentType}")
     public ResponseEntity<List<Content>> listContent(@PathVariable String contentType,
             @RequestParam(defaultValue = "false") boolean includeNested) {
         List<? extends Content> contents; // Use wildcard
@@ -305,7 +305,7 @@ public class ContentController {
                 contents = new ArrayList<>(postService.listContent(includeNested));
                 break;
             case "thread":
-                contents = new ArrayList<>(threadService.listContent(includeNested)); 
+                contents = new ArrayList<>(threadService.listContent(includeNested));
                 break;
             default:
                 throw new IllegalArgumentException("Invalid content type: " + contentType);
@@ -314,21 +314,20 @@ public class ContentController {
                                                                                             // list
     }
 
-    
-
     @PostMapping("/{contentType}/{contentId}/vote")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
     public ResponseEntity<?> handleVote(@PathVariable String contentType, @PathVariable Long contentId,
             @RequestParam Long userId, @RequestParam boolean isUpVote) {
         switch (contentType.toLowerCase()) {
             case "comment":
-                commentService.handleVote(contentId, userId, isUpVote);
+                commentService.handleVote(contentId, userId, isUpVote, contentType);
+                ;
                 break;
             case "post":
-                postService.handleVote(contentId, userId, isUpVote);
+                postService.handleVote(contentId, userId, isUpVote, contentType);
                 break;
             case "thread":
-                threadService.handleVote(contentId, userId, isUpVote);
+                threadService.handleVote(contentId, userId, isUpVote, contentType);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid content type: " + contentType);

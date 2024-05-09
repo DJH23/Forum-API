@@ -21,7 +21,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/addUser")
+    @PostMapping("/add-user")
     public ResponseEntity<User> addUser(@RequestParam String username) {
         User user = userService.addUser(username); 
         return ResponseEntity.ok(user);

@@ -1,6 +1,9 @@
 package com.LessonLab.forum.Models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class CommentDTO {
+    @JsonProperty("comment")
     private String content;
     private Long postId; 
 
