@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import com.LessonLab.forum.Models.User;
@@ -30,26 +29,6 @@ public class UserService {
         return user.getRole().getPermissions().contains(permission);
     }
 
-    /*
-     * public User getCurrentUser() {
-     * Object principal =
-     * SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-     * 
-     * String username;
-     * 
-     * if (principal instanceof UserDetails) {
-     * username = ((UserDetails) principal).getUsername();
-     * } else {
-     * username = principal.toString();
-     * }
-     * 
-     * System.out.println("Current username: " + username); // Debugging line
-     * 
-     * return userRepository.findByUsername(username)
-     * .orElseThrow(() -> new IllegalArgumentException("User not found"));
-     * }
-     */
-
     public User getCurrentUser() {
         String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
                 .getUsername();
@@ -57,13 +36,14 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
 
-    
-
     public User getUser(Long id) {
-        /* User currentUser = getCurrentUser();
-        if (!hasPermission(currentUser, Permission.READ_USER)) {
-            throw new AccessDeniedException("You do not have permission to read user data.");
-        } */
+        /*
+         * User currentUser = getCurrentUser();
+         * if (!hasPermission(currentUser, Permission.READ_USER)) {
+         * throw new
+         * AccessDeniedException("You do not have permission to read user data.");
+         * }
+         */
 
         if (id == null) {
             throw new IllegalArgumentException("User ID cannot be null");
@@ -95,10 +75,13 @@ public class UserService {
 
     @Transactional
     public User updateUser(User user) {
-        /* User currentUser = getCurrentUser();
-        if (!hasPermission(currentUser, Permission.WRITE_USER)) {
-            throw new AccessDeniedException("You do not have permission to update users.");
-        } */
+        /*
+         * User currentUser = getCurrentUser();
+         * if (!hasPermission(currentUser, Permission.WRITE_USER)) {
+         * throw new
+         * AccessDeniedException("You do not have permission to update users.");
+         * }
+         */
 
         if (user == null) {
             throw new IllegalArgumentException("Cannot update a null user");
@@ -118,7 +101,7 @@ public class UserService {
         }
         List<User> users = userRepository.findByRole(role);
         if (users.isEmpty()) {
-            return Collections.emptyList(); // Consider your use case: throw exception or return empty list
+            return Collections.emptyList();
         }
         return users;
     }
@@ -130,7 +113,7 @@ public class UserService {
         List<User> users = userRepository.findByStatus(status);
 
         if (users.isEmpty()) {
-            return Collections.emptyList(); // Adjust based on expected application behavior
+            return Collections.emptyList();
         }
         return users;
     }
@@ -141,17 +124,20 @@ public class UserService {
         }
         List<User> users = userRepository.findByAccountStatus(accountStatus);
         if (users.isEmpty()) {
-            return Collections.emptyList(); // Adjust based on expected application behavior
+            return Collections.emptyList();
         }
         return users;
     }
 
     @Transactional
     public void deleteUserById(Long id) {
-        /* User currentUser = getCurrentUser();
-        if (!hasPermission(currentUser, Permission.DELETE_USER)) {
-            throw new AccessDeniedException("You do not have permission to delete users.");
-        } */
+        /*
+         * User currentUser = getCurrentUser();
+         * if (!hasPermission(currentUser, Permission.DELETE_USER)) {
+         * throw new
+         * AccessDeniedException("You do not have permission to delete users.");
+         * }
+         */
 
         if (id == null) {
             throw new IllegalArgumentException("User ID cannot be null");
@@ -164,10 +150,13 @@ public class UserService {
 
     @Transactional
     public void deleteUserByUsername(String username) {
-        /* User currentUser = getCurrentUser();
-        if (!hasPermission(currentUser, Permission.DELETE_USER)) {
-            throw new AccessDeniedException("You do not have permission to delete users.");
-        } */
+        /*
+         * User currentUser = getCurrentUser();
+         * if (!hasPermission(currentUser, Permission.DELETE_USER)) {
+         * throw new
+         * AccessDeniedException("You do not have permission to delete users.");
+         * }
+         */
 
         if (!userRepository.existsByUsername(username)) {
             throw new IllegalArgumentException("Cannot delete non-existing user with username: " + username);

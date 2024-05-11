@@ -2,12 +2,9 @@ package com.LessonLab.forum.Controllers;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.web.exchanges.HttpExchange.Principal;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -16,21 +13,15 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.LessonLab.forum.Models.Comment;
-import com.LessonLab.forum.Models.CommentDTO;
 import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Models.ContentUpdateDTO;
 import com.LessonLab.forum.Models.Thread;
 import com.LessonLab.forum.Models.Post;
-import com.LessonLab.forum.Models.PostDTO;
 import com.LessonLab.forum.Models.User;
-import com.LessonLab.forum.Models.Enums.Role;
 import com.LessonLab.forum.Services.CommentService;
 import com.LessonLab.forum.Services.PostService;
 import com.LessonLab.forum.Services.ThreadService;
 import com.LessonLab.forum.Services.UserService;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.JsonNode;
 
 @RestController
 @RequestMapping("/api/contents")
@@ -48,62 +39,10 @@ public class ContentController {
     @Autowired
     private ThreadService threadService;
 
-    /*
-     * @PostMapping("/addContent/{contentType}")
-     * 
-     * @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
-     * public ResponseEntity<?> addContent(@PathVariable String contentType,
-     * 
-     * @RequestParam(value = "contentToBeAdded", required = true) Object
-     * contentToBeAdded) {
-     * try {
-     * User user = userService.getUser(1L);
-     * Content addedContent;
-     * 
-     * switch (contentType.toLowerCase()) {
-     * case "post":
-     * addedContent = postService.addContent((Post) contentToBeAdded, user);
-     * break;
-     * case "comment":
-     * addedContent = commentService.addContent((Comment) contentToBeAdded, user);
-     * break;
-     * default:
-     * throw new IllegalArgumentException("Invalid content type: " + contentType);
-     * }
-     * return new ResponseEntity<>(addedContent, HttpStatus.CREATED);
-     * } catch (Exception ex) {
-     * return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-     * .body("Error processing request: " + ex.getMessage());
-     * }
-     * }
-     */
-
-    /*
-     * @PostMapping("/{contentType}/addContent")
-     * public ResponseEntity<?> addContent(@PathVariable String
-     * contentType, @RequestBody Object contentDTO) {
-     * User user = userService.getUser(1L); // Ensure real user retrieval
-     * Content addedContent;
-     * 
-     * switch (contentType.toLowerCase()) {
-     * case "post":
-     * addedContent = postService.addContent((PostDTO) contentDTO, user);
-     * break;
-     * case "comment":
-     * addedContent = commentService.addContent((CommentDTO) contentDTO, user);
-     * break;
-     * default:
-     * throw new IllegalArgumentException("Invalid content type: " + contentType);
-     * }
-     * return new ResponseEntity<>(addedContent, HttpStatus.CREATED);
-     * }
-     */
-
     @PutMapping("/{contentType}/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
     public ResponseEntity<?> updateContent(@PathVariable String contentType, @PathVariable Long id,
             @RequestBody ContentUpdateDTO contentUpdate) {
-        // User user = getCurrentUser(); // Fetch the current user
         User user = userService.getUser(1L); // This is a placeholder.
         Content updatedContent;
         switch (contentType.toLowerCase()) {
@@ -120,29 +59,6 @@ public class ContentController {
         }
         return new ResponseEntity<>(updatedContent, HttpStatus.OK);
     }
-
-    /*
-     * @GetMapping("/user/{contentType}/{userId}")
-     * public ResponseEntity<?> getPagedContentByUser(@PathVariable String
-     * contentType, @PathVariable Long userId,
-     * Pageable pageable) {
-     * Page<? extends Content> contents;
-     * switch (contentType.toLowerCase()) {
-     * case "comment":
-     * contents = commentService.getPagedContentByUser(userId, pageable);
-     * break;
-     * case "post":
-     * contents = postService.getPagedContentByUser(userId, pageable);
-     * break;
-     * case "thread":
-     * contents = threadService.getPagedContentByUser(userId, pageable);
-     * break;
-     * default:
-     * throw new IllegalArgumentException("Invalid content type: " + contentType);
-     * }
-     * return new ResponseEntity<>(contents, HttpStatus.OK);
-     * }
-     */
 
     @GetMapping("/{contentType}/get-content-by-id/{id}")
     public ResponseEntity<?> getContent(@PathVariable String contentType, @PathVariable Long id) {
@@ -273,7 +189,7 @@ public class ContentController {
     @DeleteMapping("/{contentType}/delete-content-by-id/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
     public ResponseEntity<?> deleteContent(@PathVariable String contentType, @PathVariable Long id) {
-        // Fetching a placeholder user; replace with dynamic user fetching in production
+
         User user = userService.getUser(1L);
 
         switch (contentType.toLowerCase()) {

@@ -1,6 +1,5 @@
 package com.LessonLab.forum.Repositories;
 
-import com.LessonLab.forum.Models.Post;
 import com.LessonLab.forum.Models.Thread;
 
 import org.springframework.data.domain.Page;
@@ -19,12 +18,6 @@ public interface ThreadRepository extends JpaRepository<Thread, Long> {
 
     // Find threads by description containing a specific text
     List<Thread> findByDescriptionContaining(String description);
-
-    // Custom query to find the most recent threads
-    /*
-     * @Query("SELECT t FROM Thread t ORDER BY t.createdAt DESC")
-     * List<Thread> findRecentThreads(Pageable pageable);
-     */
 
     @Query("SELECT t FROM Thread t LEFT JOIN FETCH t.posts")
     List<Thread> findAllWithPosts();

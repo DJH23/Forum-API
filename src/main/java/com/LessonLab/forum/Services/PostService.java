@@ -2,11 +2,9 @@ package com.LessonLab.forum.Services;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -27,34 +25,6 @@ public class PostService extends ContentService {
 
     @Autowired
     private ThreadRepository threadRepository;
-
-    @Autowired
-    private ThreadService threadService;
-
-    /*
-     * @Transactional
-     * public Post addPost(Post post, User user) {
-     * Thread thread = threadService.getThread(post.getThread().getContentId());
-     * post.setThread(thread);
-     * return (Post) addContent(post, user);
-     * }
-     */
-    /*
-     * @Transactional
-     * public Post updatePost(Long id, String newContent, User user) {
-     * Post post = (Post) contentRepository.findById(id).get();
-     * Content updatedContent = updateContent(post.getContentId(), newContent,
-     * user);
-     * post.setContent(updatedContent.getContent());
-     * return post;
-     * }
-     */
-
-    /*
-     * public Post getPost(Long id) {
-     * return (Post) getContent(id);
-     * }
-     */
 
     public List<Post> getPostsByThread(Thread thread) {
         try {
@@ -87,8 +57,8 @@ public class PostService extends ContentService {
             if (pageable == null) {
                 throw new IllegalArgumentException("Pageable cannot be null");
             }
-            List<PostDTO> posts = postRepository.findMostCommentedPostDTOs(pageable); 
-            posts.forEach(post -> post.setShowNestedComments(includeNested)); 
+            List<PostDTO> posts = postRepository.findMostCommentedPostDTOs(pageable);
+            posts.forEach(post -> post.setShowNestedComments(includeNested));
             return posts;
         } catch (Exception e) {
             System.err.println("Error getting most commented posts: " + e.getMessage());
@@ -105,78 +75,10 @@ public class PostService extends ContentService {
         return new PageImpl<>(posts, pageable, posts.size());
     }
 
-    /*
-     * public List<Post> searchPosts(String searchText) {
-     * List<Content> contents = searchContent(searchText);
-     * return contents.stream().map(content -> (Post)
-     * content).collect(Collectors.toList());
-     * }
-     */
-
-    /*
-     * public Page<Post> getPagedPostsByUser(Long userId, Pageable pageable) {
-     * Page<Content> contents = getPagedContentByUser(userId, pageable);
-     * return new PageImpl<>(contents.getContent().stream().map(content -> (Post)
-     * content).collect(Collectors.toList()), pageable,
-     * contents.getTotalElements());
-     * }
-     */
-
-    /*
-     * public List<Post> getPostsByCreatedAtBetween(LocalDateTime start,
-     * LocalDateTime end) {
-     * List<Content> contents = getContentsByCreatedAtBetween(start, end);
-     * return contents.stream().map(content -> (Post)
-     * content).collect(Collectors.toList());
-     * }
-     */
-
-    /*
-     * public List<Post> getPostsByContentContaining(String text) {
-     * List<Content> contents = getContentsByContentContaining(text);
-     * return contents.stream().map(content -> (Post)
-     * content).collect(Collectors.toList());
-     * }
-     */
-
-    /*
-     * @Transactional
-     * public void deletePost(Long postId, User user) {
-     * super.deleteContent(postId, user);
-     * }
-     */
-
-    /*
-     * public List<Post> listPosts() {
-     * List<Content> contents = super.listContent();
-     * return contents.stream()
-     * .filter(content -> content instanceof Post)
-     * .map(content -> (Post) content)
-     * .collect(Collectors.toList());
-     * }
-     */
-
-    /*
-     * public void handlePostVote(Long postId, Long userId, boolean isUpVote) {
-     * super.handleVote(postId, userId, isUpVote);
-     * }
-     */
-
-    /* public Post addContent(PostDTO dto, User user) {
-        Post post = convertToPostEntity(dto, user);
-        return postRepository.save(post);
-    }
-
-    private Post convertToPostEntity(PostDTO dto, User user) {
-        Thread thread = threadRepository.findById(dto.getThreadId())
-                .orElseThrow(() -> new RuntimeException("Thread not found"));
-        return new Post(dto.getContent(), user, thread);
-    } */
-
     public Post addPostToThread(Long threadId, String content, User user) {
         Thread thread = threadRepository.findById(threadId)
-            .orElseThrow(() -> new RuntimeException("Thread not found"));
-        Post newPost = new Post(content, user, thread);  
+                .orElseThrow(() -> new RuntimeException("Thread not found"));
+        Post newPost = new Post(content, user, thread);
         return postRepository.save(newPost);
     }
 

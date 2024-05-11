@@ -4,17 +4,15 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 @Entity
 @DiscriminatorValue("Thread")
 @Table(name = "threads")
 @Inheritance(strategy = InheritanceType.JOINED)
-//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "threadId")
+
 public class Thread extends Content {
 
     @Column(nullable = false)

@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 
 import com.LessonLab.forum.Models.Enums.Role;
 import com.LessonLab.forum.Models.Enums.Status;
-import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -19,13 +19,13 @@ import com.LessonLab.forum.Models.Enums.Account;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) 
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long userId;
 
     private String username;
 
-    @Enumerated(EnumType.STRING) 
+    @Enumerated(EnumType.STRING)
     private Role role = Role.USER;
 
     @Enumerated(EnumType.STRING)
@@ -36,17 +36,17 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    //@JsonBackReference
     @JsonIgnore
-    private List<Content> contents;  
+    private List<Content> contents;
 
-    public User() {} 
+    public User() {
+    }
 
     public User(String username, Role role) {
         this.username = username;
         this.role = role;
     }
-    
+
     // Getters and Setters
     public Long getUserId() {
         return userId;
@@ -91,7 +91,7 @@ public class User {
     public Account getAccountStatus() {
         return accountStatus;
     }
-    
+
     public void setAccountStatus(Account accountStatus) {
         this.accountStatus = accountStatus;
     }

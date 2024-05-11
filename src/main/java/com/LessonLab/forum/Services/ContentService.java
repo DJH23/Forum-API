@@ -1,21 +1,17 @@
 package com.LessonLab.forum.Services;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,13 +22,10 @@ import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.Vote;
 import com.LessonLab.forum.Models.Thread;
 import com.LessonLab.forum.Models.Post;
-import com.LessonLab.forum.Models.Enums.Account;
 import com.LessonLab.forum.Models.Enums.Role;
-import com.LessonLab.forum.Models.Enums.Status;
+
 import com.LessonLab.forum.Repositories.CommentRepository;
 import com.LessonLab.forum.Repositories.ContentRepository;
-import com.LessonLab.forum.Repositories.PostRepository;
-import com.LessonLab.forum.Repositories.ThreadRepository;
 import com.LessonLab.forum.Repositories.UserRepository;
 import com.LessonLab.forum.Repositories.VoteRepository;
 
@@ -41,10 +34,6 @@ public abstract class ContentService {
 
     @Autowired
     protected ContentRepository contentRepository;
-    @Autowired
-    private PostRepository postRepository;
-    @Autowired
-    private ThreadRepository threadRepository;
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -115,47 +104,6 @@ public abstract class ContentService {
         return contentRepository.findByContentContaining(searchText);
     }
 
-    /*
-     * public Page<? extends Content> getRecentContents(Pageable pageable) {
-     * try {
-     * if (pageable == null) {
-     * throw new IllegalArgumentException("Pageable cannot be null");
-     * }
-     * Page<Content> contents = contentRepository.findRecentContents(pageable);
-     * if (contents == null) {
-     * return new PageImpl<>(new ArrayList<>());
-     * }
-     * return contents;
-     * } catch (Exception e) {
-     * // Log the exception and rethrow it
-     * System.err.println("Error getting recent contents: " + e.getMessage());
-     * throw e;
-     * }
-     * }
-     */
-
-    /*
-     * public Page<Content> getPagedContentByUserId(Long userId, Pageable pageable,
-     * String contentType) {
-     * try {
-     * Page<Content> contents = contentRepository.findByUserUserId(userId,
-     * pageable);
-     * List<Content> filteredContents = contents.stream()
-     * .filter(c -> {
-     * boolean typeMatches = (contentType.equalsIgnoreCase("post") && c instanceof
-     * Post) ||
-     * (contentType.equalsIgnoreCase("comment") && c instanceof Comment) ||
-     * (contentType.equalsIgnoreCase("thread") && c instanceof Thread);
-     * return typeMatches;
-     * })
-     * .collect(Collectors.toList());
-     * return new PageImpl<>(filteredContents, pageable, filteredContents.size());
-     * } catch (Exception e) {
-     * throw new RuntimeException("Error getting paged content by user", e);
-     * }
-     * }
-     */
-
     public List<Content> getContentsByCreatedAtBetween(LocalDateTime start, LocalDateTime end) {
         try {
             return contentRepository.findByCreatedAtBetween(start, end);
@@ -221,7 +169,6 @@ public abstract class ContentService {
                 username,
                 LocalDateTime.now());
 
-        // Consider using a proper logging framework like SLF4J instead of System.out
         System.out.println(logMessage);
     }
 

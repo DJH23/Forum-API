@@ -33,15 +33,6 @@ public class UserController {
         User user = userService.getUser(id);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
-
-    /* @PutMapping("/{id}")
-    @PreAuthorize("hasPermission(#id, 'WRITE_USER')")
-    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody User user) {
-        user.setUserId(id);
-        User updatedUser = userService.updateUser(user);
-        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
-    } */
-
     @GetMapping("/role/{role}")
     public ResponseEntity<?> getUsersByRole(@PathVariable Role role) {
         List<User> users = userService.getUsersByRole(role);

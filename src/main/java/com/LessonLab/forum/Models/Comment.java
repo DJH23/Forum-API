@@ -1,10 +1,7 @@
 package com.LessonLab.forum.Models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import jakarta.persistence.*;
 
@@ -15,7 +12,6 @@ public class Comment extends Content {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id")
-    //@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "postId")
     @JsonBackReference
     private Post post; // Each comment is associated with one post
 
