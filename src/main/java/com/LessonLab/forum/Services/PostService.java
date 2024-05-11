@@ -13,6 +13,7 @@ import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Post;
 import com.LessonLab.forum.Models.PostDTO;
 import com.LessonLab.forum.Models.Thread;
+import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Repositories.PostRepository;
 import com.LessonLab.forum.Repositories.ThreadRepository;
@@ -75,7 +76,7 @@ public class PostService extends ContentService {
         return new PageImpl<>(posts, pageable, posts.size());
     }
 
-    public Post addPostToThread(Long threadId, String content, UserExtension user) {
+    public Post addPostToThread(Long threadId, String content, User user) {
         Thread thread = threadRepository.findById(threadId)
                 .orElseThrow(() -> new RuntimeException("Thread not found"));
         Post newPost = new Post(content, user, thread);

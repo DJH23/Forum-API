@@ -2,6 +2,7 @@ package com.LessonLab.forum.Controllers;
 
 import com.LessonLab.forum.Models.Post;
 import com.LessonLab.forum.Models.PostDTO;
+import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Services.PostService;
 import com.LessonLab.forum.Services.UserService;
@@ -29,7 +30,7 @@ public class PostController {
 
     @PostMapping("/add-post-to-thread")
     public ResponseEntity<?> addPostContentToThread(@RequestParam Long threadId, @RequestParam String postContent) {
-        UserExtension user = userService.getUser(1L); // This is a placeholder.
+        User user = userService.getCurrentUser();
         Post addedPost = postService.addPostToThread(threadId, postContent, user);
         return new ResponseEntity<>(addedPost, HttpStatus.CREATED);
     }
@@ -42,7 +43,7 @@ public class PostController {
     @GetMapping("/most-commented-posts")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
     public ResponseEntity<List<PostDTO>> getMostCommentedPostDTOs(
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageableMostCommentedPostDTOs,
+            Pageable pageableMostCommentedPostDTOs,
             @RequestParam(value = "includeNestedComments", defaultValue = "true") boolean includeNestedComments) {
         List<PostDTO> posts = postService.getMostCommentedPostDTOs(pageableMostCommentedPostDTOs,
                 includeNestedComments);

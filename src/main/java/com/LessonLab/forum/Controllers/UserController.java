@@ -1,19 +1,23 @@
 package com.LessonLab.forum.Controllers;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import com.LessonLab.forum.Models.Role;
+import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Enums.Account;
-import com.LessonLab.forum.Models.Enums.Role;
+
 import com.LessonLab.forum.Models.Enums.Status;
 import com.LessonLab.forum.Services.UserService;
-import com.LessonLab.forum.security.dtos.RoleToUserDTO;
+import com.LessonLab.forum.dtos.RoleToUserDTO;
 
 @RestController
 @RequestMapping("/api/users")
@@ -23,21 +27,30 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/add-user")
-    public ResponseEntity<UserExtension> addUser(@RequestParam String username) {
-        UserExtension user = userService.addUser(username);
+    public ResponseEntity<User> addUser(@RequestParam String username) {
+        User user = new User();
+        user.setUsername(username);
+        user = userService.saveUser(user);
         return ResponseEntity.ok(user);
     }
 
-    @GetMapping("/{id}")
-    // @PreAuthorize("hasPermission(#id, 'READ_USER')")
-    public ResponseEntity<?> getUser(@PathVariable Long id) {
-        UserExtension user = userService.getUser(id);
+    @GetMapping("/get-user-by-id/{id}")
+    @PreAuthorize("hasPermission(#id, 'READ_USER')")
+    public ResponseEntity<?> getUserById(@PathVariable Long id) {
+        Optional<User> user = userService.getUserById(id);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+    @GetMapping("/get-user-by-username/{username}")
+    @PreAuthorize("hasPermission(#username, 'READ_USER')")
+    public ResponseEntity<?> getUserByUsername(@PathVariable String username) {
+        UserDetails user = userService.loadUserByUsername(username);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @GetMapping("/role/{role}")
     public ResponseEntity<?> getUsersByRole(@PathVariable Role role) {
-        List<UserExtension> users = userService.getUsersByRole(role);
+        List<Role> users = userService.getUsersByRole(role);
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 

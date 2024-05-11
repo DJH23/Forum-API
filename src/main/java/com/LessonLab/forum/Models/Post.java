@@ -29,14 +29,14 @@ public class Post extends Content {
     }
 
     // Constructor for the first post in a thread
-    public Post(String content, UserExtension user, Thread thread) {
+    public Post(String content, User user, Thread thread) {
         super(content, user);
         this.thread = thread;
         thread.getPosts().add(this); // Add this post to the thread's posts list
     }
 
     // Constructor for subsequent posts in a thread
-    public Post(String content, UserExtension user) {
+    public Post(String content, User user) {
         super(content, user);
         // No thread is passed, so we don't set it here
     }

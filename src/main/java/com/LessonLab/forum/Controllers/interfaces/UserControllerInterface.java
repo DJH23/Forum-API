@@ -1,8 +1,8 @@
-package com.LessonLab.forum.security.controllers.interfaces;
-
-import com.LessonLab.forum.security.models.User;
+package com.LessonLab.forum.Controllers.interfaces;
 
 import java.util.List;
+
+import com.LessonLab.forum.Models.User;
 
 /**
  * Interface for UserController. Contains methods for handling user related

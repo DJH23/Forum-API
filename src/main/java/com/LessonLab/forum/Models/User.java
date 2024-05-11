@@ -1,4 +1,4 @@
-package com.LessonLab.forum.security.models;
+package com.LessonLab.forum.Models;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

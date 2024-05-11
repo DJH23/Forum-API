@@ -16,7 +16,9 @@ import com.LessonLab.forum.Models.Comment;
 import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Models.ContentUpdateDTO;
 import com.LessonLab.forum.Models.Thread;
+import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.Post;
+import com.LessonLab.forum.Models.Role;
 import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Services.CommentService;
 import com.LessonLab.forum.Services.PostService;
@@ -43,7 +45,7 @@ public class ContentController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
     public ResponseEntity<?> updateContent(@PathVariable String contentType, @PathVariable Long id,
             @RequestBody ContentUpdateDTO contentUpdate) {
-        UserExtension user = userService.getUser(1L); // This is a placeholder.
+        User user = userService.getCurrentUser();
         Content updatedContent;
         switch (contentType.toLowerCase()) {
             case "comment":
@@ -61,6 +63,7 @@ public class ContentController {
     }
 
     @GetMapping("/{contentType}/get-content-by-id/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
     public ResponseEntity<?> getContent(@PathVariable String contentType, @PathVariable Long id) {
         Content content;
         switch (contentType.toLowerCase()) {
@@ -190,7 +193,7 @@ public class ContentController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
     public ResponseEntity<?> deleteContent(@PathVariable String contentType, @PathVariable Long id) {
 
-        UserExtension user = userService.getUser(1L);
+        User user = userService.getCurrentUser();
 
         switch (contentType.toLowerCase()) {
             case "comment":

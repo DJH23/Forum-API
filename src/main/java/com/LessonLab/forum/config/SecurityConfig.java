@@ -1,7 +1,5 @@
-package com.LessonLab.forum.security.config;
+package com.LessonLab.forum.config;
 
-import com.LessonLab.forum.security.config.filters.CustomAuthenticationFilter;
-import com.LessonLab.forum.security.config.filters.CustomAuthorizationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +14,9 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.LessonLab.forum.config.filters.CustomAuthenticationFilter;
+import com.LessonLab.forum.config.filters.CustomAuthorizationFilter;
 
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
@@ -78,7 +79,7 @@ public class SecurityConfig {
         // set the URL that the filter should process
         customAuthenticationFilter.setFilterProcessesUrl("/api/login");
         // disable CSRF protection
-        http.csrf().disable();
+        http.csrf(csrf -> csrf.disable());
         // set the session creation policy to stateless
         http.sessionManagement().sessionCreationPolicy(STATELESS);
         // set up authorization for different request matchers and user roles
@@ -86,6 +87,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/login/**").permitAll()
                 .requestMatchers(GET, "/api/users").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
                 .requestMatchers(POST, "/api/users").hasAnyAuthority("ROLE_ADMIN")
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() // Allow Swagger endpoints
                 .anyRequest().authenticated());
         // add the custom authentication filter to the http security object
         http.addFilter(customAuthenticationFilter);
