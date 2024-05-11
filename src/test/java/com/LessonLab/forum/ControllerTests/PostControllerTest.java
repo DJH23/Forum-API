@@ -1,7 +1,7 @@
 package com.LessonLab.forum.ControllerTests;
 
 import com.LessonLab.forum.Models.Thread;
-import com.LessonLab.forum.Models.User;
+import com.LessonLab.forum.Models.UserExtension;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -81,24 +81,25 @@ public class PostControllerTest {
     public void testGetPostsByThread() throws Exception {
         // Arrange
         List<Post> posts = new ArrayList<>();
-        User user = new User(); // Create a user object
+        UserExtension user = new UserExtension(); // Create a user object
         Thread thread = new Thread(); // Create a thread object
         for (int i = 0; i < 3; i++) {
             Post post = new Post("Test post content", user, thread);
             posts.add(post);
         }
         Long threadId = 1L; // Assume that the thread ID is 1
-    
+
         // Assume that the threadService returns the thread when getContent is called
         when(threadService.getContent(threadId)).thenReturn(thread);
-    
+
         // Assume that the postService returns the posts when getPostsByThread is called
         when(postService.getPostsByThread(thread)).thenReturn(posts);
-    
+
         // Act and Assert
         mockMvc.perform(get("/api/posts/thread/" + threadId))
-            .andExpect(status().isOk())
-            .andExpect(content().json(serializePosts(posts))); // Use a method to serialize the list of posts to JSON
+                .andExpect(status().isOk())
+                .andExpect(content().json(serializePosts(posts))); // Use a method to serialize the list of posts to
+                                                                   // JSON
     }
 
     @Test
@@ -106,7 +107,7 @@ public class PostControllerTest {
         // Arrange
         List<Post> posts = new ArrayList<>();
         String contentText = "Test comment content";
-        User user = new User(); // Create a user object
+        UserExtension user = new UserExtension(); // Create a user object
         Thread thread = new Thread(); // Create a thread object
         for (int i = 0; i < 3; i++) {
             Post post = new Post("Test post content", user, thread);
@@ -127,7 +128,7 @@ public class PostControllerTest {
     public void testGetMostCommentedPosts() throws Exception {
         // Arrange
         List<Post> posts = new ArrayList<>();
-        User user = new User(); // Create a user object
+        UserExtension user = new UserExtension(); // Create a user object
         Thread thread = new Thread(); // Create a thread object
         for (int i = 0; i < 3; i++) {
             Post post = new Post("Test post content", user, thread);
@@ -142,7 +143,7 @@ public class PostControllerTest {
         // Act and Assert
         mockMvc.perform(get("/api/posts/most-commented").param("page", "0").param("size", "3"))
                 .andExpect(status().isOk())
-                .andExpect(content().json(serializePosts(posts))); 
+                .andExpect(content().json(serializePosts(posts)));
     }
 
 }

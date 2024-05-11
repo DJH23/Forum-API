@@ -14,7 +14,7 @@ import com.LessonLab.forum.Models.Post;
 import com.LessonLab.forum.Models.Thread;
 
 public class ThreadTest {
-    
+
     @Test
     public void testGettersAndSetters() {
         // Arrange
@@ -54,10 +54,10 @@ public class ThreadTest {
         Thread thread = new Thread();
         Post post = new Post();
         thread.addPost(post);
-    
+
         // Act
         thread.removePost(post);
-    
+
         // Assert
         assertFalse(thread.getPosts().contains(post));
         assertNull(post.getThread());

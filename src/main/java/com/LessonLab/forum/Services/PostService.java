@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 
-import com.LessonLab.forum.Models.User;
+import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Post;
 import com.LessonLab.forum.Models.PostDTO;
 import com.LessonLab.forum.Models.Thread;
@@ -75,7 +75,7 @@ public class PostService extends ContentService {
         return new PageImpl<>(posts, pageable, posts.size());
     }
 
-    public Post addPostToThread(Long threadId, String content, User user) {
+    public Post addPostToThread(Long threadId, String content, UserExtension user) {
         Thread thread = threadRepository.findById(threadId)
                 .orElseThrow(() -> new RuntimeException("Thread not found"));
         Post newPost = new Post(content, user, thread);

@@ -1,6 +1,6 @@
 package com.LessonLab.forum.ControllerTests;
 
-import com.LessonLab.forum.Models.User;
+import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Enums.Account;
 import com.LessonLab.forum.Models.Enums.Role;
 import com.LessonLab.forum.Models.Enums.Status;
@@ -65,11 +65,11 @@ public class UserControllerTest {
     public void testAddUser() throws Exception {
 
         // Arrange
-        User user = new User();
+        UserExtension user = new UserExtension();
         user.setUsername("testUser");
         // user.setPassword("testPassword");
 
-        when(userService.addUser(any(User.class))).thenReturn(user);
+        when(userService.addUser(any(UserExtension.class))).thenReturn(user);
 
         String requestJson = new ObjectMapper().writeValueAsString(user);
 
@@ -81,14 +81,14 @@ public class UserControllerTest {
                 .andExpect(content().json(requestJson));
 
         // Verify that the addUser method was called with the expected user
-        verify(userService, times(1)).addUser(any(User.class));
+        verify(userService, times(1)).addUser(any(UserExtension.class));
     }
 
     @Test
     public void testGetUser() throws Exception {
         // Arrange
         Long userId = 1L;
-        User user = new User();
+        UserExtension user = new UserExtension();
         user.setUserId(userId);
         user.setUsername("testUser");
         // user.setPassword("testPassword");
@@ -108,12 +108,12 @@ public class UserControllerTest {
     public void testUpdateUser() throws Exception {
         // Arrange
         Long userId = 1L;
-        User user = new User();
+        UserExtension user = new UserExtension();
         user.setUserId(userId);
         user.setUsername("testUser");
         // user.setPassword("testPassword");
 
-        when(userService.updateUser(any(User.class))).thenReturn(user);
+        when(userService.updateUser(any(UserExtension.class))).thenReturn(user);
 
         String requestJson = new ObjectMapper().writeValueAsString(user);
 
@@ -125,15 +125,15 @@ public class UserControllerTest {
                 .andExpect(content().json(requestJson));
 
         // Verify that the updateUser method was called with the expected user
-        verify(userService, times(1)).updateUser(any(User.class));
+        verify(userService, times(1)).updateUser(any(UserExtension.class));
     }
 
     @Test
     public void testGetUsersByRole() throws Exception {
         // Arrange
         Role role = Role.USER;
-        List<User> users = new ArrayList<>();
-        User user = new User();
+        List<UserExtension> users = new ArrayList<>();
+        UserExtension user = new UserExtension();
         user.setUserId(1L);
         user.setUsername("testUser");
         // user.setPassword("testPassword");
@@ -155,20 +155,20 @@ public class UserControllerTest {
     public void testGetUsersByStatus() throws Exception {
         // Arrange
         Status status = Status.ONLINE;
-        List<User> users = new ArrayList<>();
-        User user = new User();
+        List<UserExtension> users = new ArrayList<>();
+        UserExtension user = new UserExtension();
         user.setUserId(1L);
         user.setUsername("testUser");
         user.setStatus(status);
         users.add(user);
-    
+
         when(userService.getUsersByStatus(status)).thenReturn(users);
-    
+
         // Act and Assert
         mockMvc.perform(get("/api/users/status/" + status))
                 .andExpect(status().isOk())
                 .andExpect(content().json(new ObjectMapper().writeValueAsString(users)));
-    
+
         // Verify that the getUsersByStatus method was called with the expected status
         verify(userService, times(1)).getUsersByStatus(status);
     }
@@ -177,8 +177,8 @@ public class UserControllerTest {
     public void testGetUsersByAccountStatus() throws Exception {
         // Arrange
         Account accountStatus = Account.ACTIVE;
-        List<User> users = new ArrayList<>();
-        User user = new User();
+        List<UserExtension> users = new ArrayList<>();
+        UserExtension user = new UserExtension();
         user.setUserId(1L);
         user.setUsername("testUser");
         user.setAccountStatus(accountStatus);

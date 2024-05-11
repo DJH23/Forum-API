@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.LessonLab.forum.Models.User;
+import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Repositories.UserRepository;
 import com.LessonLab.forum.Services.UserService;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,14 +23,14 @@ public class UserServiceIntegrationTest {
     @Test
     public void testAddUser() {
         // Arrange
-        User user = new User();
+        UserExtension user = new UserExtension();
         user.setUsername("testUser");
 
         // Act
-        User savedUser = userService.addUser(user);
+        UserExtension savedUser = userService.addUser(user);
 
         // Assert
-        User retrievedUser = userRepository.findByUsername("testUser").orElse(null);
+        UserExtension retrievedUser = userRepository.findByUsername("testUser").orElse(null);
         assertEquals(savedUser.getUsername(), retrievedUser.getUsername());
     }
 }

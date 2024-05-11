@@ -17,7 +17,7 @@ import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Models.ContentUpdateDTO;
 import com.LessonLab.forum.Models.Thread;
 import com.LessonLab.forum.Models.Post;
-import com.LessonLab.forum.Models.User;
+import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Services.CommentService;
 import com.LessonLab.forum.Services.PostService;
 import com.LessonLab.forum.Services.ThreadService;
@@ -43,7 +43,7 @@ public class ContentController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
     public ResponseEntity<?> updateContent(@PathVariable String contentType, @PathVariable Long id,
             @RequestBody ContentUpdateDTO contentUpdate) {
-        User user = userService.getUser(1L); // This is a placeholder.
+        UserExtension user = userService.getUser(1L); // This is a placeholder.
         Content updatedContent;
         switch (contentType.toLowerCase()) {
             case "comment":
@@ -190,7 +190,7 @@ public class ContentController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
     public ResponseEntity<?> deleteContent(@PathVariable String contentType, @PathVariable Long id) {
 
-        User user = userService.getUser(1L);
+        UserExtension user = userService.getUser(1L);
 
         switch (contentType.toLowerCase()) {
             case "comment":
@@ -214,7 +214,7 @@ public class ContentController {
         List<? extends Content> contents; // Use wildcard
         switch (contentType.toLowerCase()) {
             case "comment":
-                contents = new ArrayList<>(commentService.listContent()); 
+                contents = new ArrayList<>(commentService.listContent());
                 break;
             case "post":
                 contents = new ArrayList<>(postService.listContent(includeNested));
@@ -225,7 +225,7 @@ public class ContentController {
             default:
                 throw new IllegalArgumentException("Invalid content type: " + contentType);
         }
-        return new ResponseEntity<List<Content>>(new ArrayList<>(contents), HttpStatus.OK); 
+        return new ResponseEntity<List<Content>>(new ArrayList<>(contents), HttpStatus.OK);
     }
 
     @PostMapping("/{contentType}/{contentId}/vote")

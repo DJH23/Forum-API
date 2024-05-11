@@ -1,7 +1,7 @@
 package com.LessonLab.forum.ControllerTests;
 
 import com.LessonLab.forum.Models.Thread;
-import com.LessonLab.forum.Models.User;
+import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Enums.Account;
 import com.LessonLab.forum.Models.Enums.Role;
 import com.LessonLab.forum.Models.Enums.Status;
@@ -98,7 +98,5 @@ public class CommentControllerTest {
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         return mapper.writeValueAsString(comments);
     }
-
-    
 
 }

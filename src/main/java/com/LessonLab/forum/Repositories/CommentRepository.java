@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import com.LessonLab.forum.Models.Comment;
 import com.LessonLab.forum.Models.Post;
-import com.LessonLab.forum.Models.User;
+import com.LessonLab.forum.Models.UserExtension;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
@@ -24,7 +24,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findRecentComments(Pageable pageable);
 
     @Query("SELECT COUNT(c) FROM Comment c WHERE c.post = :post AND c.user != :user")
-    long countByPostAndUserNot(@Param("post") Post post, @Param("user") User user);
+    long countByPostAndUserNot(@Param("post") Post post, @Param("user") UserExtension user);
 
     @Query("SELECT c FROM Comment c WHERE c.user.id = :userId")
     Page<Comment> findCommentsByUserId(@Param("userId") Long userId, Pageable pageable);

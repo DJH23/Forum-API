@@ -9,75 +9,75 @@ import java.util.List;
 import org.junit.Test;
 
 import com.LessonLab.forum.Models.Content;
-import com.LessonLab.forum.Models.User;
+import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Enums.Account;
 import com.LessonLab.forum.Models.Enums.Role;
 import com.LessonLab.forum.Models.Enums.Status;
 
 public class UserTest {
-    
-@Test
-public void testGettersAndSetters() {
-    // Arrange
-    User user = new User();
-    Long userId = 1L;
-    String username = "username";
-    Role role = Role.USER;
-    Status status = Status.ONLINE;
-    Account accountStatus = Account.ACTIVE;
-    List<Content> contents = new ArrayList<>();
 
-    // Act
-    user.setUserId(userId);
-    user.setUsername(username);
-    user.setRole(role);
-    user.setStatus(status);
-    user.setAccountStatus(accountStatus);
-    user.setContents(contents);
+    @Test
+    public void testGettersAndSetters() {
+        // Arrange
+        UserExtension user = new UserExtension();
+        Long userId = 1L;
+        String username = "username";
+        Role role = Role.USER;
+        Status status = Status.ONLINE;
+        Account accountStatus = Account.ACTIVE;
+        List<Content> contents = new ArrayList<>();
 
-    // Assert
-    assertEquals(userId, user.getUserId());
-    assertEquals(username, user.getUsername());
-    assertEquals(role, user.getRole());
-    assertEquals(status, user.getStatus());
-    assertEquals(accountStatus, user.getAccountStatus());
-    assertEquals(contents, user.getContents());
-}
+        // Act
+        user.setUserId(userId);
+        user.setUsername(username);
+        user.setRole(role);
+        user.setStatus(status);
+        user.setAccountStatus(accountStatus);
+        user.setContents(contents);
 
-@Test
-public void testGoOnline() {
-    // Arrange
-    User user = new User();
+        // Assert
+        assertEquals(userId, user.getUserId());
+        assertEquals(username, user.getUsername());
+        assertEquals(role, user.getRole());
+        assertEquals(status, user.getStatus());
+        assertEquals(accountStatus, user.getAccountStatus());
+        assertEquals(contents, user.getContents());
+    }
 
-    // Act
-    user.goOnline();
+    @Test
+    public void testGoOnline() {
+        // Arrange
+        UserExtension user = new UserExtension();
 
-    // Assert
-    assertEquals(Status.ONLINE, user.getStatus());
-}
+        // Act
+        user.goOnline();
 
-@Test
-public void testGoOffline() {
-    // Arrange
-    User user = new User();
+        // Assert
+        assertEquals(Status.ONLINE, user.getStatus());
+    }
 
-    // Act
-    user.goOffline();
+    @Test
+    public void testGoOffline() {
+        // Arrange
+        UserExtension user = new UserExtension();
 
-    // Assert
-    assertEquals(Status.OFFLINE, user.getStatus());
-}
+        // Act
+        user.goOffline();
 
-@Test
-public void testIsOnline() {
-    // Arrange
-    User user = new User();
+        // Assert
+        assertEquals(Status.OFFLINE, user.getStatus());
+    }
 
-    // Act
-    user.goOnline();
-    boolean isOnline = user.isOnline();
+    @Test
+    public void testIsOnline() {
+        // Arrange
+        UserExtension user = new UserExtension();
 
-    // Assert
-    assertTrue(isOnline);
-}
+        // Act
+        user.goOnline();
+        boolean isOnline = user.isOnline();
+
+        // Assert
+        assertTrue(isOnline);
+    }
 }

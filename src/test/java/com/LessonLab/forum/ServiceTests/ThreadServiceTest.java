@@ -29,7 +29,7 @@ import org.springframework.data.domain.Pageable;
 import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Models.Post;
 import com.LessonLab.forum.Models.Thread;
-import com.LessonLab.forum.Models.User;
+import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Enums.Role;
 import com.LessonLab.forum.Repositories.ContentRepository;
 import com.LessonLab.forum.Repositories.ThreadRepository;

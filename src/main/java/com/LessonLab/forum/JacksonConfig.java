@@ -8,10 +8,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class JacksonConfig {
 
-    /* @Bean
-    public Jackson2ObjectMapperBuilderCustomizer jacksonCustomizer() {
-        return jacksonObjectMapperBuilder -> 
-            jacksonObjectMapperBuilder.modulesToInstall(new Hibernate5Module());
-    } */
+    /*
+     * @Bean
+     * public Jackson2ObjectMapperBuilderCustomizer jacksonCustomizer() {
+     * return jacksonObjectMapperBuilder ->
+     * jacksonObjectMapperBuilder.modulesToInstall(new Hibernate5Module());
+     * }
+     */
 
 }
