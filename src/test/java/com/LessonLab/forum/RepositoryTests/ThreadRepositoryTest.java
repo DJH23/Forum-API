@@ -53,21 +53,24 @@ public class ThreadRepositoryTest {
         threads.forEach(thread -> assertTrue(thread.getDescription().contains("test")));
     }
 
-    /* @Test
-    public void testFindRecentThreads() {
-        // Arrange
-        PageRequest pageable = PageRequest.of(0, 10);
-
-        // Act
-        List<Thread> threads = threadRepository.findRecentThreads(pageable);
-
-        // Assert
-        assertFalse(threads.isEmpty());
-        // Check that the threads are ordered by creation date in descending order
-        for (int i = 1; i < threads.size(); i++) {
-            assertTrue(threads.get(i - 1).getCreatedAt().isAfter(threads.get(i).getCreatedAt()));
-        }
-    } */
+    /*
+     * @Test
+     * public void testFindRecentThreads() {
+     * // Arrange
+     * PageRequest pageable = PageRequest.of(0, 10);
+     * 
+     * // Act
+     * List<Thread> threads = threadRepository.findRecentThreads(pageable);
+     * 
+     * // Assert
+     * assertFalse(threads.isEmpty());
+     * // Check that the threads are ordered by creation date in descending order
+     * for (int i = 1; i < threads.size(); i++) {
+     * assertTrue(threads.get(i -
+     * 1).getCreatedAt().isAfter(threads.get(i).getCreatedAt()));
+     * }
+     * }
+     */
 
     @AfterEach
     public void tearDown() {

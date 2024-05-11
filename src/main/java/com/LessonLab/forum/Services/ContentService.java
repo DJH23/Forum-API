@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.LessonLab.forum.Models.Comment;
 import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Models.ContentUpdateDTO;
-import com.LessonLab.forum.Models.User;
+import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Vote;
 import com.LessonLab.forum.Models.Thread;
 import com.LessonLab.forum.Models.Post;
@@ -46,7 +46,7 @@ public abstract class ContentService {
     private CommentRepository commentRepository;
 
     @Transactional
-    public Content addContent(Content content, User user) {
+    public Content addContent(Content content, UserExtension user) {
         if (content == null) {
             throw new IllegalArgumentException("Content cannot be null");
         }
@@ -55,7 +55,7 @@ public abstract class ContentService {
     }
 
     @Transactional
-    public Content updateContent(Long id, ContentUpdateDTO updateDTO, User user) {
+    public Content updateContent(Long id, ContentUpdateDTO updateDTO, UserExtension user) {
         Content content = contentRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Content not found with ID: " + id));
         checkRole(user, Role.ADMIN, Role.MODERATOR, Role.USER);
@@ -63,7 +63,7 @@ public abstract class ContentService {
         return contentRepository.save(content);
     }
 
-    protected void checkRole(User user, Role... roles) {
+    protected void checkRole(UserExtension user, Role... roles) {
         if (user == null) {
             throw new IllegalArgumentException("User cannot be null");
         }
@@ -121,7 +121,7 @@ public abstract class ContentService {
     }
 
     @Transactional
-    public void deleteContent(Long contentId, User user, String contentType) {
+    public void deleteContent(Long contentId, UserExtension user, String contentType) {
 
         Content content = getContentById(contentId, contentType);
 
@@ -133,7 +133,7 @@ public abstract class ContentService {
         logDeletionEvent(content);
     }
 
-    protected boolean hasPermissionToDelete(Content content, User user) {
+    protected boolean hasPermissionToDelete(Content content, UserExtension user) {
         return (user.getRole().equals(Role.ADMIN) ||
                 user.getRole().equals(Role.MODERATOR) ||
                 (content.getUser().equals(user) && canOriginalPosterDelete(content)));
@@ -189,7 +189,7 @@ public abstract class ContentService {
     @Transactional
     public void handleVote(Long contentId, Long userId, boolean isUpVote, String contentType) {
         try {
-            User user = userRepository.findById(userId)
+            UserExtension user = userRepository.findById(userId)
                     .orElseThrow(() -> new IllegalArgumentException("User not found"));
             Content content = getContentById(contentId, contentType);
             Vote existingVote = voteRepository.findByUserAndContent(user, content).orElse(null);
@@ -222,8 +222,8 @@ public abstract class ContentService {
         }
     }
 
-    public Map<Long, User> mapUsersFromContents(List<Content> contents) {
-        Map<Long, User> users = new HashMap<>();
+    public Map<Long, UserExtension> mapUsersFromContents(List<Content> contents) {
+        Map<Long, UserExtension> users = new HashMap<>();
         for (Content content : contents) {
             users.put(content.getUser().getUserId(), content.getUser());
         }

@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.LessonLab.forum.Models.Comment;
-import com.LessonLab.forum.Models.User;
+import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Services.CommentService;
 import com.LessonLab.forum.Services.UserService;
 
@@ -25,7 +25,7 @@ public class CommentController {
             @RequestParam Long postId,
             @RequestParam String commentContent) {
 
-        User user = userService.getUser(1L); // This is a placeholder.
+        UserExtension user = userService.getUser(1L); // This is a placeholder.
         Comment addedComment = commentService.addCommentToPost(postId, commentContent, user);
         return new ResponseEntity<>(addedComment, HttpStatus.CREATED);
     }

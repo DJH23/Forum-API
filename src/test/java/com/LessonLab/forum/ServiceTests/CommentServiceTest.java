@@ -1,7 +1,5 @@
 package com.LessonLab.forum.ServiceTests;
 
-
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -27,7 +25,7 @@ import org.springframework.data.domain.Pageable;
 import com.LessonLab.forum.Models.Comment;
 import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Models.Post;
-import com.LessonLab.forum.Models.User;
+import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Enums.Role;
 import com.LessonLab.forum.Repositories.CommentRepository;
 import com.LessonLab.forum.Repositories.ContentRepository;
@@ -357,7 +355,7 @@ public class CommentServiceTest {
     @Test
     public void testGetCommentsByPost() {
         // Create user
-        User user = new User("testUser", Role.USER);
+        UserExtension user = new UserExtension("testUser", Role.USER);
 
         // Create a post
         Post post = new Post("Test post", user);
@@ -444,34 +442,37 @@ public class CommentServiceTest {
      * }
      */
 
-     @Test
-     public void testGetRecentCommentContents() {
-         Pageable pageable = PageRequest.of(0, 10);
-         Comment comment1 = new Comment("Comment content 1", null);
-         Comment comment2 = new Comment("Comment content 2", null);
-         Post post = new Post(); // Assume Post is another subclass of Content
- 
-         List<Content> mixedContents = Arrays.asList(comment1, post, comment2);
- 
-         // Mock the ContentRepository to return mixed contents
-         when(contentRepository.findRecentContents(pageable)).thenReturn(new PageImpl<>(mixedContents));
- 
-         // Fetch using CommentService
-         Page<Comment> result = commentService.getRecentContents(pageable);
- 
-         assertNotNull(result);
-         assertEquals(2, result.getTotalElements(), "Should filter and return only Comment instances");
-         assertTrue(result.getContent().stream().allMatch(c -> c instanceof Comment), "All returned items must be of type Comment");
- 
-         assertEquals("Comment content 1", result.getContent().get(0).getContent(), "The content of the first comment should match");
-         assertEquals("Comment content 2", result.getContent().get(1).getContent(), "The content of the second comment should match");
-     }
+    @Test
+    public void testGetRecentCommentContents() {
+        Pageable pageable = PageRequest.of(0, 10);
+        Comment comment1 = new Comment("Comment content 1", null);
+        Comment comment2 = new Comment("Comment content 2", null);
+        Post post = new Post(); // Assume Post is another subclass of Content
+
+        List<Content> mixedContents = Arrays.asList(comment1, post, comment2);
+
+        // Mock the ContentRepository to return mixed contents
+        when(contentRepository.findRecentContents(pageable)).thenReturn(new PageImpl<>(mixedContents));
+
+        // Fetch using CommentService
+        Page<Comment> result = commentService.getRecentContents(pageable);
+
+        assertNotNull(result);
+        assertEquals(2, result.getTotalElements(), "Should filter and return only Comment instances");
+        assertTrue(result.getContent().stream().allMatch(c -> c instanceof Comment),
+                "All returned items must be of type Comment");
+
+        assertEquals("Comment content 1", result.getContent().get(0).getContent(),
+                "The content of the first comment should match");
+        assertEquals("Comment content 2", result.getContent().get(1).getContent(),
+                "The content of the second comment should match");
+    }
 
     @Test
     public void testCountCommentsByPostAndUserNot() {
         // Create users
-        User user1 = new User("testUser1", Role.USER);
-        User user2 = new User("testUser2", Role.USER);
+        UserExtension user1 = new UserExtension("testUser1", Role.USER);
+        UserExtension user2 = new UserExtension("testUser2", Role.USER);
 
         // Create a post
         Post post = new Post("Test post", user1);
@@ -510,7 +511,7 @@ public class CommentServiceTest {
     @Test
     public void testListContent() {
         // Create user
-        User user = new User("testUser", Role.USER);
+        UserExtension user = new UserExtension("testUser", Role.USER);
 
         // Create a post
         Post post = new Post("Test post", user);

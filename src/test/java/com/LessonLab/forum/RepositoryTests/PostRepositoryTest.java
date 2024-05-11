@@ -41,14 +41,14 @@ public class PostRepositoryTest {
         testThread = new Thread();
         testThread.setTitle("Test Thread");
         threadRepository.save(testThread);
-    
+
         // Create some test posts and comments
         for (int i = 0; i < 5; i++) {
             Post post = new Post();
             post.setThread(testThread);
             post.setContent("Test content " + i);
             postRepository.save(post);
-    
+
             for (int j = 0; j < i; j++) {
                 Comment comment = new Comment();
                 comment.setContent("Test comment " + j);

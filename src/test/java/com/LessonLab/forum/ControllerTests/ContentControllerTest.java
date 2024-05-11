@@ -223,7 +223,8 @@ public class ContentControllerTest {
         commentList.add(comment);
         Page<Content> comments = new PageImpl<>(commentList, pageable, commentList.size());
 
-        // Assume that the commentService returns the comments when called with the user ID and pageable
+        // Assume that the commentService returns the comments when called with the user
+        // ID and pageable
         when(commentService.getPagedContentByUser(userId, pageable)).thenReturn(comments);
 
         // Act and Assert
@@ -233,7 +234,8 @@ public class ContentControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(new ObjectMapper().writeValueAsString(comments)));
 
-        // Verify that the getPagedContentByUser method was called with the expected user ID and pageable
+        // Verify that the getPagedContentByUser method was called with the expected
+        // user ID and pageable
         verify(commentService, times(1)).getPagedContentByUser(userId, pageable);
     }
 

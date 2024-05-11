@@ -16,7 +16,7 @@ public class PostDTO {
         this.content = content;
         this.threadId = threadId;
         this.commentCount = commentCount;
-        this.showNestedComments = false; 
+        this.showNestedComments = false;
     }
 
     public PostDTO(String content, Long threadId) {

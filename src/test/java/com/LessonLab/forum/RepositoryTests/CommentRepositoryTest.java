@@ -11,7 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import com.LessonLab.forum.Models.Comment;
 import com.LessonLab.forum.Models.Post;
 import com.LessonLab.forum.Models.Thread;
-import com.LessonLab.forum.Models.User;
+import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Repositories.CommentRepository;
 import com.LessonLab.forum.Repositories.ContentRepository;
 import com.LessonLab.forum.Repositories.UserRepository;
@@ -35,13 +35,13 @@ public class CommentRepositoryTest {
 
     private Comment testComment;
     private Post testPost;
-    private User testUser;
+    private UserExtension testUser;
     private Thread testThread;
 
     @BeforeEach
     public void setUp() {
         // Create a test user
-        testUser = new User();
+        testUser = new UserExtension();
         testUser.setUsername("testUser");
         userRepository.save(testUser);
 
@@ -105,21 +105,20 @@ public class CommentRepositoryTest {
         if (testComment != null) {
             contentRepository.delete(testComment);
         }
-    
+
         // Delete the test post
         if (testPost != null) {
             contentRepository.delete(testPost);
         }
-    
+
         // Delete the test thread
         if (testThread != null) {
             contentRepository.delete(testThread);
         }
-    
+
         // Delete the test user
         if (testUser != null) {
             userRepository.delete(testUser);
         }
     }
 }
-

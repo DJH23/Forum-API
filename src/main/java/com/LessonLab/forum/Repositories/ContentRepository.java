@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 import com.LessonLab.forum.Models.Content;
 
 @Repository
-public interface ContentRepository extends JpaRepository<Content, Long>{
+public interface ContentRepository extends JpaRepository<Content, Long> {
 
     @Query("SELECT c FROM #{#entityName} c WHERE c.createdAt BETWEEN :start AND :end")
     List<Content> findByCreatedAtBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);

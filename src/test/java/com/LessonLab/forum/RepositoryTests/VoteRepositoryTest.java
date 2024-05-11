@@ -8,7 +8,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import com.LessonLab.forum.Models.Post;
-import com.LessonLab.forum.Models.User;
+import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Vote;
 import com.LessonLab.forum.Models.Thread;
 import com.LessonLab.forum.Repositories.ContentRepository;
@@ -33,28 +33,28 @@ public class VoteRepositoryTest {
     private ContentRepository contentRepository;
 
     private Vote testVote;
-    private User testUser;
+    private UserExtension testUser;
     private Post testPost;
     private Thread testThread;
 
     @BeforeEach
     public void setUp() {
         // Create a test user
-        testUser = new User();
+        testUser = new UserExtension();
         testUser.setUsername("testUser");
         userRepository.save(testUser);
-    
+
         // Create a test thread
         Thread testThread = new Thread();
         testThread.setTitle("Test Thread"); // Set the title, not the name
         contentRepository.save(testThread);
-    
+
         // Create a test post
         testPost = new Post();
         testPost.setContent("Test content");
         testPost.setThread(testThread);
         contentRepository.save(testPost);
-    
+
         // Create a test vote
         testVote = new Vote();
         testVote.setUser(testUser);
@@ -78,7 +78,7 @@ public class VoteRepositoryTest {
 
     @AfterEach
     public void tearDown() {
-         // Delete the test vote
+        // Delete the test vote
         if (testVote != null) {
             voteRepository.delete(testVote);
         }
@@ -92,7 +92,7 @@ public class VoteRepositoryTest {
         if (testUser != null) {
             userRepository.delete(testUser);
         }
-    
+
         // Delete the test thread
         if (testThread != null) {
             contentRepository.delete(testThread);

@@ -28,7 +28,7 @@ public abstract class Content {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     @JsonBackReference
-    private User user;
+    private UserExtension user;
 
     @Column(name = "created_at")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
@@ -44,7 +44,7 @@ public abstract class Content {
     }
 
     // Constructor that initializes content
-    public Content(String content, User user) {
+    public Content(String content, UserExtension user) {
         this.content = content;
         this.user = user;
     }
@@ -91,11 +91,11 @@ public abstract class Content {
         this.content = content;
     }
 
-    public User getUser() {
+    public UserExtension getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserExtension user) {
         this.user = user;
     }
 

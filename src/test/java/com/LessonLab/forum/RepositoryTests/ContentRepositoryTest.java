@@ -11,7 +11,7 @@ import org.springframework.data.domain.PageRequest;
 
 import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Models.Post;
-import com.LessonLab.forum.Models.User;
+import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Thread;
 import com.LessonLab.forum.Repositories.ContentRepository;
 import com.LessonLab.forum.Repositories.UserRepository;
@@ -31,20 +31,20 @@ public class ContentRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
-    private User testUser;
+    private UserExtension testUser;
 
     @BeforeEach
     public void setUp() {
         // Create a test user
-        testUser = new User();
+        testUser = new UserExtension();
         testUser.setUsername("testUser");
         userRepository.save(testUser);
-    
+
         // Create a test thread
         Thread testThread = new Thread();
         testThread.setTitle("Test Thread"); // Set the title, not the name
         contentRepository.save(testThread);
-    
+
         // Create some test posts
         for (int i = 0; i < 5; i++) {
             Post content = new Post();

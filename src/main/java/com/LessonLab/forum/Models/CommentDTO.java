@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class CommentDTO {
     @JsonProperty("comment")
     private String content;
-    private Long postId; 
+    private Long postId;
 
     // Getters and setters
     public String getContent() {

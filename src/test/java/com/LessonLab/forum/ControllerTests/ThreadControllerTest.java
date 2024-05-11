@@ -1,7 +1,7 @@
 package com.LessonLab.forum.ControllerTests;
 
 import com.LessonLab.forum.Models.Thread;
-import com.LessonLab.forum.Models.User;
+import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Enums.Account;
 import com.LessonLab.forum.Models.Enums.Role;
 import com.LessonLab.forum.Models.Enums.Status;
@@ -81,7 +81,7 @@ public class ThreadControllerTest {
     @Test
     public void testCreateThread() throws Exception {
         // Arrange
-        User user = createUser();
+        UserExtension user = createUser();
         Thread thread = createThread(user);
         Thread savedThread = createSavedThread(thread);
 
@@ -108,8 +108,8 @@ public class ThreadControllerTest {
         }));
     }
 
-    private User createUser() {
-        User user = new User();
+    private UserExtension createUser() {
+        UserExtension user = new UserExtension();
         user.setUserId(1L);
         user.setUsername("Test User");
         user.setRole(Role.USER);
@@ -119,7 +119,7 @@ public class ThreadControllerTest {
         return user;
     }
 
-    private Thread createThread(User user) {
+    private Thread createThread(UserExtension user) {
         Thread thread = new Thread();
         thread.setTitle("Test Thread");
         thread.setDescription("This is a test thread");
@@ -147,7 +147,7 @@ public class ThreadControllerTest {
     @Test
     public void testUpdateThread() throws Exception {
         // Arrange
-        User user = createUser();
+        UserExtension user = createUser();
         Thread thread = createThread(user);
         Thread updatedThread = createUpdatedThread(thread);
 
@@ -228,23 +228,25 @@ public class ThreadControllerTest {
                 .andExpect(content().json(serializeThreads(threads)));
     }
 
-    /* @Test
-    public void testGetRecentThreads() throws Exception {
-        // Arrange
-        List<Thread> threads = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            Thread thread = new Thread("Test thread " + i, "Test thread description");
-            threads.add(thread);
-        }
-
-        // Assume that the threadService returns the threads when getRecentThreads is
-        // called
-        when(threadService.getRecentThreads()).thenReturn(threads);
-
-        // Act and Assert
-        mockMvc.perform(get("/api/threads/recent"))
-                .andExpect(status().isOk())
-                .andExpect(content().json(serializeThreads(threads))); 
-    } */
+    /*
+     * @Test
+     * public void testGetRecentThreads() throws Exception {
+     * // Arrange
+     * List<Thread> threads = new ArrayList<>();
+     * for (int i = 0; i < 10; i++) {
+     * Thread thread = new Thread("Test thread " + i, "Test thread description");
+     * threads.add(thread);
+     * }
+     * 
+     * // Assume that the threadService returns the threads when getRecentThreads is
+     * // called
+     * when(threadService.getRecentThreads()).thenReturn(threads);
+     * 
+     * // Act and Assert
+     * mockMvc.perform(get("/api/threads/recent"))
+     * .andExpect(status().isOk())
+     * .andExpect(content().json(serializeThreads(threads)));
+     * }
+     */
 
 }

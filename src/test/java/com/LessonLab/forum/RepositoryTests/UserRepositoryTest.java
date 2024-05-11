@@ -1,6 +1,6 @@
 package com.LessonLab.forum.RepositoryTests;
 
-import com.LessonLab.forum.Models.User;
+import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Enums.Account;
 import com.LessonLab.forum.Models.Enums.Role;
 import com.LessonLab.forum.Models.Enums.Status;
@@ -27,13 +27,13 @@ public class UserRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
-    private User testUser;
+    private UserExtension testUser;
 
     @BeforeEach
     public void setUp() {
         // Prepare the database for testing
         // This might involve creating test data
-        testUser = new User();
+        testUser = new UserExtension();
         testUser.setUsername("testUser");
         userRepository.save(testUser);
     }
@@ -48,12 +48,12 @@ public class UserRepositoryTest {
     @Test
     public void testFindByUsername() {
         // Arrange
-        User user = new User();
+        UserExtension user = new UserExtension();
         user.setUsername("testUser");
         userRepository.save(user);
 
         // Act
-        Optional<User> foundUser = userRepository.findByUsername("testUser");
+        Optional<UserExtension> foundUser = userRepository.findByUsername("testUser");
 
         // Assert
         assertTrue(foundUser.isPresent());
@@ -63,12 +63,12 @@ public class UserRepositoryTest {
     @Test
     public void testFindByRole() {
         // Arrange
-        User user = new User();
+        UserExtension user = new UserExtension();
         user.setRole(Role.ADMIN);
         userRepository.save(user);
 
         // Act
-        List<User> users = userRepository.findByRole(Role.ADMIN);
+        List<UserExtension> users = userRepository.findByRole(Role.ADMIN);
 
         // Assert
         assertFalse(users.isEmpty());
@@ -78,12 +78,12 @@ public class UserRepositoryTest {
     @Test
     public void testFindByStatus() {
         // Arrange
-        User user = new User();
+        UserExtension user = new UserExtension();
         user.setStatus(Status.OFFLINE);
         userRepository.save(user);
 
         // Act
-        List<User> users = userRepository.findByStatus(Status.OFFLINE);
+        List<UserExtension> users = userRepository.findByStatus(Status.OFFLINE);
 
         // Assert
         assertEquals(1, users.size());
@@ -93,12 +93,12 @@ public class UserRepositoryTest {
     @Test
     public void testFindByAccountStatus() {
         // Arrange
-        User user = new User();
+        UserExtension user = new UserExtension();
         user.setAccountStatus(Account.ACTIVE);
         userRepository.save(user);
 
         // Act
-        List<User> users = userRepository.findByAccountStatus(Account.ACTIVE);
+        List<UserExtension> users = userRepository.findByAccountStatus(Account.ACTIVE);
 
         // Assert
         assertEquals(1, users.size());
@@ -108,13 +108,13 @@ public class UserRepositoryTest {
     @Test
     public void testFindByRoleIn() {
         // Arrange
-        User user = new User();
+        UserExtension user = new UserExtension();
         user.setRole(Role.USER);
         userRepository.save(user);
-    
+
         // Act
-        List<User> users = userRepository.findByRole(Role.USER);
-    
+        List<UserExtension> users = userRepository.findByRole(Role.USER);
+
         // Assert
         assertEquals(1, users.size());
         assertEquals(Role.USER, users.get(0).getRole());
@@ -123,15 +123,15 @@ public class UserRepositoryTest {
     @Test
     public void testDeleteUserById() {
         // Arrange
-        User user = new User();
+        UserExtension user = new UserExtension();
         user.setUsername("testUser");
         userRepository.save(user);
         Long userId = user.getUserId();
-    
+
         // Act
         userRepository.deleteById(userId);
-        Optional<User> foundUser = userRepository.findById(userId);
-    
+        Optional<UserExtension> foundUser = userRepository.findById(userId);
+
         // Assert
         assertTrue(foundUser.isEmpty());
     }
@@ -139,17 +139,16 @@ public class UserRepositoryTest {
     @Test
     public void testDeleteByUsername() {
         // Arrange
-        User user = new User();
+        UserExtension user = new UserExtension();
         user.setUsername("testUser");
         userRepository.save(user);
 
         // Act
         userRepository.deleteByUsername("testUser");
-        Optional<User> foundUser = userRepository.findByUsername("testUser");
+        Optional<UserExtension> foundUser = userRepository.findByUsername("testUser");
 
         // Assert
         assertTrue(foundUser.isEmpty());
     }
 
-    
 }

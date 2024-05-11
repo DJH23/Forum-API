@@ -3,7 +3,7 @@ package com.LessonLab.forum.Services;
 import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Models.Thread;
 import com.LessonLab.forum.Models.ThreadDTO;
-import com.LessonLab.forum.Models.User;
+import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Repositories.ThreadRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ public class ThreadService extends ContentService {
             throw new IllegalArgumentException("UserId cannot be null");
         }
 
-        User user = userService.getUser(userId);
+        UserExtension user = userService.getUser(userId);
         Thread thread = new Thread();
         thread.setUser(user);
         thread.setTitle(threadTitle);

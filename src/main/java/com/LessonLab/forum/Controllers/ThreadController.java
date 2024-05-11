@@ -14,6 +14,7 @@ public class ThreadController {
 
     @Autowired
     private ThreadService threadService;
+
     @PostMapping("/")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
     public ResponseEntity<?> createThread(@RequestParam Long userId, @RequestParam String threadTitle,

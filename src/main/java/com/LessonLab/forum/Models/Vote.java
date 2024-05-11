@@ -10,13 +10,13 @@ public class Vote {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User user;
+    private UserExtension user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "content_id")
     private Content content;
 
-    private boolean upVote;  
+    private boolean upVote;
 
     public Long getVoteId() {
         return voteId;
@@ -26,11 +26,11 @@ public class Vote {
         this.voteId = voteId;
     }
 
-    public User getUser() {
+    public UserExtension getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserExtension user) {
         this.user = user;
     }
 
