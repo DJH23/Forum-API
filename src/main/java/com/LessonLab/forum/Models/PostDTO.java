@@ -1,5 +1,7 @@
 package com.LessonLab.forum.Models;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PostDTO {
@@ -8,6 +10,7 @@ public class PostDTO {
     private Long commentCount;
     private Long threadId;
     private Boolean showNestedComments;
+    private List<CommentDTO> comments;
 
     public PostDTO(String content, Long threadId, Long commentCount) {
         this.content = content;
@@ -22,6 +25,14 @@ public class PostDTO {
     }
 
     // Getters and setters
+
+    public List<CommentDTO> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<CommentDTO> comments) {
+        this.comments = comments;
+    }
 
     public Long getCommentCount() {
         return commentCount;

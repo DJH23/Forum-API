@@ -298,8 +298,7 @@ public class ContentController {
         List<? extends Content> contents; // Use wildcard
         switch (contentType.toLowerCase()) {
             case "comment":
-                contents = new ArrayList<>(commentService.listContent()); // This ensures it is treated as a list of
-                                                                          // Content
+                contents = new ArrayList<>(commentService.listContent()); 
                 break;
             case "post":
                 contents = new ArrayList<>(postService.listContent(includeNested));
@@ -310,8 +309,7 @@ public class ContentController {
             default:
                 throw new IllegalArgumentException("Invalid content type: " + contentType);
         }
-        return new ResponseEntity<List<Content>>(new ArrayList<>(contents), HttpStatus.OK); // Safe cast through new
-                                                                                            // list
+        return new ResponseEntity<List<Content>>(new ArrayList<>(contents), HttpStatus.OK); 
     }
 
     @PostMapping("/{contentType}/{contentId}/vote")

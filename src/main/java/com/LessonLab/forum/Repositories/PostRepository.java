@@ -34,7 +34,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("SELECT p FROM Post p JOIN FETCH p.comments")
     List<Post> findAllWithComments();
 
-    @Query("SELECT p FROM Post p") // No JOIN FETCH, should not pull comments
+    @Query("SELECT p FROM Post p") 
     List<Post> findAllWithoutComments();
 
     @Query("SELECT p FROM Post p WHERE p.user.id = :userId")

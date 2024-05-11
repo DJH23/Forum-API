@@ -32,7 +32,7 @@ public interface ThreadRepository extends JpaRepository<Thread, Long> {
     @Query("SELECT t.id, t.title, t.description, t.createdAt, t.upvotes, t.downvotes FROM Thread t")
     List<Thread> findAllWithoutPosts();
 
-    @Query("SELECT p FROM Post p WHERE p.user.id = :userId")
+    @Query("SELECT t FROM Thread t WHERE t.user.id = :userId")
     Page<Thread> findThreadsByUserId(@Param("userId") Long userId, Pageable pageable);
 
 }

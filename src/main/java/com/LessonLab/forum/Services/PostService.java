@@ -87,9 +87,8 @@ public class PostService extends ContentService {
             if (pageable == null) {
                 throw new IllegalArgumentException("Pageable cannot be null");
             }
-            List<PostDTO> posts = postRepository.findMostCommentedPostDTOs(pageable); // Pass an empty string as the
-                                                                                      // second argument
-            posts.forEach(post -> post.setShowNestedComments(includeNested)); // Set based on function parameter
+            List<PostDTO> posts = postRepository.findMostCommentedPostDTOs(pageable); 
+            posts.forEach(post -> post.setShowNestedComments(includeNested)); 
             return posts;
         } catch (Exception e) {
             System.err.println("Error getting most commented posts: " + e.getMessage());
