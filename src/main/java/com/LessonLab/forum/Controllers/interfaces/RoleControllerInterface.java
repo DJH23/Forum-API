@@ -1,7 +1,7 @@
-package com.LessonLab.forum.security.controllers.interfaces;
+package com.LessonLab.forum.Controllers.interfaces;
 
-import com.LessonLab.forum.security.dtos.RoleToUserDTO;
-import com.LessonLab.forum.security.models.Role;
+import com.LessonLab.forum.Models.Role;
+import com.LessonLab.forum.dtos.RoleToUserDTO;
 
 public interface RoleControllerInterface {
     /**

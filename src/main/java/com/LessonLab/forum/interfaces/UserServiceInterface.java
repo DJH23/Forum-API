@@ -1,7 +1,8 @@
-package com.LessonLab.forum.security.services.interfaces;
+package com.LessonLab.forum.interfaces;
 
-import com.LessonLab.forum.security.models.Role;
-import com.LessonLab.forum.security.models.User;
+
+import com.LessonLab.forum.Models.Role;
+import com.LessonLab.forum.Models.User;
 
 import java.util.List;
 
@@ -25,7 +26,7 @@ public interface UserServiceInterface {
      * @param role the Role entity to be saved.
      * @return the saved Role entity.
      */
-    User saveRole(User role);
+    Role saveRole(Role role);
 
     /**
      * This method is used to add a Role to a User.

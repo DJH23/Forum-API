@@ -1,4 +1,4 @@
-package com.LessonLab.forum.security.dtos;
+package com.LessonLab.forum.dtos;
 
 import lombok.Data;
 

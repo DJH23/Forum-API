@@ -1,8 +1,10 @@
 package com.LessonLab.forum.Services;
 
 import com.LessonLab.forum.Models.Content;
+import com.LessonLab.forum.Models.Role;
 import com.LessonLab.forum.Models.Thread;
 import com.LessonLab.forum.Models.ThreadDTO;
+import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Repositories.ThreadRepository;
 
@@ -26,12 +28,12 @@ public class ThreadService extends ContentService {
     private UserService userService;
 
     @Transactional
-    public Thread createThread(Long userId, String threadTitle, String threadDescription) {
-        if (userId == null) {
+    public Thread createThread(String username, String threadTitle, String threadDescription) {
+        if (username == null) {
             throw new IllegalArgumentException("UserId cannot be null");
         }
 
-        UserExtension user = userService.getUser(userId);
+        User user = userService.getCurrentUser();
         Thread thread = new Thread();
         thread.setUser(user);
         thread.setTitle(threadTitle);
@@ -42,8 +44,11 @@ public class ThreadService extends ContentService {
 
     @Transactional
     public Thread updateThread(Long threadId, Thread updateThread) {
+
+        User user = userService.getCurrentUser();
         Thread thread = (Thread) contentRepository.findById(threadId)
                 .orElseThrow(() -> new IllegalArgumentException("Thread not found with ID: " + threadId));
+        thread.setUser(user);
         thread.setTitle(updateThread.getTitle());
         thread.setDescription(updateThread.getDescription());
         // Update other fields as necessary

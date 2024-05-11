@@ -9,7 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 
-import com.LessonLab.forum.Models.UserExtension;
+import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Models.Comment;
 import com.LessonLab.forum.Models.CommentDTO;
@@ -48,7 +48,7 @@ public class CommentService extends ContentService {
         return new PageImpl<>(comments, pageable, comments.size());
     }
 
-    public long countCommentsByPostAndUserNot(Post post, UserExtension user) {
+    public long countCommentsByPostAndUserNot(Post post, User user) {
         try {
             if (post == null || user == null) {
                 throw new IllegalArgumentException("Post and User cannot be null");
@@ -61,12 +61,12 @@ public class CommentService extends ContentService {
         }
     }
 
-    public Comment addContent(CommentDTO dto, UserExtension user) {
+    public Comment addContent(CommentDTO dto, User user) {
         Comment comment = convertToCommentEntity(dto, user);
         return commentRepository.save(comment);
     }
 
-    private Comment convertToCommentEntity(CommentDTO dto, UserExtension user) {
+    private Comment convertToCommentEntity(CommentDTO dto, User user) {
         Post post = postRepository.findById(dto.getPostId())
                 .orElseThrow(() -> new RuntimeException("Post not found"));
         return new Comment(dto.getContent(), user, post);
@@ -80,7 +80,7 @@ public class CommentService extends ContentService {
         return commentRepository.findCommentsByUserId(userId, pageable);
     }
 
-    public Comment addCommentToPost(Long postId, String content, UserExtension user) {
+    public Comment addCommentToPost(Long postId, String content, User user) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
         Comment newComment = new Comment(content, user, post);

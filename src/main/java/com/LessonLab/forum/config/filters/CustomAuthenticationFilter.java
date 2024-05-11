@@ -1,4 +1,4 @@
-package com.LessonLab.forum.security.config.filters;
+package com.LessonLab.forum.config.filters;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;

@@ -19,13 +19,13 @@ public class Comment extends Content {
     }
 
     // Existing constructor for other uses
-    public Comment(String content, UserExtension user) {
+    public Comment(String content, User user) {
         super(content, user);
     }
 
     // New constructor to be used in service for creating a new comment with a post
     // relation
-    public Comment(String content, UserExtension user, Post post) {
+    public Comment(String content, User user, Post post) {
         super(content, user);
         this.post = post;
         if (post != null && !post.getComments().contains(this)) {

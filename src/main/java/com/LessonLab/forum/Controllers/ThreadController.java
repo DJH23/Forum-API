@@ -17,9 +17,9 @@ public class ThreadController {
 
     @PostMapping("/")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
-    public ResponseEntity<?> createThread(@RequestParam Long userId, @RequestParam String threadTitle,
+    public ResponseEntity<?> createThread(@RequestParam String username, @RequestParam String threadTitle,
             @RequestParam String threadDescription) {
-        Thread savedThread = threadService.createThread(userId, threadTitle, threadDescription);
+        Thread savedThread = threadService.createThread(username, threadTitle, threadDescription);
         return new ResponseEntity<>(savedThread, HttpStatus.CREATED);
     }
 

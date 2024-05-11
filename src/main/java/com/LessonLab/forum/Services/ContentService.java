@@ -21,9 +21,9 @@ import com.LessonLab.forum.Models.ContentUpdateDTO;
 import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Vote;
 import com.LessonLab.forum.Models.Thread;
+import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.Post;
-import com.LessonLab.forum.Models.Enums.Role;
-
+import com.LessonLab.forum.Models.Role;
 import com.LessonLab.forum.Repositories.CommentRepository;
 import com.LessonLab.forum.Repositories.ContentRepository;
 import com.LessonLab.forum.Repositories.UserRepository;
@@ -46,24 +46,24 @@ public abstract class ContentService {
     private CommentRepository commentRepository;
 
     @Transactional
-    public Content addContent(Content content, UserExtension user) {
+    public Content addContent(Content content, User user) {
         if (content == null) {
             throw new IllegalArgumentException("Content cannot be null");
         }
-        checkRole(user, Role.ADMIN, Role.MODERATOR, Role.USER);
+       // checkRole(user, Role.ADMIN, Role.MODERATOR, Role.USER);
         return contentRepository.save(content);
     }
 
     @Transactional
-    public Content updateContent(Long id, ContentUpdateDTO updateDTO, UserExtension user) {
+    public Content updateContent(Long id, ContentUpdateDTO updateDTO, User user) {
         Content content = contentRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Content not found with ID: " + id));
-        checkRole(user, Role.ADMIN, Role.MODERATOR, Role.USER);
+       // checkRole(user, Role.ADMIN, Role.MODERATOR, Role.USER);
         content.setContent(updateDTO.getNewContent());
         return contentRepository.save(content);
     }
 
-    protected void checkRole(UserExtension user, Role... roles) {
+    /* protected void checkRole(User user, Role... roles) {
         if (user == null) {
             throw new IllegalArgumentException("User cannot be null");
         }
@@ -71,7 +71,7 @@ public abstract class ContentService {
             throw new IllegalArgumentException(
                     "User with role " + user.getRole() + " does not have permission to perform this action");
         }
-    }
+    } */
 
     public Content getContentById(Long id, String expectedContentType) {
         Content content = contentRepository.findById(id)
@@ -121,23 +121,23 @@ public abstract class ContentService {
     }
 
     @Transactional
-    public void deleteContent(Long contentId, UserExtension user, String contentType) {
+    public void deleteContent(Long contentId, User user, String contentType) {
 
         Content content = getContentById(contentId, contentType);
 
-        if (!hasPermissionToDelete(content, user)) {
+        /* if (!hasPermissionToDelete(content, user)) {
             throw new SecurityException("You do not have permission to delete this content");
-        }
+        } */
 
         contentRepository.delete(content);
         logDeletionEvent(content);
     }
 
-    protected boolean hasPermissionToDelete(Content content, UserExtension user) {
+   /*  protected boolean hasPermissionToDelete(Content content, UserExtension user) {
         return (user.getRole().equals(Role.ADMIN) ||
                 user.getRole().equals(Role.MODERATOR) ||
                 (content.getUser().equals(user) && canOriginalPosterDelete(content)));
-    }
+    } */
 
     protected boolean canOriginalPosterDelete(Content content) {
         if (content instanceof Post) {
@@ -189,7 +189,7 @@ public abstract class ContentService {
     @Transactional
     public void handleVote(Long contentId, Long userId, boolean isUpVote, String contentType) {
         try {
-            UserExtension user = userRepository.findById(userId)
+            User user = userRepository.findById(userId)
                     .orElseThrow(() -> new IllegalArgumentException("User not found"));
             Content content = getContentById(contentId, contentType);
             Vote existingVote = voteRepository.findByUserAndContent(user, content).orElse(null);
@@ -222,13 +222,13 @@ public abstract class ContentService {
         }
     }
 
-    public Map<Long, UserExtension> mapUsersFromContents(List<Content> contents) {
-        Map<Long, UserExtension> users = new HashMap<>();
+    /* public Map<Long, User> mapUsersFromContents(List<Content> contents) {
+        Map<Long, User> users = new HashMap<>();
         for (Content content : contents) {
             users.put(content.getUser().getUserId(), content.getUser());
         }
         return users;
-    }
+    } */
 
     /*
      * public void notifyAdmins(T content) {
