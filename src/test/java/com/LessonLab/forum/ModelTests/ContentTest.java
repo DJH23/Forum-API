@@ -8,19 +8,20 @@ import java.time.LocalDateTime;
 import org.junit.Test;
 
 import com.LessonLab.forum.Models.Content;
+import com.LessonLab.forum.Models.Role;
 import com.LessonLab.forum.Models.UserExtension;
-import com.LessonLab.forum.Models.Enums.Role;
+import com.LessonLab.forum.Models.User;
 
 public class ContentTest {
 
     @Test
     public void testGettersAndSetters() {
         // Arrange
+        User user = new User();
         Content content = new Content() {
         }; // Create an anonymous subclass because Content is abstract
         Long contentId = 1L;
         String contentText = "content";
-        UserExtension user = new UserExtension("username", Role.USER);
         int upvotes = 5;
         int downvotes = 3;
         LocalDateTime createdAt = LocalDateTime.now();

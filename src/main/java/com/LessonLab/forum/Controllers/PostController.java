@@ -3,20 +3,17 @@ package com.LessonLab.forum.Controllers;
 import com.LessonLab.forum.Models.Post;
 import com.LessonLab.forum.Models.PostDTO;
 import com.LessonLab.forum.Models.User;
-import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Services.PostService;
 import com.LessonLab.forum.Services.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import org.springframework.data.domain.Sort;
 
 @RestController
 @RequestMapping("/api/posts")

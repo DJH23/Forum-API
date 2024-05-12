@@ -9,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 
-import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Post;
 import com.LessonLab.forum.Models.PostDTO;
 import com.LessonLab.forum.Models.Thread;

@@ -1,11 +1,9 @@
 package com.LessonLab.forum.Services;
 
 import com.LessonLab.forum.Models.Content;
-import com.LessonLab.forum.Models.Role;
 import com.LessonLab.forum.Models.Thread;
 import com.LessonLab.forum.Models.ThreadDTO;
 import com.LessonLab.forum.Models.User;
-import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Repositories.ThreadRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +26,13 @@ public class ThreadService extends ContentService {
     private UserService userService;
 
     @Transactional
-    public Thread createThread(String username, String threadTitle, String threadDescription) {
-        if (username == null) {
-            throw new IllegalArgumentException("UserId cannot be null");
+    public Thread createThread(String threadTitle, String threadDescription) {
+        User user = userService.getCurrentUser();
+
+        if (user == null) {
+            throw new IllegalArgumentException("User cannot be null");
         }
 
-        User user = userService.getCurrentUser();
         Thread thread = new Thread();
         thread.setUser(user);
         thread.setTitle(threadTitle);

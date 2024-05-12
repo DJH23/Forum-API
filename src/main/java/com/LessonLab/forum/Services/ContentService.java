@@ -2,10 +2,7 @@ package com.LessonLab.forum.Services;
 
 import java.time.LocalDateTime;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.LessonLab.forum.Models.Comment;
 import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Models.ContentUpdateDTO;
-import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Vote;
 import com.LessonLab.forum.Models.Thread;
 import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.Post;
-import com.LessonLab.forum.Models.Role;
+
 import com.LessonLab.forum.Repositories.CommentRepository;
 import com.LessonLab.forum.Repositories.ContentRepository;
 import com.LessonLab.forum.Repositories.UserRepository;

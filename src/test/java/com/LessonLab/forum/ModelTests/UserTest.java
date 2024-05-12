@@ -9,9 +9,10 @@ import java.util.List;
 import org.junit.Test;
 
 import com.LessonLab.forum.Models.Content;
+import com.LessonLab.forum.Models.Role;
+import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Enums.Account;
-import com.LessonLab.forum.Models.Enums.Role;
 import com.LessonLab.forum.Models.Enums.Status;
 
 public class UserTest {
@@ -19,29 +20,32 @@ public class UserTest {
     @Test
     public void testGettersAndSetters() {
         // Arrange
-        UserExtension user = new UserExtension();
+        User user = new User();
+        UserExtension userExtension = new UserExtension();
         Long userId = 1L;
         String username = "username";
-        Role role = Role.USER;
+        Role role = new Role();
         Status status = Status.ONLINE;
         Account accountStatus = Account.ACTIVE;
         List<Content> contents = new ArrayList<>();
 
         // Act
-        user.setUserId(userId);
+        user.setId(userId);
         user.setUsername(username);
-        user.setRole(role);
-        user.setStatus(status);
-        user.setAccountStatus(accountStatus);
-        user.setContents(contents);
+        role.setId(userId);
+        role.setName("ADMIN");
+        userExtension.setStatus(status);
+        userExtension.setAccountStatus(accountStatus);
+        userExtension.setContents(contents);
 
         // Assert
-        assertEquals(userId, user.getUserId());
+        assertEquals(userId, user.getId());
         assertEquals(username, user.getUsername());
-        assertEquals(role, user.getRole());
-        assertEquals(status, user.getStatus());
-        assertEquals(accountStatus, user.getAccountStatus());
-        assertEquals(contents, user.getContents());
+        assertEquals(userId, role.getId());
+        assertEquals("ADMIN", role.getName());
+        assertEquals(status, userExtension.getStatus());
+        assertEquals(accountStatus, userExtension.getAccountStatus());
+        assertEquals(contents, userExtension.getContents());
     }
 
     @Test

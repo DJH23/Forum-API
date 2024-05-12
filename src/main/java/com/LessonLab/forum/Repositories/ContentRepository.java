@@ -27,4 +27,6 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
 
     @Query("SELECT c FROM Content c WHERE TYPE(c) = :contentType")
     List<Content> findByContentType(@Param("contentType") Class<?> contentType);
+
+    Page<Content> findByUserId(Long userId, Pageable pageable);
 }

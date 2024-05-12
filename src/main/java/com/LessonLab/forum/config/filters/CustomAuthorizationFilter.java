@@ -10,6 +10,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,9 +19,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.stream;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -46,50 +50,41 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        // If the request is for the API Login endpoint, pass the request to the next
-        // filter in the chain
-        if (request.getServletPath().equals("/api/login")) {
+        String path = request.getServletPath();
+        if (path.equals("/api/users/login") || path.equals("/api/users/register-user") || path.startsWith("/swagger-ui")
+                || path.startsWith("/v3/api-docs")
+                || path.startsWith("/swagger-ui-lesson-lab")) {
             filterChain.doFilter(request, response);
-        } else {
-            // If the request is not for the API Login endpoint, check if the request has
-            // the authorization header
-            String authorizationHeader = request.getHeader(AUTHORIZATION);
-            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-                try {
-                    // If the authorization header is present, get the token
-                    String token = authorizationHeader.substring("Bearer ".length());
-                    Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
-                    JWTVerifier verifier = JWT.require(algorithm).build();
-                    DecodedJWT decodedJWT = verifier.verify(token);
-                    String username = decodedJWT.getSubject();
-                    String[] roles = decodedJWT.getClaim("roles").asArray(String.class);
-                    Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-                    stream(roles).forEach(role -> {
-                        authorities.add(new SimpleGrantedAuthority(role));
-                    });
-                    // Create a new authentication token with the user's details and authorities and
-                    // set it in the Security Context
-                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                            username, null, authorities);
-                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                    // Pass the request to the next filter in the chain
-                    filterChain.doFilter(request, response);
-                } catch (Exception exception) {
-                    log.error("Error logging in: {}", exception.getMessage());
-                    // If an error occurs during the authorization process, set the error message in
-                    // the response header and return a Forbidden error status
-                    response.setHeader("error", exception.getMessage());
-                    response.setStatus(FORBIDDEN.value());
-                    Map<String, String> error = new HashMap<>();
-                    error.put("error_message", exception.getMessage());
-                    response.setContentType(APPLICATION_JSON_VALUE);
-                    new ObjectMapper().writeValue(response.getOutputStream(), error);
-                }
-            } else {
-                // If the header does not contain "Bearer" or the header is null, then continue
-                // with the filter chain.
+            return;
+        }
+        String authorizationHeader = request.getHeader(AUTHORIZATION);
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            try {
+                String token = authorizationHeader.substring("Bearer ".length());
+                Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
+                JWTVerifier verifier = JWT.require(algorithm).build();
+                DecodedJWT decodedJWT = verifier.verify(token);
+                String username = decodedJWT.getSubject();
+                String[] roles = decodedJWT.getClaim("roles").asArray(String.class);
+                Collection<SimpleGrantedAuthority> authorities = Arrays.stream(roles)
+                        .map(role -> new SimpleGrantedAuthority(role))
+                        .collect(Collectors.toList());
+
+                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                        username, null, authorities);
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 filterChain.doFilter(request, response);
+            } catch (Exception exception) {
+                log.error("Error logging in: {}", exception.getMessage());
+                response.setHeader("error", exception.getMessage());
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                Map<String, String> error = new HashMap<>();
+                error.put("error_message", exception.getMessage());
+                response.setContentType(APPLICATION_JSON_VALUE);
+                new ObjectMapper().writeValue(response.getOutputStream(), error);
             }
+        } else {
+            filterChain.doFilter(request, response);
         }
     }
 }

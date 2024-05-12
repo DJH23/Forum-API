@@ -1,9 +1,12 @@
 package com.LessonLab.forum.RepositoryTests;
 
+import com.LessonLab.forum.Models.Role;
+import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Enums.Account;
-import com.LessonLab.forum.Models.Enums.Role;
 import com.LessonLab.forum.Models.Enums.Status;
+import com.LessonLab.forum.Repositories.RoleRepository;
+import com.LessonLab.forum.Repositories.UserExtensionRepository;
 import com.LessonLab.forum.Repositories.UserRepository;
 
 import org.junit.jupiter.api.AfterEach;
@@ -15,6 +18,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
@@ -27,52 +32,65 @@ public class UserRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
-    private UserExtension testUser;
+    @Autowired
+    private UserExtensionRepository userExtensionRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
+    private User testUser;
+
+    private Role testRole;
 
     @BeforeEach
     public void setUp() {
         // Prepare the database for testing
         // This might involve creating test data
-        testUser = new UserExtension();
+        testUser = new User();
         testUser.setUsername("testUser");
         userRepository.save(testUser);
+
+        testRole = new Role();
+        testRole.setName("ADMIN");
+        roleRepository.save(testRole);
+
     }
 
     @AfterEach
     public void tearDown() {
         // Clean up the database after testing
         // This might involve deleting test data
-        userRepository.findByUsername("testUser").ifPresent(userRepository::delete);
+        User user = userRepository.findByUsername("testUser");
+        if (user != null) {
+            userRepository.delete(user);
+        }
+
+        Role role = roleRepository.findByName("ADMIN");
+        if (role != null) {
+            roleRepository.delete(role);
+        }
     }
 
     @Test
     public void testFindByUsername() {
-        // Arrange
-        UserExtension user = new UserExtension();
-        user.setUsername("testUser");
-        userRepository.save(user);
 
         // Act
-        Optional<UserExtension> foundUser = userRepository.findByUsername("testUser");
+        User foundUser = userRepository.findByUsername("testUser");
 
         // Assert
-        assertTrue(foundUser.isPresent());
-        assertEquals("testUser", foundUser.get().getUsername());
+        assertNotNull(foundUser);
+        assertEquals("testUser", foundUser.getUsername());
     }
 
     @Test
     public void testFindByRole() {
-        // Arrange
-        UserExtension user = new UserExtension();
-        user.setRole(Role.ADMIN);
-        userRepository.save(user);
 
         // Act
-        List<UserExtension> users = userRepository.findByRole(Role.ADMIN);
+        List<Role> role = roleRepository.findByRole("ADMIN");
 
         // Assert
-        assertFalse(users.isEmpty());
-        assertEquals(Role.ADMIN, users.get(0).getRole());
+        assertNotNull(role);
+        assertEquals("ADMIN", role.get(0).getName());
     }
 
     @Test
@@ -83,7 +101,7 @@ public class UserRepositoryTest {
         userRepository.save(user);
 
         // Act
-        List<UserExtension> users = userRepository.findByStatus(Status.OFFLINE);
+        List<UserExtension> users = userExtensionRepository.findByStatus(Status.OFFLINE);
 
         // Assert
         assertEquals(1, users.size());
@@ -98,7 +116,7 @@ public class UserRepositoryTest {
         userRepository.save(user);
 
         // Act
-        List<UserExtension> users = userRepository.findByAccountStatus(Account.ACTIVE);
+        List<UserExtension> users = userExtensionRepository.findByAccountStatus(Account.ACTIVE);
 
         // Assert
         assertEquals(1, users.size());
@@ -107,30 +125,23 @@ public class UserRepositoryTest {
 
     @Test
     public void testFindByRoleIn() {
-        // Arrange
-        UserExtension user = new UserExtension();
-        user.setRole(Role.USER);
-        userRepository.save(user);
 
         // Act
-        List<UserExtension> users = userRepository.findByRole(Role.USER);
+        List<Role> testRole = roleRepository.findByRole("ADMIN");
 
         // Assert
-        assertEquals(1, users.size());
-        assertEquals(Role.USER, users.get(0).getRole());
+        assertEquals(1, testRole.size());
+        assertEquals("ADMIN", testRole.get(0).getName());
     }
 
     @Test
     public void testDeleteUserById() {
         // Arrange
-        UserExtension user = new UserExtension();
-        user.setUsername("testUser");
-        userRepository.save(user);
-        Long userId = user.getUserId();
+        Long userId = testUser.getId();
 
         // Act
         userRepository.deleteById(userId);
-        Optional<UserExtension> foundUser = userRepository.findById(userId);
+        Optional<User> foundUser = userRepository.findById(userId);
 
         // Assert
         assertTrue(foundUser.isEmpty());
@@ -138,17 +149,14 @@ public class UserRepositoryTest {
 
     @Test
     public void testDeleteByUsername() {
-        // Arrange
-        UserExtension user = new UserExtension();
-        user.setUsername("testUser");
-        userRepository.save(user);
 
         // Act
         userRepository.deleteByUsername("testUser");
-        Optional<UserExtension> foundUser = userRepository.findByUsername("testUser");
+        User foundUser = userRepository.findByUsername("testUser");
 
         // Assert
-        assertTrue(foundUser.isEmpty());
+        assertNull(foundUser);
+       
     }
 
 }

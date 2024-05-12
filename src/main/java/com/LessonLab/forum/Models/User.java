@@ -45,7 +45,10 @@ public class User {
     /**
      * The roles that the user has
      */
-    @ManyToMany(fetch = EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @JoinTable(name = "user_roles", // Name of the join table
+            joinColumns = @JoinColumn(name = "user_id"), // Column referencing User
+            inverseJoinColumns = @JoinColumn(name = "role_id") // Column referencing Role
+    )
     private Collection<Role> roles = new ArrayList<>();
-
 }

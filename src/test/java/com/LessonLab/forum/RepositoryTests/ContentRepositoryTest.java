@@ -74,17 +74,17 @@ public class ContentRepositoryTest {
     }
 
     @Test
-    public void testFindByUserUserId() {
+    public void testFindByUserId() {
         // Arrange
-        Long userId = testUser.getUserId();
+        Long userId = testUser.getId();
         PageRequest pageable = PageRequest.of(0, 10);
 
         // Act
-        Page<Content> contents = contentRepository.findByUserUserId(userId, pageable);
+        Page<Content> contents = contentRepository.findByUserId(userId, pageable);
 
         // Assert
         assertFalse(contents.isEmpty());
-        contents.forEach(content -> assertEquals(userId, content.getUser().getUserId()));
+        contents.forEach(content -> assertEquals(userId, content.getUser().getId()));
     }
 
     @Test

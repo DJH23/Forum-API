@@ -29,7 +29,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Enums.Account;
-import com.LessonLab.forum.Models.Enums.Role;
 import com.LessonLab.forum.Models.Enums.Status;
 import com.LessonLab.forum.Repositories.UserRepository;
 import com.LessonLab.forum.Services.UserService;

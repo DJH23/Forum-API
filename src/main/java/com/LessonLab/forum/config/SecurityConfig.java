@@ -1,7 +1,7 @@
 package com.LessonLab.forum.config;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -9,17 +9,17 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.LessonLab.forum.config.filters.CustomAuthenticationFilter;
 import com.LessonLab.forum.config.filters.CustomAuthorizationFilter;
 
 import static org.springframework.http.HttpMethod.*;
-import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 /**
  * This is the main configuration class for security in the application. It
@@ -30,72 +30,51 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    // UserDetailsService is an interface provided by Spring Security that defines a
-    // way to retrieve user information
-    @Autowired
-    private UserDetailsService userDetailsService;
 
-    // Autowired instance of the AuthenticationManagerBuilder
-    @Autowired
-    private AuthenticationManagerBuilder authManagerBuilder;
+    private final AuthenticationManagerBuilder authManagerBuilder;
 
-    /**
-     * Bean definition for PasswordEncoder
-     *
-     * @return an instance of the DelegatingPasswordEncoder
-     */
     @Bean
-    public PasswordEncoder encoder() {
+    public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
-    /**
-     * Bean definition for AuthenticationManager
-     *
-     * @param authenticationConfiguration the instance of
-     *                                    AuthenticationConfiguration
-     * @return an instance of the AuthenticationManager
-     * @throws Exception if there is an issue getting the instance of the
-     *                   AuthenticationManager
-     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
             throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    /**
-     * Bean definition for SecurityFilterChain
-     *
-     * @param http the instance of HttpSecurity
-     * @return an instance of the SecurityFilterChain
-     * @throws Exception if there is an issue building the SecurityFilterChain
-     */
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        // CustomAuthenticationFilter instance created
+        http.csrf(csrf -> csrf.disable())
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/users/login", "/api/users/register-user", "/swagger-ui/**", "/v3/api-docs/**",
+                        "/swagger-ui-lesson-lab.html")
+                .permitAll()
+                .requestMatchers("/api/users").hasAnyAuthority("ROLE_ADMIN")
+                .requestMatchers("/api/users").hasAuthority("ROLE_ADMIN")
+                .requestMatchers("/api/threads/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN", "ROLE_MODERATOR")
+                .anyRequest().authenticated());
+
+        // Custom Authentication and Authorization Filters
         CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(
                 authManagerBuilder.getOrBuild());
-        // set the URL that the filter should process
-        customAuthenticationFilter.setFilterProcessesUrl("/api/login");
-        // disable CSRF protection
-        http.csrf(csrf -> csrf.disable());
-        // set the session creation policy to stateless
-        http.sessionManagement().sessionCreationPolicy(STATELESS);
-        // set up authorization for different request matchers and user roles
-        http.authorizeHttpRequests((requests) -> requests
-                .requestMatchers("/api/login/**").permitAll()
-                .requestMatchers(GET, "/api/users").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-                .requestMatchers(POST, "/api/users").hasAnyAuthority("ROLE_ADMIN")
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() // Allow Swagger endpoints
-                .anyRequest().authenticated());
-        // add the custom authentication filter to the http security object
+        customAuthenticationFilter.setFilterProcessesUrl("/api/users/login"); // Ensure this matches your intended login
+                                                                              // URL exactly
+
         http.addFilter(customAuthenticationFilter);
-        // Add the custom authorization filter before the standard authentication
-        // filter.
         http.addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
 
-        // Build the security filter chain to be returned.
         return http.build();
+    }
+
+    @Bean
+    public DefaultWebSecurityExpressionHandler webSecurityExpressionHandler() {
+        DefaultWebSecurityExpressionHandler handler = new DefaultWebSecurityExpressionHandler();
+        handler.setDefaultRolePrefix(""); // This will ignore 'ROLE_' prefix in security expressions
+        return handler;
     }
 }
