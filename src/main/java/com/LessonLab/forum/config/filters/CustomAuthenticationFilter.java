@@ -72,7 +72,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
             Authentication authentication) throws IOException, ServletException {
-        // Cast the authentication principal to User object
+            // Cast the authentication principal to User object
         User user = (User) authentication.getPrincipal();
         // Creating an HMAC256 encoded JWT with secret key
         Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());

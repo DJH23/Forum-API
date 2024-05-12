@@ -3,7 +3,6 @@ package com.LessonLab.forum.ControllerTests;
 import com.LessonLab.forum.Models.Thread;
 import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Enums.Account;
-import com.LessonLab.forum.Models.Enums.Role;
 import com.LessonLab.forum.Models.Enums.Status;
 
 import org.junit.Before;

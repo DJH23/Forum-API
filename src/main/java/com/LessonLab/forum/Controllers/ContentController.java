@@ -18,8 +18,6 @@ import com.LessonLab.forum.Models.ContentUpdateDTO;
 import com.LessonLab.forum.Models.Thread;
 import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.Post;
-import com.LessonLab.forum.Models.Role;
-import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Services.CommentService;
 import com.LessonLab.forum.Services.PostService;
 import com.LessonLab.forum.Services.ThreadService;

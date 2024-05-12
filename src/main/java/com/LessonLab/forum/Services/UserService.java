@@ -3,6 +3,7 @@ package com.LessonLab.forum.Services;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,23 +14,33 @@ import com.LessonLab.forum.Models.Role;
 import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Enums.Account;
-import com.LessonLab.forum.Models.Enums.Permission;
 import com.LessonLab.forum.Models.Enums.Status;
 import com.LessonLab.forum.Repositories.RoleRepository;
 import com.LessonLab.forum.Repositories.UserExtensionRepository;
 import com.LessonLab.forum.Repositories.UserRepository;
 import com.LessonLab.forum.interfaces.UserServiceInterface;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+
+import org.springframework.web.bind.annotation.*;
 
 @Service
 @Slf4j
@@ -47,18 +58,16 @@ public class UserService implements UserServiceInterface, UserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    // Utility method to check if a user has a specific permission
-    /* private boolean hasPermission(User user, Permission permission) {
-        return user.getRoles().stream().anyMatch(role -> role.getPermissions().contains(permission));
-    } */
-
     @Transactional
     public User updateUser(User user) {
 
-        /* User currentUser = getCurrentUser();
-        if (!hasPermission(currentUser, Permission.WRITE_USER)) {
-            throw new AccessDeniedException("You do not have permission to update users.");
-        } */
+        /*
+         * User currentUser = getCurrentUser();
+         * if (!hasPermission(currentUser, Permission.WRITE_USER)) {
+         * throw new
+         * AccessDeniedException("You do not have permission to update users.");
+         * }
+         */
 
         if (user == null) {
             throw new IllegalArgumentException("Cannot update a null user");
@@ -76,7 +85,7 @@ public class UserService implements UserServiceInterface, UserDetailsService {
         if (role == null) {
             throw new IllegalArgumentException("Role cannot be null");
         }
-        List<Role> users = roleRepository.findByRole(role);
+        List<Role> users = roleRepository.findByRole(role.getName());
         if (users.isEmpty()) {
             return Collections.emptyList();
         }
@@ -128,10 +137,13 @@ public class UserService implements UserServiceInterface, UserDetailsService {
     @Transactional
     public void deleteUserByUsername(String username) {
 
-        /* User currentUser = getCurrentUser();
-        if (!hasPermission(currentUser, Permission.DELETE_USER)) {
-            throw new AccessDeniedException("You do not have permission to delete users.");
-        } */
+        /*
+         * User currentUser = getCurrentUser();
+         * if (!hasPermission(currentUser, Permission.DELETE_USER)) {
+         * throw new
+         * AccessDeniedException("You do not have permission to delete users.");
+         * }
+         */
 
         if (!userRepository.existsByUsername(username)) {
             throw new IllegalArgumentException("Cannot delete non-existing user with username: " +
@@ -171,7 +183,8 @@ public class UserService implements UserServiceInterface, UserDetailsService {
     public User saveUser(User user) {
         log.info("Saving new user {} to the database", user.getName());
         // Encode the user's password for security before saving
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+       // user.setPassword(passwordEncoder.encode(user.getPassword()));
+        
         return userRepository.save(user);
     }
 

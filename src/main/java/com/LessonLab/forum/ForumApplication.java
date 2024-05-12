@@ -16,9 +16,9 @@ public class ForumApplication {
         SpringApplication.run(ForumApplication.class, args);
     }
 
-    @Bean
+    /* @Bean
     PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-    }
+    } */
 
 }

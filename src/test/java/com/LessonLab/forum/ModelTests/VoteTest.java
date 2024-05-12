@@ -5,9 +5,8 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import com.LessonLab.forum.Models.Content;
-import com.LessonLab.forum.Models.UserExtension;
+import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.Vote;
-import com.LessonLab.forum.Models.Enums.Role;
 
 public class VoteTest {
     @Test
@@ -15,7 +14,7 @@ public class VoteTest {
         // Arrange
         Vote vote = new Vote();
         Long voteId = 1L;
-        UserExtension user = new UserExtension("username", Role.USER);
+        User user = new User();
         Content content = new Content() {
         }; // Create an anonymous subclass because Content is abstract
         boolean upVote = true;
