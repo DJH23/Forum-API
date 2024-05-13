@@ -3,9 +3,10 @@ package com.LessonLab.forum.Services;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,34 +14,23 @@ import org.springframework.stereotype.Service;
 import com.LessonLab.forum.Models.Role;
 import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.UserExtension;
+import com.LessonLab.forum.Models.UserExtensionDTO;
 import com.LessonLab.forum.Models.Enums.Account;
 import com.LessonLab.forum.Models.Enums.Status;
 import com.LessonLab.forum.Repositories.RoleRepository;
 import com.LessonLab.forum.Repositories.UserExtensionRepository;
 import com.LessonLab.forum.Repositories.UserRepository;
 import com.LessonLab.forum.interfaces.UserServiceInterface;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-
-import org.springframework.web.bind.annotation.*;
 
 @Service
 @Slf4j
@@ -54,9 +44,6 @@ public class UserService implements UserServiceInterface, UserDetailsService {
 
     @Autowired
     private RoleRepository roleRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @Transactional
     public User updateUser(User user) {
@@ -81,15 +68,21 @@ public class UserService implements UserServiceInterface, UserDetailsService {
         return userRepository.save(user);
     }
 
-    public List<Role> getUsersByRole(Role role) {
-        if (role == null) {
-            throw new IllegalArgumentException("Role cannot be null");
+    public List<Map<String, String>> getUsersByRole(String roleName) {
+        if (roleName == null) {
+            throw new IllegalArgumentException("Role name cannot be null");
         }
-        List<Role> users = roleRepository.findByRole(role.getName());
+        Role role = roleRepository.findByName(roleName);
+        if (role == null) {
+            throw new IllegalArgumentException("Role not found");
+        }
+        List<User> users = userRepository.findByRolesIn(Collections.singleton(role));
         if (users.isEmpty()) {
             return Collections.emptyList();
         }
-        return users;
+        return users.stream()
+                .map(user -> Map.of("id", user.getId().toString(), "username", user.getUsername()))
+                .collect(Collectors.toList());
     }
 
     public List<UserExtension> getUsersByStatus(Status status) {
@@ -183,8 +176,6 @@ public class UserService implements UserServiceInterface, UserDetailsService {
     public User saveUser(User user) {
         log.info("Saving new user {} to the database", user.getName());
         // Encode the user's password for security before saving
-       // user.setPassword(passwordEncoder.encode(user.getPassword()));
-        
         return userRepository.save(user);
     }
 
@@ -199,6 +190,25 @@ public class UserService implements UserServiceInterface, UserDetailsService {
     public Role saveRole(Role role) {
         log.info("Saving new role {} to the database", role.getName());
         return roleRepository.save(role);
+    }
+
+    public UserExtensionDTO saveUserExtensionDTO(UserExtensionDTO userExtensionDTO) {
+        log.info("Saving new user extension {} to the database", userExtensionDTO.getUsername());
+        return userExtensionRepository.save(userExtensionDTO);
+    }
+
+    public void setUserExtensionDTO(UserExtensionDTO userExtensionDTO) {
+        if (userExtensionDTO == null) {
+            throw new IllegalArgumentException("UserExtension cannot be null");
+        }
+        userExtensionRepository.save(userDTO);
+    }
+
+    public UserExtensionDTO toDTO(UserExtension userExtension) {
+        UserExtensionDTO dto = new UserExtensionDTO();
+        dto.setStatus(userExtension.getStatus());
+        dto.setAccountStatus(userExtension.getAccountStatus());
+        return dto;
     }
 
     /**

@@ -16,7 +16,7 @@ public class ThreadController {
     private ThreadService threadService;
 
     @PostMapping("/")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MODERATOR')")
+    //@PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MODERATOR')")
     public ResponseEntity<?> createThread(@RequestParam String threadTitle,
             @RequestParam String threadDescription) {
         Thread savedThread = threadService.createThread(threadTitle, threadDescription);

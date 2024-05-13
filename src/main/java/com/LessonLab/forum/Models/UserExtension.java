@@ -21,9 +21,9 @@ public class UserExtension extends User {
     @Enumerated(EnumType.STRING)
     private Account accountStatus = Account.ACTIVE;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    @JsonIgnore
     private List<Content> contents;
 
     public UserExtension() {
@@ -66,4 +66,5 @@ public class UserExtension extends User {
     public boolean isOnline() {
         return getStatus() == Status.ONLINE;
     }
+
 }
