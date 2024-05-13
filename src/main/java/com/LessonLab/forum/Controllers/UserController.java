@@ -1,6 +1,5 @@
 package com.LessonLab.forum.Controllers;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -11,11 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,6 +26,8 @@ import com.LessonLab.forum.Models.Enums.Status;
 import com.LessonLab.forum.Repositories.RoleRepository;
 import com.LessonLab.forum.Services.UserService;
 import com.LessonLab.forum.dtos.RoleToUserDTO;
+import com.LessonLab.forum.Models.UserExtensionDTO;
+
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 
@@ -97,6 +95,14 @@ public class UserController {
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));
 
+        // Create a UserDTO object
+        UserExtensionDTO userDTO = new UserExtensionDTO();
+        userDTO.setAccountStatus(Account.ACTIVE);
+        userDTO.setStatus(Status.ONLINE);
+
+        userDTO = userService.saveUserExtensionDTO(userDTO);
+        user.setUserExtensionDTO(userDTO);
+
         // Save the user to the database
         user = userService.saveUser(user);
 
@@ -109,7 +115,7 @@ public class UserController {
         }
         userService.addRoleToUser(username, "ROLE_USER");
 
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(userDTO);
     }
 
     @GetMapping("/get-user-by-id/{id}")
@@ -124,12 +130,6 @@ public class UserController {
     public ResponseEntity<?> getUserByUsername(@PathVariable String username) {
         UserDetails user = userService.loadUserByUsername(username);
         return new ResponseEntity<>(user, HttpStatus.OK);
-    }
-
-    @GetMapping("/role/{role}")
-    public ResponseEntity<?> getUsersByRole(@PathVariable Role role) {
-        List<Role> users = userService.getUsersByRole(role);
-        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     @GetMapping("/status/{status}")
@@ -158,13 +158,13 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping("/add-role")
+    @PostMapping("/add-role-type")
     @ResponseStatus(HttpStatus.CREATED)
     public void saveRole(@RequestBody Role role) {
         userService.saveRole(role);
     }
 
-    @PostMapping("/roles/add-to-user")
+    @PostMapping("/roles/add-role-to-user")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void addRoleToUser(@RequestBody RoleToUserDTO roleToUserDTO) {
         userService.addRoleToUser(roleToUserDTO.getUsername(), roleToUserDTO.getRoleName());

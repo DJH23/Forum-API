@@ -9,16 +9,19 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.domain.Page;
@@ -28,15 +31,17 @@ import org.springframework.data.domain.Pageable;
 
 import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Models.Post;
+import com.LessonLab.forum.Models.Role;
 import com.LessonLab.forum.Models.Thread;
+import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.UserExtension;
-import com.LessonLab.forum.Models.Enums.Role;
 import com.LessonLab.forum.Repositories.ContentRepository;
 import com.LessonLab.forum.Repositories.ThreadRepository;
 import com.LessonLab.forum.Repositories.UserRepository;
 import com.LessonLab.forum.Repositories.VoteRepository;
 import com.LessonLab.forum.Services.ContentService;
 import com.LessonLab.forum.Services.ThreadService;
+import com.LessonLab.forum.Services.UserService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ThreadServiceTest {
@@ -49,17 +54,40 @@ public class ThreadServiceTest {
 
     @Mock
     private VoteRepository voteRepository;
+
     @Mock
     private ThreadRepository threadRepository;
+
     @Mock
     private ContentService contentService;
+
     @InjectMocks
     private ThreadService threadService;
+
+    @InjectMocks
+    private UserService userService;
+
     private AutoCloseable closeable;
+
+    private User testUser;
 
     @BeforeEach
     public void setup() {
-        closeable = MockitoAnnotations.openMocks(this);
+        // Initialize mocks
+        MockitoAnnotations.openMocks(this);
+
+        // Create a mock for UserService
+        UserService userService = Mockito.mock(UserService.class);
+
+        // Initialize testUser
+        testUser = new User();
+        testUser.setId(1L);
+        testUser.setUsername("testUser");
+        testUser.setPassword("password");
+        testUser.setName("testName");
+        testUser.setRoles(new HashSet<>(Collections.singleton(new Role(1L, "ADMIN"))));
+
+        when(userService.getCurrentUser()).thenReturn(testUser);
     }
 
     @AfterEach
@@ -68,44 +96,41 @@ public class ThreadServiceTest {
     }
 
     @Test
-    public void testCreateThread() {
-        // Create a thread
-        Thread thread = new Thread("Test thread title", "Test thread description");
+    public void test_createThread_withValidInputs() {
+        // Arrange
+        Thread thread = new Thread();
+        thread.setTitle("Test Title");
+        thread.setDescription("Test Description");
 
-        // Mock the contentRepository to return the thread when save is called
-        when(contentRepository.save(thread)).thenReturn((Thread) (Content) thread);
+        Mockito.when(userService.getCurrentUser()).thenReturn(testUser); 
 
-        // Call createThread
-        Thread createdThread = threadService.createThread(thread);
+        // Act
+        Thread result = threadService.createThread(thread.getTitle(), thread.getDescription());
 
-        // Assert that the created thread is the same as the original thread
-        assertNotNull(createdThread);
-        assertEquals(thread, createdThread);
+        // Assert
+        Assert.assertNotNull(result);
+        Assert.assertEquals(thread.getTitle(), result.getTitle());
+        Assert.assertEquals(thread.getDescription(), result.getDescription());
+        Assert.assertEquals(testUser, result.getUser());
     }
 
     @Test
     public void testUpdateThread() {
-        // Create a thread
-        Thread thread = new Thread("Test thread title", "Test thread description");
+        // Arrange
+        UserService mockUserService = Mockito.mock(UserService.class);
+        ThreadService threadService = new ThreadService(mockUserService);
+        Thread originalThread = new Thread("Original Title", "Original Content");
+        Thread updatedThread = new Thread("Updated Title", "Updated Content");
 
-        // Mock the contentRepository to return the thread when findById is called
-        when(contentRepository.findById(thread.getContentId())).thenReturn(Optional.of((Content) thread));
+        // Act
+        Long threadId = originalThread.getContentId(); // get the ID of the original thread
+        threadService.updateThread(threadId, updatedThread); // update the thread
 
-        // Create an updateThread with a new title and description
-        Thread updateThread = new Thread("Updated thread title", "Updated thread description");
-
-        // Mock the contentRepository to return the updated thread when save is called
-        when(contentRepository.save(any(Thread.class))).thenAnswer(i -> i.getArguments()[0]);
-
-        // Call updateThread
-        Thread updatedThread = threadService.updateThread(thread.getContentId(), updateThread);
-
-        // Assert that the updated thread has the new title and description
-        assertNotNull(updatedThread);
-        assertEquals(updateThread.getTitle(), updatedThread.getTitle());
-        assertEquals(updateThread.getDescription(), updatedThread.getDescription());
+        // Assert
+        Thread resultThread = (Thread) threadService.getContentById(threadId, "thread"); // get the updated thread
+        assertEquals("Updated Title", resultThread.getTitle());
+        assertEquals("Updated Content", resultThread.getContent());
     }
-
     /*
      * @Test
      * public void testGetThread() {

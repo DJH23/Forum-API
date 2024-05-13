@@ -1,5 +1,7 @@
 package com.LessonLab.forum.config.filters;
 
+import com.LessonLab.forum.Models.User;
+import com.LessonLab.forum.Services.UserService;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -11,10 +13,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -35,8 +40,13 @@ import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
  * handle
  * authorization of a user to access the API endpoints.
  */
+@Component
 @Slf4j
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
+
+    @Autowired
+    private UserService userService;
+
     /**
      * The method doFilterInternal will handle the authorization of a user to access
      * the API endpoints.
@@ -65,13 +75,19 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                 JWTVerifier verifier = JWT.require(algorithm).build();
                 DecodedJWT decodedJWT = verifier.verify(token);
                 String username = decodedJWT.getSubject();
-                String[] roles = decodedJWT.getClaim("roles").asArray(String.class);
-                Collection<SimpleGrantedAuthority> authorities = Arrays.stream(roles)
-                        .map(role -> new SimpleGrantedAuthority(role))
-                        .collect(Collectors.toList());
+
+                // Fetch user here
+                // UserService userService =
+                // ApplicationContextProvider.getBean(UserService.class);
+                User user = userService.getUser(username);
+
+                if (user == null) {
+                    throw new UsernameNotFoundException("User not found");
+                }
 
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                        username, null, authorities);
+                        user, null, user.getAuthorities());
+
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 filterChain.doFilter(request, response);
             } catch (Exception exception) {

@@ -45,6 +45,11 @@ public class SecurityConfig {
     }
 
     @Bean
+    public CustomAuthorizationFilter customAuthorizationFilter() throws Exception {
+        return new CustomAuthorizationFilter();
+    }
+
+    @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .sessionManagement()
@@ -62,11 +67,10 @@ public class SecurityConfig {
         // Custom Authentication and Authorization Filters
         CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(
                 authManagerBuilder.getOrBuild());
-        customAuthenticationFilter.setFilterProcessesUrl("/api/users/login"); // Ensure this matches your intended login
-                                                                              // URL exactly
+        customAuthenticationFilter.setFilterProcessesUrl("/api/users/login");
 
         http.addFilter(customAuthenticationFilter);
-        http.addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(customAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -74,7 +78,7 @@ public class SecurityConfig {
     @Bean
     public DefaultWebSecurityExpressionHandler webSecurityExpressionHandler() {
         DefaultWebSecurityExpressionHandler handler = new DefaultWebSecurityExpressionHandler();
-        handler.setDefaultRolePrefix(""); // This will ignore 'ROLE_' prefix in security expressions
+        handler.setDefaultRolePrefix(""); // No 'ROLE_' prefix
         return handler;
     }
 }

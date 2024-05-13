@@ -8,47 +8,78 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static jakarta.persistence.FetchType.EAGER;
-
 /**
  * Entity class for representing a User in the database
  */
+import org.springframework.security.core.userdetails.UserDetails;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import java.util.stream.Collectors;
+
 @Entity
-@Data
+@Data 
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
-    /**
-     * The unique identifier for the user
-     */
+public class User implements UserDetails {
     @Id
-    /**
-     * The id field is generated automatically by the database
-     */
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    /**
-     * The name of the user
-     */
+
     private String name;
-
-    /**
-     * The username used to log in
-     */
     private String username;
-
-    /**
-     * The password used to log in
-     */
     private String password;
 
-    /**
-     * The roles that the user has
-     */
     @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
-    @JoinTable(name = "user_roles", // Name of the join table
-            joinColumns = @JoinColumn(name = "user_id"), // Column referencing User
-            inverseJoinColumns = @JoinColumn(name = "role_id") // Column referencing Role
-    )
+    @JoinTable(name = "user_roles",
+               joinColumns = @JoinColumn(name = "user_id"),
+               inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Collection<Role> roles = new ArrayList<>();
+
+    //@JsonIgnore
+    private UserExtension userExtension;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles.stream()
+                    .map(role -> new SimpleGrantedAuthority(role.getName()))
+                    .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true; // in later versions may want to manage this with additional fields in User table
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true; // in later versions may want to manage this similarly
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true; // and this as well
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true; // might be good to have an 'enabled' flag in User for this purpose
+    }
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.username;
+    }
+
+    public void setUserExtension(UserExtension userExtension) {
+        this.userExtension = userExtension;
+    }
+
 }

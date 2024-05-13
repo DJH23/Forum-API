@@ -11,27 +11,37 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import static org.mockito.ArgumentMatchers.anyString;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.LessonLab.forum.Models.Role;
+import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Enums.Account;
 import com.LessonLab.forum.Models.Enums.Status;
+import com.LessonLab.forum.Repositories.RoleRepository;
 import com.LessonLab.forum.Repositories.UserRepository;
 import com.LessonLab.forum.Services.UserService;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -39,30 +49,63 @@ public class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Autowired
+    private RoleRepository roleRepository;
+
     @InjectMocks
     private UserService userService;
 
-    @Before
+    private User testUser;
+
+    private Role testRole;
+
+    @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        testUser = new User();
+        testUser.setUsername("testUser");
+        testUser.setId(1L);
+        testUser.setName("testName");
+        testUser.setPassword("123");
+        testUser.setRoles(Collections.singletonList(testRole));
+        userRepository.save(testUser);
+
+        testRole = new Role();
+        testRole.setName("ADMIN");
+        roleRepository.save(testRole);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         userRepository.deleteAll();
+
+        User user = userRepository.findByUsername("testUser");
+        if (user != null) {
+            userRepository.delete(user);
+        }
+
+        Role role = roleRepository.findByName("ADMIN");
+        if (role != null) {
+            roleRepository.delete(role);
+        }
     }
 
     @Test
     public void testDeleteUserById() {
         // Create a user with the "ADMIN" role
-        UserExtension user = new UserExtension("testUser", Role.ADMIN);
-        user.setUserId(1L);
+        /*
+         * User user = new User("testUser", Role.ADMIN);
+         * user.setUserId(1L);
+         */
 
         // Create a UserDetails instance
-        UserDetails userDetails = org.springframework.security.core.userdetails.User.withUsername(user.getUsername())
-                .password("") // Use an empty password
-                .roles(user.getRole().toString())
-                .build();
+        UserDetails userDetails = org.springframework.security.core.userdetails.User
+            .withUsername(testUser.getUsername())
+            .password(testUser.getPassword()).authorities(testUser.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName()))
+                .collect(Collectors.toList())).accountExpired(false)
+            .build();
 
         // Create a mock Authentication
         Authentication authentication = mock(Authentication.class);
@@ -80,16 +123,16 @@ public class UserServiceTest {
         SecurityContextHolder.setContext(securityContext);
 
         // Mock userRepository.findByUsername to return the user
-        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
+        when(userRepository.findByUsername(testUser.getUsername())).thenReturn(testUser);
 
         // Mock userRepository.existsById to return true
-        when(userRepository.existsById(user.getUserId())).thenReturn(true);
+        when(userRepository.existsById(testUser.getId())).thenReturn(true);
 
         // Call deleteUser with the user's ID
-        userService.deleteUserById(user.getUserId());
+        userService.deleteUserById(testUser.getId());
 
         // Verify that userRepository.deleteById was called with the user's ID
-        verify(userRepository, times(1)).deleteById(user.getUserId());
+        verify(userRepository, times(1)).deleteById(testUser.getId());
     }
 
     @Test
@@ -145,7 +188,8 @@ public class UserServiceTest {
     public void testAddUser_WithExistingUsername_ShouldThrowException() {
         // Arrange
         UserExtension userWithExistingUsername = new UserExtension("existingUser", Role.ADMIN);
-        when(userRepository.findByUsername(userWithExistingUsername.getUsername())).thenReturn(Optional.of(new UserExtension()));
+        when(userRepository.findByUsername(userWithExistingUsername.getUsername()))
+                .thenReturn(Optional.of(new UserExtension()));
 
         // Act
         userService.addUser(userWithExistingUsername);
@@ -359,7 +403,8 @@ public class UserServiceTest {
     public void testGetUsersByRole_WithValidRole_ShouldReturnUsers() {
         // Arrange
         Role role = Role.ADMIN;
-        List<UserExtension> expectedUsers = Arrays.asList(new UserExtension("username1", role), new UserExtension("username2", role));
+        List<UserExtension> expectedUsers = Arrays.asList(new UserExtension("username1", role),
+                new UserExtension("username2", role));
         when(userRepository.findByRole(role)).thenReturn(expectedUsers);
 
         // Act

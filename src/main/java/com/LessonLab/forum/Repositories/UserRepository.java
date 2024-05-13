@@ -1,11 +1,13 @@
 package com.LessonLab.forum.Repositories;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
+import com.LessonLab.forum.Models.Role;
 import com.LessonLab.forum.Models.User;
 
 @Repository
@@ -27,5 +29,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @return The found User entity or null if not found
      */
     User findByUsername(String username);
+
+    List<User> findByRolesIn(Collection<Role> roles);
 
 }
