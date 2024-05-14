@@ -21,7 +21,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.util.stream.Collectors;
 
 @Entity
-@Data 
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class User implements UserDetails {
@@ -34,24 +34,24 @@ public class User implements UserDetails {
     private String password;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
-    @JoinTable(name = "user_roles",
-               joinColumns = @JoinColumn(name = "user_id"),
-               inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Collection<Role> roles = new ArrayList<>();
 
-    //@JsonIgnore
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_extension_id")
     private UserExtension userExtension;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
-                    .map(role -> new SimpleGrantedAuthority(role.getName()))
-                    .collect(Collectors.toList());
+                .map(role -> new SimpleGrantedAuthority(role.getName()))
+                .collect(Collectors.toList());
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return true; // in later versions may want to manage this with additional fields in User table
+        return true; // in later versions may want to manage this with additional fields in User
+                     // table
     }
 
     @Override
@@ -68,6 +68,7 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true; // might be good to have an 'enabled' flag in User for this purpose
     }
+
     @Override
     public String getPassword() {
         return this.password;
@@ -76,10 +77,6 @@ public class User implements UserDetails {
     @Override
     public String getUsername() {
         return this.username;
-    }
-
-    public void setUserExtension(UserExtension userExtension) {
-        this.userExtension = userExtension;
     }
 
 }

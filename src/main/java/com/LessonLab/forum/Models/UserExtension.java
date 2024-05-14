@@ -8,11 +8,14 @@ import com.LessonLab.forum.Models.Enums.Status;
 import com.LessonLab.forum.Models.Enums.Account;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "userId")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "userId")
 @Entity
+@JsonIgnoreProperties({ "id", "name", "username", "password", "roles", "authorities", "accountNonExpired",
+        "accountNonLocked", "credentialsNonExpired", "enabled", "userExtension" })
 public class UserExtension extends User {
 
     @Enumerated(EnumType.STRING)
