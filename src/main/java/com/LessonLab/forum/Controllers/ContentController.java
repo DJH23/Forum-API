@@ -81,6 +81,7 @@ public class ContentController {
     }
 
     @GetMapping("/search/{contentType}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN') or hasRole('ROLE_MODERATOR')")
     public ResponseEntity<?> searchContent(@PathVariable String contentType, @RequestParam String searchText) {
         List<? extends Content> contents;
         switch (contentType.toLowerCase()) {
@@ -100,6 +101,7 @@ public class ContentController {
     }
 
     @GetMapping("/recent/{contentType}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN') or hasRole('ROLE_MODERATOR')")
     public ResponseEntity<?> getRecentContents(@PathVariable String contentType, Pageable pageable) {
         Page<? extends Content> contents;
         switch (contentType.toLowerCase()) {
@@ -119,11 +121,11 @@ public class ContentController {
     }
 
     @GetMapping("/user/{contentType}/get-paged-content-by-user/{userId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MODERATOR')")
     public ResponseEntity<?> getPagedContentByUser(
             @PathVariable String contentType,
             @PathVariable Long userId,
             Pageable pageable) {
-
         try {
             switch (contentType.toLowerCase()) {
                 case "comment":
@@ -148,6 +150,7 @@ public class ContentController {
     }
 
     @GetMapping("/created-at-between/{contentType}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN') or hasRole('ROLE_MODERATOR')")
     public ResponseEntity<?> getContentsByCreatedAtBetween(@PathVariable String contentType,
             @RequestParam LocalDateTime start, @RequestParam LocalDateTime end) {
         List<Content> contents;
@@ -168,6 +171,7 @@ public class ContentController {
     }
 
     @GetMapping("/content-containing/{contentType}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN') or hasRole('ROLE_MODERATOR')")
     public ResponseEntity<?> getContentsByContentContaining(@PathVariable String contentType,
             @RequestParam String text) {
         List<? extends Content> contents;
@@ -188,7 +192,6 @@ public class ContentController {
     }
 
     @DeleteMapping("/{contentType}/delete-content-by-id/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
     public ResponseEntity<?> deleteContent(@PathVariable String contentType, @PathVariable Long id) {
 
         User user = userService.getCurrentUser();
@@ -210,6 +213,7 @@ public class ContentController {
     }
 
     @GetMapping("/list-all-content-of-type/{contentType}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN') or hasRole('ROLE_MODERATOR')")
     public ResponseEntity<List<Content>> listContent(@PathVariable String contentType,
             @RequestParam(defaultValue = "false") boolean includeNested) {
         List<? extends Content> contents; // Use wildcard
@@ -230,7 +234,7 @@ public class ContentController {
     }
 
     @PostMapping("/{contentType}/{contentId}/vote")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN') or hasRole('ROLE_MODERATOR')")
     public ResponseEntity<?> handleVote(@PathVariable String contentType, @PathVariable Long contentId,
             @RequestParam Long userId, @RequestParam boolean isUpVote) {
         switch (contentType.toLowerCase()) {

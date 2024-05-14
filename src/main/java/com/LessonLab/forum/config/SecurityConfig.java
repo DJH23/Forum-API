@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -59,10 +60,24 @@ public class SecurityConfig {
                 .requestMatchers("/api/users/login", "/api/users/register-user", "/swagger-ui/**", "/v3/api-docs/**",
                         "/swagger-ui-lesson-lab.html")
                 .permitAll()
-                .requestMatchers("/api/users").hasAnyAuthority("ROLE_ADMIN")
-                .requestMatchers("/api/users").hasAuthority("ROLE_ADMIN")
-                .requestMatchers("/api/threads/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN", "ROLE_MODERATOR")
-                .anyRequest().authenticated());
+                .requestMatchers(HttpMethod.PUT, "/api/{contentType}/{id}").hasAnyRole("USER", "ADMIN", "MODERATOR")
+                .requestMatchers(HttpMethod.GET, "/api/{contentType}/get-content-by-id/{id}")
+                .hasAnyRole("ADMIN", "MODERATOR")
+                .requestMatchers(HttpMethod.GET, "/api/search/{contentType}").hasAnyRole("USER", "ADMIN", "MODERATOR")
+                .requestMatchers(HttpMethod.GET, "/api/recent/{contentType}").hasAnyRole("USER", "ADMIN", "MODERATOR")
+                .requestMatchers(HttpMethod.GET, "/api/user/{contentType}/get-paged-content-by-user/{userId}")
+                .hasAnyRole("ADMIN", "MODERATOR")
+                .requestMatchers(HttpMethod.GET, "/api/created-at-between/{contentType}")
+                .hasAnyRole("USER", "ADMIN", "MODERATOR")
+                .requestMatchers(HttpMethod.GET, "/api/content-containing/{contentType}")
+                .hasAnyRole("USER", "ADMIN", "MODERATOR")
+                .requestMatchers(HttpMethod.DELETE, "/api/{contentType}/delete-content-by-id/{id}")
+                .hasAnyAuthority("ROLE_ADMIN", "ROLE_MODERATOR")
+                .requestMatchers(HttpMethod.GET, "/api/list-all-content-of-type/{contentType}")
+                .hasAnyRole("USER", "ADMIN", "MODERATOR")
+                .requestMatchers(HttpMethod.POST, "/api/{contentType}/{contentId}/vote")
+                .hasAnyRole("USER", "ADMIN", "MODERATOR")
+                .requestMatchers("/api/**").authenticated());
 
         // Custom Authentication and Authorization Filters
         CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(
@@ -75,10 +90,18 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /*
+     * @Bean
+     * public DefaultWebSecurityExpressionHandler webSecurityExpressionHandler() {
+     * DefaultWebSecurityExpressionHandler handler = new
+     * DefaultWebSecurityExpressionHandler();
+     * handler.setDefaultRolePrefix(""); // No 'ROLE_' prefix
+     * return handler;
+     * }
+     */
+
     @Bean
     public DefaultWebSecurityExpressionHandler webSecurityExpressionHandler() {
-        DefaultWebSecurityExpressionHandler handler = new DefaultWebSecurityExpressionHandler();
-        handler.setDefaultRolePrefix(""); // No 'ROLE_' prefix
-        return handler;
+        return new DefaultWebSecurityExpressionHandler();
     }
 }
