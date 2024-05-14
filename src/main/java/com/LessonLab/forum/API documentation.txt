@@ -1,0 +1,136 @@
+# API Documentation
+
+## General Information
+- **Title:** API Documentation
+- **Version:** v1.0
+- **Server URL:** `http://localhost:8080`
+
+## Authentication
+This API uses Bearer authentication. You need to include the `Authorization` header with a valid JWT token in your requests.
+
+## Endpoints
+
+### Thread Controller
+
+#### Update Thread
+**Endpoint:** `PUT /api/threads/{id}`
+**Parameters:**
+- `id` (path parameter, required, integer): The ID of the thread to update.
+- `newTitle` (query parameter, required, string): The new title for the thread.
+- `newDescription` (query parameter, required, string): The new description for the thread.
+**Responses:**
+- `200 OK`: The thread has been updated successfully.
+
+#### Create Thread
+**Endpoint:** `POST /api/threads/`
+**Parameters:**
+- `threadTitle` (query parameter, required, string): The title of the new thread.
+- `threadDescription` (query parameter, required, string): The description of the new thread.
+**Responses:**
+- `200 OK`: The thread has been created successfully.
+
+### Content Controller
+
+#### Update Content
+**Endpoint:** `PUT /api/contents/{contentType}/{id}`
+**Parameters:**
+- `contentType` (path parameter, required, string): The type of the content to update.
+- `id` (path parameter, required, integer): The ID of the content to update.
+**Request Body:**
+- `newContent` (required, string): The new content to be updated.
+**Responses:**
+- `200 OK`: The content has been updated successfully.
+
+#### Handle Vote
+**Endpoint:** `POST /api/contents/{contentType}/{contentId}/vote`
+**Parameters:**
+- `contentType` (path parameter, required, string): The type of the content.
+- `contentId` (path parameter, required, integer): The ID of the content.
+- `userId` (query parameter, required, integer): The ID of the user who is voting.
+- `isUpVote` (query parameter, required, boolean): Indicates whether the vote is an upvote or a downvote.
+**Responses:**
+- `200 OK`: The vote has been processed successfully.
+
+### User Controller
+
+#### Add Role to User
+**Endpoint:** `POST /api/users/roles/add-role-to-user`
+**Request Body:**
+- `username` (required, string): The username of the user to add the role to.
+- `roleName` (required, string): The name of the role to add.
+**Responses:**
+- `204 No Content`: The role has been added to the user successfully.
+
+#### Register User
+**Endpoint:** `POST /api/users/register-user`
+**Parameters:**
+- `username` (query parameter, required, string): The username of the new user.
+- `password` (query parameter, required, string): The password of the new user.
+**Responses:**
+- `200 OK`: The user has been registered successfully.
+
+#### Login
+**Endpoint:** `POST /api/users/login`
+**Parameters:**
+- `username` (query parameter, required, string): The username of the user.
+- `password` (query parameter, required, string): The password of the user.
+**Responses:**
+- `200 OK`: The user has been logged in successfully.
+
+#### Save Role
+**Endpoint:** `POST /api/users/add-role-type`
+**Request Body:**
+- `id` (required, integer): The ID of the role.
+- `name` (required, string): The name of the role.
+**Responses:**
+- `201 Created`: The role has been saved successfully.
+
+### Post Controller
+
+#### Add Post to Thread
+**Endpoint:** `POST /api/posts/add-post-to-thread`
+**Parameters:**
+- `threadId` (query parameter, required, integer): The ID of the thread to add the post to.
+- `postContent` (query parameter, required, string): The content of the new post.
+**Responses:**
+- `200 OK`: The post has been added to the thread successfully.
+
+### Comment Controller
+
+#### Add Comment to Post
+**Endpoint:** `POST /api/comments/add-comment-to-post`
+**Parameters:**
+- `postId` (query parameter, required, integer): The ID of the post to add the comment to.
+- `commentContent` (query parameter, required, string): The content of the new comment.
+**Responses:**
+- `200 OK`: The comment has been added to the post successfully.
+
+### Role Controller
+
+#### Add Role to User
+**Endpoint:** `POST /api/roles/roles/add-role-to-user`
+**Request Body:**
+- `username` (required, string): The username of the user to add the role to.
+- `roleName` (required, string): The name of the role to add.
+**Responses:**
+- `204 No Content`: The role has been added to the user successfully.
+
+#### Save Role
+**Endpoint:** `POST /api/roles/add-role-type`
+**Request Body:**
+- `id` (required, integer): The ID of the role.
+- `name` (required, string): The name of the role.
+**Responses:**
+- `201 Created`: The role has been saved successfully.
+
+#### Get Users by Role
+**Endpoint:** `GET /api/roles/get-user-by-role/{role}`
+**Parameters:**
+- `role` (path parameter, required, string): The role to filter users by.
+**Responses:**
+- `200 OK`: The users matching the specified role have been returned.
+
+#### Get All Role Types
+**Endpoint:** `GET /api/roles/get-all-role-types`
+**Responses:**
+- `200 OK`: All the available role types have been returned.
