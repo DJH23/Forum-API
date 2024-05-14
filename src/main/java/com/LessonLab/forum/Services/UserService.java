@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import com.LessonLab.forum.Models.Role;
 import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Models.UserExtension;
-import com.LessonLab.forum.Models.UserExtensionDTO;
 import com.LessonLab.forum.Models.Enums.Account;
 import com.LessonLab.forum.Models.Enums.Status;
 import com.LessonLab.forum.Repositories.RoleRepository;
@@ -190,25 +189,6 @@ public class UserService implements UserServiceInterface, UserDetailsService {
     public Role saveRole(Role role) {
         log.info("Saving new role {} to the database", role.getName());
         return roleRepository.save(role);
-    }
-
-    public UserExtensionDTO saveUserExtensionDTO(UserExtensionDTO userExtensionDTO) {
-        log.info("Saving new user extension {} to the database", userExtensionDTO.getUsername());
-        return userExtensionRepository.save(userExtensionDTO);
-    }
-
-    public void setUserExtensionDTO(UserExtensionDTO userExtensionDTO) {
-        if (userExtensionDTO == null) {
-            throw new IllegalArgumentException("UserExtension cannot be null");
-        }
-        userExtensionRepository.save(userDTO);
-    }
-
-    public UserExtensionDTO toDTO(UserExtension userExtension) {
-        UserExtensionDTO dto = new UserExtensionDTO();
-        dto.setStatus(userExtension.getStatus());
-        dto.setAccountStatus(userExtension.getAccountStatus());
-        return dto;
     }
 
     /**

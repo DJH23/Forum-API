@@ -26,7 +26,6 @@ import com.LessonLab.forum.Models.Enums.Status;
 import com.LessonLab.forum.Repositories.RoleRepository;
 import com.LessonLab.forum.Services.UserService;
 import com.LessonLab.forum.dtos.RoleToUserDTO;
-import com.LessonLab.forum.Models.UserExtensionDTO;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -95,13 +94,13 @@ public class UserController {
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));
 
-        // Create a UserDTO object
-        UserExtensionDTO userDTO = new UserExtensionDTO();
-        userDTO.setAccountStatus(Account.ACTIVE);
-        userDTO.setStatus(Status.ONLINE);
+        // Create a UserExtension object
+        UserExtension userExtension = new UserExtension();
+        userExtension.setAccountStatus(Account.ACTIVE);
+        userExtension.setStatus(Status.ONLINE);
 
-        userDTO = userService.saveUserExtensionDTO(userDTO);
-        user.setUserExtensionDTO(userDTO);
+        // Set the UserExtension to the user
+        user.setUserExtension(userExtension);
 
         // Save the user to the database
         user = userService.saveUser(user);
@@ -115,7 +114,7 @@ public class UserController {
         }
         userService.addRoleToUser(username, "ROLE_USER");
 
-        return ResponseEntity.ok(userDTO);
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping("/get-user-by-id/{id}")
