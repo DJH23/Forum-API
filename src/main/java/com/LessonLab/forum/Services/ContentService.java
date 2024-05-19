@@ -121,10 +121,6 @@ public abstract class ContentService {
 
         Content content = getContentById(contentId, contentType);
 
-        /* if (!hasPermissionToDelete(content, user)) {
-            throw new SecurityException("You do not have permission to delete this content");
-        } */
-
         contentRepository.delete(content);
         logDeletionEvent(content);
     }

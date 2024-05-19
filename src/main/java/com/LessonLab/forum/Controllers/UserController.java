@@ -46,7 +46,7 @@ public class UserController {
     @Autowired
     private AuthenticationManager authenticationManager;
 
-    private final long EXPIRATION_TIME = 10 * 60 * 1000; // 10 minutes
+    private final long EXPIRATION_TIME = 30 * 60 * 1000; // 30 minutes
     private final String SECRET = "secret"; // use a more secure secret and place it in secure storage
 
     private UserDetailsService userDetailsService;
