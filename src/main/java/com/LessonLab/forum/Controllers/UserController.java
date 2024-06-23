@@ -154,7 +154,7 @@ public class UserController {
     @PreAuthorize("hasPermission(#username, 'DELETE_USER')")
     public ResponseEntity<?> deleteUserByUsername(@PathVariable String username) {
         userService.deleteUserByUsername(username);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>("Deletion successful", HttpStatus.OK);
     }
 
     @PostMapping("/add-role-type")

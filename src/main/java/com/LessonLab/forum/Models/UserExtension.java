@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 //@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "userId")
@@ -68,6 +69,28 @@ public class UserExtension extends User {
 
     public boolean isOnline() {
         return getStatus() == Status.ONLINE;
+    }
+
+    @JsonProperty
+    @Override
+    public String getName() {
+        return super.getName();
+    }
+
+    @Override
+    public void setName(String name) {
+        super.setName(name);
+    }
+
+    @JsonProperty
+    @Override
+    public String getUsername() {
+        return super.getUsername();
+    }
+
+    @Override
+    public void setUsername(String username) {
+        super.setUsername(username);
     }
 
 }

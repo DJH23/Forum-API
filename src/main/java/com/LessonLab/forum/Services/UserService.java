@@ -100,11 +100,30 @@ public class UserService implements UserServiceInterface, UserDetailsService {
         if (accountStatus == null) {
             throw new IllegalArgumentException("Account status cannot be null");
         }
-        List<UserExtension> users = userExtensionRepository.findByAccountStatus(accountStatus);
-        if (users.isEmpty()) {
+
+        List<UserExtension> userExtensions = userExtensionRepository.findByAccountStatus(accountStatus);
+
+        if (userExtensions.isEmpty()) {
             return Collections.emptyList();
         }
-        return users;
+
+        List<UserExtension> result = new ArrayList<>();
+
+        for (UserExtension userExtension : userExtensions) {
+            // Fetch the corresponding User entity
+            User user = userRepository.findById(userExtension.getId()).orElse(null);
+            if (user != null) {
+                // Update UserExtension with User details
+                userExtension.setName(user.getName());
+                userExtension.setUsername(user.getUsername());
+                userExtension.setPassword(user.getPassword());
+                userExtension.setRoles(user.getRoles());
+
+                result.add(userExtension);
+            }
+        }
+
+        return result;
     }
 
     @Transactional
