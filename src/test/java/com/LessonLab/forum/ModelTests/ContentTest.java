@@ -8,8 +8,6 @@ import java.time.LocalDateTime;
 import org.junit.Test;
 
 import com.LessonLab.forum.Models.Content;
-import com.LessonLab.forum.Models.Role;
-import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.User;
 
 public class ContentTest {

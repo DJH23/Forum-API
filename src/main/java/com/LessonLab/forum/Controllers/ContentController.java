@@ -23,6 +23,12 @@ import com.LessonLab.forum.Services.PostService;
 import com.LessonLab.forum.Services.ThreadService;
 import com.LessonLab.forum.Services.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
 @RestController
 @RequestMapping("/api/contents")
 public class ContentController {
@@ -41,6 +47,12 @@ public class ContentController {
 
     @PutMapping("/{contentType}/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN') or hasRole('MODERATOR')")
+    @Operation(summary = "Update content", description = "Update the content of a comment, post, or thread")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Content updated", content = @io.swagger.v3.oas.annotations.media.Content(schema = @Schema(implementation = Content.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input", content = @io.swagger.v3.oas.annotations.media.Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "404", description = "Content not found", content = @io.swagger.v3.oas.annotations.media.Content(schema = @Schema(implementation = String.class))),
+    })
     public ResponseEntity<?> updateContent(@PathVariable String contentType, @PathVariable Long id,
             @RequestBody ContentUpdateDTO contentUpdate) {
         User user = userService.getCurrentUser();
@@ -62,6 +74,11 @@ public class ContentController {
 
     @GetMapping("/{contentType}/get-content-by-id/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
+    @Operation(summary = "Get content by ID", description = "Retrieve content by its ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Content retrieved", content = @io.swagger.v3.oas.annotations.media.Content(schema = @Schema(implementation = Content.class))),
+            @ApiResponse(responseCode = "404", description = "Content not found", content = @io.swagger.v3.oas.annotations.media.Content(schema = @Schema(implementation = String.class))),
+    })
     public ResponseEntity<?> getContent(@PathVariable String contentType, @PathVariable Long id) {
         Content content;
         switch (contentType.toLowerCase()) {
@@ -82,6 +99,11 @@ public class ContentController {
 
     @GetMapping("/search/{contentType}")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN') or hasRole('ROLE_MODERATOR')")
+    @Operation(summary = "Search content", description = "Search for content by text")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Content retrieved", content = @io.swagger.v3.oas.annotations.media.Content(schema = @Schema(implementation = Content.class))),
+            @ApiResponse(responseCode = "404", description = "Content not found", content = @io.swagger.v3.oas.annotations.media.Content(schema = @Schema(implementation = String.class))),
+    })
     public ResponseEntity<?> searchContent(@PathVariable String contentType, @RequestParam String searchText) {
         List<? extends Content> contents;
         switch (contentType.toLowerCase()) {
@@ -102,6 +124,11 @@ public class ContentController {
 
     @GetMapping("/recent/{contentType}")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN') or hasRole('ROLE_MODERATOR')")
+    @Operation(summary = "Get recent contents", description = "Retrieve recent contents")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Content retrieved", content = @io.swagger.v3.oas.annotations.media.Content(schema = @Schema(implementation = Content.class))),
+            @ApiResponse(responseCode = "404", description = "Content not found", content = @io.swagger.v3.oas.annotations.media.Content(schema = @Schema(implementation = String.class))),
+    })
     public ResponseEntity<?> getRecentContents(@PathVariable String contentType, Pageable pageable) {
         Page<? extends Content> contents;
         switch (contentType.toLowerCase()) {
@@ -122,6 +149,11 @@ public class ContentController {
 
     @GetMapping("/user/{contentType}/get-paged-content-by-user/{userId}")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MODERATOR')")
+    @Operation(summary = "Get paged content by user", description = "Retrieve paged content by user ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Content retrieved", content = @io.swagger.v3.oas.annotations.media.Content(schema = @Schema(implementation = Content.class))),
+            @ApiResponse(responseCode = "404", description = "Content not found", content = @io.swagger.v3.oas.annotations.media.Content(schema = @Schema(implementation = String.class))),
+    })
     public ResponseEntity<?> getPagedContentByUser(
             @PathVariable String contentType,
             @PathVariable Long userId,
@@ -151,6 +183,11 @@ public class ContentController {
 
     @GetMapping("/created-at-between/{contentType}")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN') or hasRole('ROLE_MODERATOR')")
+    @Operation(summary = "Get contents by created date range", description = "Retrieve contents created between specific dates")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Content retrieved", content = @io.swagger.v3.oas.annotations.media.Content(schema = @Schema(implementation = Content.class))),
+            @ApiResponse(responseCode = "404", description = "Content not found", content = @io.swagger.v3.oas.annotations.media.Content(schema = @Schema(implementation = String.class))),
+    })
     public ResponseEntity<?> getContentsByCreatedAtBetween(@PathVariable String contentType,
             @RequestParam LocalDateTime start, @RequestParam LocalDateTime end) {
         List<Content> contents;
@@ -172,6 +209,11 @@ public class ContentController {
 
     @GetMapping("/content-containing/{contentType}")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN') or hasRole('ROLE_MODERATOR')")
+    @Operation(summary = "Get contents by text search", description = "Retrieve contents containing specific text")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Content retrieved", content = @io.swagger.v3.oas.annotations.media.Content(schema = @Schema(implementation = Content.class))),
+            @ApiResponse(responseCode = "404", description = "Content not found", content = @io.swagger.v3.oas.annotations.media.Content(schema = @Schema(implementation = String.class))),
+    })
     public ResponseEntity<?> getContentsByContentContaining(@PathVariable String contentType,
             @RequestParam String text) {
         List<? extends Content> contents;
@@ -192,10 +234,14 @@ public class ContentController {
     }
 
     @DeleteMapping("/{contentType}/delete-content-by-id/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
+    @Operation(summary = "Delete content by ID", description = "Delete content by its ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Content deleted"),
+            @ApiResponse(responseCode = "404", description = "Content not found", content = @io.swagger.v3.oas.annotations.media.Content(schema = @Schema(implementation = Content.class))),
+    })
     public ResponseEntity<?> deleteContent(@PathVariable String contentType, @PathVariable Long id) {
-
         User user = userService.getCurrentUser();
-
         switch (contentType.toLowerCase()) {
             case "comment":
                 commentService.deleteContent(id, user, contentType);
@@ -214,9 +260,14 @@ public class ContentController {
 
     @GetMapping("/list-all-content-of-type/{contentType}")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN') or hasRole('ROLE_MODERATOR')")
+    @Operation(summary = "List all content of type", description = "Retrieve all contents of a specific type")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Content retrieved", content = @io.swagger.v3.oas.annotations.media.Content(schema = @Schema(implementation = Content.class))),
+            @ApiResponse(responseCode = "404", description = "Content not found", content = @io.swagger.v3.oas.annotations.media.Content(schema = @Schema(implementation = String.class))),
+    })
     public ResponseEntity<List<Content>> listContent(@PathVariable String contentType,
             @RequestParam(defaultValue = "false") boolean includeNested) {
-        List<? extends Content> contents; // Use wildcard
+        List<? extends Content> contents;
         switch (contentType.toLowerCase()) {
             case "comment":
                 contents = new ArrayList<>(commentService.listContent());
@@ -230,17 +281,21 @@ public class ContentController {
             default:
                 throw new IllegalArgumentException("Invalid content type: " + contentType);
         }
-        return new ResponseEntity<List<Content>>(new ArrayList<>(contents), HttpStatus.OK);
+        return new ResponseEntity<>(new ArrayList<>(contents), HttpStatus.OK);
     }
 
     @PostMapping("/{contentType}/{contentId}/vote")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN') or hasRole('ROLE_MODERATOR')")
+    @Operation(summary = "Handle vote", description = "Handle upvote or downvote for a content")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Vote recorded"),
+            @ApiResponse(responseCode = "404", description = "Content not found", content = @io.swagger.v3.oas.annotations.media.Content(schema = @Schema(implementation = String.class))),
+    })
     public ResponseEntity<?> handleVote(@PathVariable String contentType, @PathVariable Long contentId,
             @RequestParam Long userId, @RequestParam boolean isUpVote) {
         switch (contentType.toLowerCase()) {
             case "comment":
                 commentService.handleVote(contentId, userId, isUpVote, contentType);
-                ;
                 break;
             case "post":
                 postService.handleVote(contentId, userId, isUpVote, contentType);

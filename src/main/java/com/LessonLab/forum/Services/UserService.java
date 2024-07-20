@@ -3,6 +3,7 @@ package com.LessonLab.forum.Services;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,16 +21,20 @@ import com.LessonLab.forum.Repositories.RoleRepository;
 import com.LessonLab.forum.Repositories.UserExtensionRepository;
 import com.LessonLab.forum.Repositories.UserRepository;
 import com.LessonLab.forum.interfaces.UserServiceInterface;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
 @Slf4j
@@ -44,16 +49,76 @@ public class UserService implements UserServiceInterface, UserDetailsService {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    private final long EXPIRATION_TIME = 30 * 60 * 1000; // 30 minutes
+    private final String SECRET = "secret"; // use a more secure secret and place it in secure storage
+
+    public UserDetails loadUserByUsername(String username) {
+        // Retrieve user with the given username
+        User user = userRepository.findByUsername(username);
+        // Check if user exists
+        if (user == null) {
+            log.error("User not found in the database");
+            throw new UsernameNotFoundException("User not found in the database");
+        } else {
+            log.info("User found in the database: {}", username);
+            // Create a collection of SimpleGrantedAuthority objects from the user's roles
+            Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+            user.getRoles().forEach(role -> {
+                authorities.add(new SimpleGrantedAuthority(role.getName()));
+            });
+            // Return the user details, including the username, password, and authorities
+            return new org.springframework.security.core.userdetails.User(user.getUsername(),
+                    user.getPassword(),
+                    authorities);
+        }
+    }
+    
+    public String createToken(String username) {
+
+        UserDetails user = loadUserByUsername(username);
+        Algorithm algorithm = Algorithm.HMAC256(SECRET.getBytes());
+
+        String[] roles = user.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .toArray(String[]::new);
+
+        return JWT.create()
+                .withSubject(username)
+                .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .withIssuer("auth0")
+                .withArrayClaim("roles", roles)
+                .sign(algorithm);
+    }
+
+    public User registerUser(String username, String password) {
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode(password));
+
+        UserExtension userExtension = new UserExtension();
+        userExtension.setAccountStatus(Account.ACTIVE);
+        userExtension.setStatus(Status.ONLINE);
+        user.setUserExtension(userExtension);
+
+        user = saveUser(user);
+
+        Role userRole = roleRepository.findByName("ROLE_USER");
+        if (userRole == null) {
+            userRole = new Role();
+            userRole.setName("ROLE_USER");
+            saveRole(userRole);
+        }
+        addRoleToUser(username, "ROLE_USER");
+
+        return user;
+    }
+
     @Transactional
     public User updateUser(User user) {
-
-        /*
-         * User currentUser = getCurrentUser();
-         * if (!hasPermission(currentUser, Permission.WRITE_USER)) {
-         * throw new
-         * AccessDeniedException("You do not have permission to update users.");
-         * }
-         */
 
         if (user == null) {
             throw new IllegalArgumentException("Cannot update a null user");
@@ -128,13 +193,6 @@ public class UserService implements UserServiceInterface, UserDetailsService {
 
     @Transactional
     public void deleteUserById(Long id) {
-        /*
-         * User currentUser = getCurrentUser();
-         * if (!hasPermission(currentUser, Permission.DELETE_USER)) {
-         * throw new
-         * AccessDeniedException("You do not have permission to delete users.");
-         * }
-         */
 
         if (id == null) {
             throw new IllegalArgumentException("User ID cannot be null");
@@ -148,40 +206,11 @@ public class UserService implements UserServiceInterface, UserDetailsService {
     @Transactional
     public void deleteUserByUsername(String username) {
 
-        /*
-         * User currentUser = getCurrentUser();
-         * if (!hasPermission(currentUser, Permission.DELETE_USER)) {
-         * throw new
-         * AccessDeniedException("You do not have permission to delete users.");
-         * }
-         */
-
         if (!userRepository.existsByUsername(username)) {
             throw new IllegalArgumentException("Cannot delete non-existing user with username: " +
                     username);
         }
         userRepository.deleteByUsername(username);
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // Retrieve user with the given username
-        User user = userRepository.findByUsername(username);
-        // Check if user exists
-        if (user == null) {
-            log.error("User not found in the database");
-            throw new UsernameNotFoundException("User not found in the database");
-        } else {
-            log.info("User found in the database: {}", username);
-            // Create a collection of SimpleGrantedAuthority objects from the user's roles
-            Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-            user.getRoles().forEach(role -> {
-                authorities.add(new SimpleGrantedAuthority(role.getName()));
-            });
-            // Return the user details, including the username, password, and authorities
-            return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
-                    authorities);
-        }
     }
 
     /**

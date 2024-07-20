@@ -35,8 +35,6 @@ public abstract class ContentService {
     @Autowired
     private VoteRepository voteRepository;
     @Autowired
-    private NotificationService notificationService;
-    @Autowired
     private ConfigurationService configurationService;
     @Autowired
     private CommentRepository commentRepository;
@@ -46,7 +44,7 @@ public abstract class ContentService {
         if (content == null) {
             throw new IllegalArgumentException("Content cannot be null");
         }
-       // checkRole(user, Role.ADMIN, Role.MODERATOR, Role.USER);
+        // checkRole(user, Role.ADMIN, Role.MODERATOR, Role.USER);
         return contentRepository.save(content);
     }
 
@@ -54,20 +52,10 @@ public abstract class ContentService {
     public Content updateContent(Long id, ContentUpdateDTO updateDTO, User user) {
         Content content = contentRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Content not found with ID: " + id));
-       // checkRole(user, Role.ADMIN, Role.MODERATOR, Role.USER);
+        // checkRole(user, Role.ADMIN, Role.MODERATOR, Role.USER);
         content.setContent(updateDTO.getNewContent());
         return contentRepository.save(content);
     }
-
-    /* protected void checkRole(User user, Role... roles) {
-        if (user == null) {
-            throw new IllegalArgumentException("User cannot be null");
-        }
-        if (!Arrays.asList(roles).contains(user.getRole())) {
-            throw new IllegalArgumentException(
-                    "User with role " + user.getRole() + " does not have permission to perform this action");
-        }
-    } */
 
     public Content getContentById(Long id, String expectedContentType) {
         Content content = contentRepository.findById(id)
@@ -124,12 +112,6 @@ public abstract class ContentService {
         contentRepository.delete(content);
         logDeletionEvent(content);
     }
-
-   /*  protected boolean hasPermissionToDelete(Content content, UserExtension user) {
-        return (user.getRole().equals(Role.ADMIN) ||
-                user.getRole().equals(Role.MODERATOR) ||
-                (content.getUser().equals(user) && canOriginalPosterDelete(content)));
-    } */
 
     protected boolean canOriginalPosterDelete(Content content) {
         if (content instanceof Post) {
@@ -214,20 +196,4 @@ public abstract class ContentService {
         }
     }
 
-    /* public Map<Long, User> mapUsersFromContents(List<Content> contents) {
-        Map<Long, User> users = new HashMap<>();
-        for (Content content : contents) {
-            users.put(content.getUser().getUserId(), content.getUser());
-        }
-        return users;
-    } */
-
-    /*
-     * public void notifyAdmins(T content) {
-     * List<User> adminsAndMods =
-     * userRepository.findByRoleIn(Arrays.asList(Role.ADMIN, Role.MODERATOR));
-     * notificationService.notifyUsers(adminsAndMods,
-     * "Threshold reached for content ID: " + content.getId());
-     * }
-     */
 }
