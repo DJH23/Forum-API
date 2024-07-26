@@ -150,6 +150,8 @@ public class UserService implements UserServiceInterface, UserDetailsService {
         return users;
     }
 
+ 
+
     public List<User> getUsersByAccountStatus(Account accountStatus) {
         if (accountStatus == null) {
             throw new IllegalArgumentException("Account status cannot be null");

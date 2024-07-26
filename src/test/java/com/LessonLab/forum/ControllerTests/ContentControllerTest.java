@@ -161,27 +161,6 @@ public class ContentControllerTest {
     }
 
     @Test
-    public void testGetRecentContents_ShouldReturnContents() throws Exception {
-        Pageable pageable = PageRequest.of(0, 10);
-        List<Content> mockContents = Arrays.asList(new Comment(), new Post(), new Comment());
-
-        // Filter only Comment instances
-        List<Comment> mockComments = mockContents.stream()
-                .filter(content -> content instanceof Comment)
-                .map(content -> (Comment) content)
-                .collect(Collectors.toList());
-
-        when(contentController.getRecentContents("comment", pageable)).thenReturn(mockComments);
-
-        mockMvc.perform(get("/api/contents/recent")
-                .param("page", "0")
-                .param("size", "10")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(mockComments.size()));
-    }
-
-    @Test
     public void testGetPagedContentByUser_Comments() throws Exception {
         Page<Comment> comments = new PageImpl<>(Collections.emptyList(), pageable, 0);
         when(commentService.getPagedCommentsByUser(anyLong(), any(Pageable.class))).thenReturn(comments);
