@@ -23,7 +23,7 @@ public class Comment extends Content {
         super(content, user);
     }
 
-    // New constructor to be used in service for creating a new comment with a post
+    // Constructor to be used in service for creating a new comment with a post
     // relation
     public Comment(String content, User user, Post post) {
         super(content, user);

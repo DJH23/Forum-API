@@ -3,7 +3,8 @@ package com.LessonLab.forum.ModelTests;
 import com.LessonLab.forum.Models.Comment;
 import com.LessonLab.forum.Models.Post;
 import com.LessonLab.forum.Models.Thread;
-import com.LessonLab.forum.Models.UserExtension;
+import com.LessonLab.forum.Models.User;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,7 +17,7 @@ public class PostTest {
     @Test
     public void testGetAndSetThread() {
         // Arrange
-        UserExtension user = new UserExtension();
+        User user = new User();
         Thread thread = new Thread();
         Post post = new Post("content", user);
 
@@ -31,7 +32,7 @@ public class PostTest {
     @Test
     public void testGetAndSetComments() {
         // Arrange
-        UserExtension user = new UserExtension();
+        User user = new User();
         Thread thread = new Thread();
         Post post = new Post("content", user, thread);
         Comment comment1 = new Comment("comment content 1", user);
@@ -50,7 +51,7 @@ public class PostTest {
     @Test
     public void testAddComment() {
         // Arrange
-        UserExtension user = new UserExtension();
+        User user = new User();
         Thread thread = new Thread();
         Post post = new Post("content", user, thread);
         Comment comment = new Comment("comment content", user);
@@ -66,7 +67,7 @@ public class PostTest {
     @Test
     public void testRemoveComment() {
         // Arrange
-        UserExtension user = new UserExtension();
+        User user = new User();
         Thread thread = new Thread();
         Post post = new Post("content", user, thread);
         Comment comment = new Comment("comment content", user);

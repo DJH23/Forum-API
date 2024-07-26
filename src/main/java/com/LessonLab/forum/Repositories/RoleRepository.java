@@ -1,9 +1,15 @@
 package com.LessonLab.forum.Repositories;
 
+import java.util.Collection;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.LessonLab.forum.Models.Role;
+import com.LessonLab.forum.Models.User;
 
 /**
  * The RoleRepository interface extends JpaRepository to allow for CRUD
@@ -29,13 +35,12 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
      */
     Role findByName(Role role);
 
-    // Role saveRole(Role role);
-
-    // List<Role> findByRole(Role role);
-
-    /* @Query("SELECT r FROM Role r WHERE r.name = :name")
-    List<Role> findByRole(@Param("name") String name); */
-
-    // List<User> findByRoleIn(List<Role> roles);
-   // List<User> findByRole(Role role);
+    /**
+     * Method to find users by their roles
+     *
+     * @param roles Collection of roles to search for
+     * @return List of users having any of the specified roles
+     */
+    @Query("SELECT DISTINCT u FROM User u JOIN u.roles r WHERE r IN :roles")
+    List<User> findUsersByRolesIn(@Param("roles") Collection<Role> roles);
 }

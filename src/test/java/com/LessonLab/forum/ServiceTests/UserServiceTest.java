@@ -1,46 +1,32 @@
 package com.LessonLab.forum.ServiceTests;
 
-import static org.junit.Assert.*;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.mockito.ArgumentMatchers.anyString;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.LessonLab.forum.Models.Role;
 import com.LessonLab.forum.Models.User;
-import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Enums.Account;
 import com.LessonLab.forum.Models.Enums.Status;
 import com.LessonLab.forum.Repositories.RoleRepository;
 import com.LessonLab.forum.Repositories.UserRepository;
 import com.LessonLab.forum.Services.UserService;
-import org.springframework.security.core.GrantedAuthority;
+
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 @ExtendWith(MockitoExtension.class)
@@ -49,156 +35,176 @@ public class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    @Autowired
+    @Mock
     private RoleRepository roleRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private UserService userService;
 
     private User testUser;
 
-    private Role testRole;
-
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.openMocks(this);
-
         testUser = new User();
-        testUser.setUsername("testUser");
         testUser.setId(1L);
-        testUser.setName("testName");
-        testUser.setPassword("123");
-        testUser.setRoles(Collections.singletonList(testRole));
-        userRepository.save(testUser);
+        testUser.setUsername("testUser");
+        testUser.setPassword("encodedPassword");
 
-        testRole = new Role();
+        Role testRole = new Role();
         testRole.setName("ADMIN");
-        roleRepository.save(testRole);
-    }
-
-    @AfterEach
-    public void tearDown() {
-        userRepository.deleteAll();
-
-        User user = userRepository.findByUsername("testUser");
-        if (user != null) {
-            userRepository.delete(user);
-        }
-
-        Role role = roleRepository.findByName("ADMIN");
-        if (role != null) {
-            roleRepository.delete(role);
-        }
+        testUser.setRoles(Collections.singleton(testRole));
     }
 
     @Test
     public void testDeleteUserById() {
-        // Create a user with the "ADMIN" role
-        /*
-         * User user = new User("testUser", Role.ADMIN);
-         * user.setUserId(1L);
-         */
-
-        // Create a UserDetails instance
+        // Arrange
         UserDetails userDetails = org.springframework.security.core.userdetails.User
-            .withUsername(testUser.getUsername())
-            .password(testUser.getPassword()).authorities(testUser.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName()))
-                .collect(Collectors.toList())).accountExpired(false)
-            .build();
+                .withUsername(testUser.getUsername())
+                .password(testUser.getPassword())
+                .authorities(testUser.getRoles().stream()
+                        .map(role -> new SimpleGrantedAuthority(role.getName()))
+                        .collect(Collectors.toList()))
+                .accountExpired(false)
+                .accountLocked(false)
+                .credentialsExpired(false)
+                .disabled(false)
+                .build();
 
-        // Create a mock Authentication
         Authentication authentication = mock(Authentication.class);
-
-        // Mock Authentication.getPrincipal to return the UserDetails
         when(authentication.getPrincipal()).thenReturn(userDetails);
 
-        // Create a mock SecurityContext
         SecurityContext securityContext = mock(SecurityContext.class);
-
-        // Mock SecurityContext.getAuthentication to return the mock Authentication
         when(securityContext.getAuthentication()).thenReturn(authentication);
 
-        // Set the mock SecurityContext in the SecurityContextHolder
         SecurityContextHolder.setContext(securityContext);
 
-        // Mock userRepository.findByUsername to return the user
-        when(userRepository.findByUsername(testUser.getUsername())).thenReturn(testUser);
-
-        // Mock userRepository.existsById to return true
+        when(userRepository.findByUsername(testUser.getUsername())).thenReturn(Optional.of(testUser));
         when(userRepository.existsById(testUser.getId())).thenReturn(true);
 
-        // Call deleteUser with the user's ID
+        // Act
         userService.deleteUserById(testUser.getId());
 
-        // Verify that userRepository.deleteById was called with the user's ID
+        // Assert
         verify(userRepository, times(1)).deleteById(testUser.getId());
     }
 
     @Test
-    public void testAddUser_WithValidUser_ShouldSaveUser() {
+    public void testRegisterUser_WithValidCredentials_ShouldSaveUser() {
         // Arrange
-        UserExtension validUser = new UserExtension("validUsername123", Role.ADMIN);
-        when(userRepository.findByUsername(validUser.getUsername())).thenReturn(Optional.empty());
-        when(userRepository.save(validUser)).thenReturn(validUser);
+        String username = "validUsername123";
+        String password = "validPassword123";
+        String encodedPassword = "encodedPassword";
+
+        User newUser = new User();
+        newUser.setUsername(username);
+        newUser.setPassword(encodedPassword);
+        newUser.setAccountStatus(Account.ACTIVE);
+        newUser.setStatus(Status.ONLINE);
+
+        Role userRole = new Role("ROLE_USER");
+
+        when(passwordEncoder.encode(password)).thenReturn(encodedPassword);
+        when(roleRepository.findByName("ROLE_USER")).thenReturn(Optional.of(userRole));
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+            User user = invocation.getArgument(0);
+            user.setRoles(Collections.singleton(userRole));
+            return user;
+        });
 
         // Act
-        UserExtension savedUser = userService.addUser(validUser);
+        User registeredUser = userService.registerUser(username, password);
 
         // Assert
-        assertNotNull(savedUser);
-        assertEquals(validUser.getUsername(), savedUser.getUsername());
-        verify(userRepository, times(1)).save(validUser);
+        assertNotNull(registeredUser);
+        assertEquals(username, registeredUser.getUsername());
+        assertEquals(encodedPassword, registeredUser.getPassword());
+        assertEquals(Account.ACTIVE, registeredUser.getAccountStatus());
+        assertEquals(Status.ONLINE, registeredUser.getStatus());
+        assertTrue(registeredUser.getRoles().contains(userRole));
+
+        verify(userRepository, times(2)).save(any(User.class));
+        verify(roleRepository, times(1)).findByName("ROLE_USER");
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testAddUser_WithNullUser_ShouldThrowException() {
-        // Act
-        userService.addUser(null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testAddUser_WithNullUsername_ShouldThrowException() {
+    @Test
+    public void testRegisterUser_WithNonExistentRole_ShouldCreateRoleAndSaveUser() {
         // Arrange
-        UserExtension userWithNullUsername = new UserExtension(null, Role.ADMIN);
+        String username = "validUsername123";
+        String password = "validPassword123";
+        String encodedPassword = "encodedPassword";
+        User savedUser = new User(username, encodedPassword);
+        savedUser.setAccountStatus(Account.ACTIVE);
+        savedUser.setStatus(Status.ONLINE);
+        Role userRole = new Role("ROLE_USER");
+
+        when(passwordEncoder.encode(password)).thenReturn(encodedPassword);
+        when(userRepository.save(any(User.class))).thenReturn(savedUser);
+        when(roleRepository.findByName("ROLE_USER")).thenReturn(null);
+        when(roleRepository.save(any(Role.class))).thenReturn(userRole);
 
         // Act
-        userService.addUser(userWithNullUsername);
+        User registeredUser = userService.registerUser(username, password);
+
+        // Assert
+        assertNotNull(registeredUser);
+        assertEquals(username, registeredUser.getUsername());
+        verify(roleRepository, times(1)).save(any(Role.class));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testAddUser_WithEmptyUsername_ShouldThrowException() {
+    @Test
+    public void testRegisterUser_WithNullUsername_ShouldThrowException() {
         // Arrange
-        UserExtension userWithEmptyUsername = new UserExtension("", Role.ADMIN);
+        String password = "validPassword123";
 
-        // Act
-        userService.addUser(userWithEmptyUsername);
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> userService.registerUser(null, password));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testAddUser_WithInvalidUsername_ShouldThrowException() {
+    @Test
+    public void testRegisterUser_WithEmptyUsername_ShouldThrowException() {
         // Arrange
-        UserExtension userWithInvalidUsername = new UserExtension("Invalid$$Username", Role.ADMIN);
+        String password = "validPassword123";
 
-        // Act
-        userService.addUser(userWithInvalidUsername);
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> userService.registerUser("", password));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testAddUser_WithExistingUsername_ShouldThrowException() {
+    @Test
+    public void testRegisterUser_WithNullPassword_ShouldThrowException() {
         // Arrange
-        UserExtension userWithExistingUsername = new UserExtension("existingUser", Role.ADMIN);
-        when(userRepository.findByUsername(userWithExistingUsername.getUsername()))
-                .thenReturn(Optional.of(new UserExtension()));
+        String username = "validUsername123";
 
-        // Act
-        userService.addUser(userWithExistingUsername);
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> userService.registerUser(username, null));
+    }
+
+    @Test
+    public void testRegisterUser_WithEmptyPassword_ShouldThrowException() {
+        // Arrange
+        String username = "validUsername123";
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> userService.registerUser(username, ""));
+    }
+
+    @Test
+    public void testRegisterUser_WithExistingUsername_ShouldThrowException() {
+        // Arrange
+        String username = "existingUser";
+        String password = "validPassword123";
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(new User()));
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> userService.registerUser(username, password));
     }
 
     @Test
     public void testGetUser_WithValidId_ShouldReturnUser() {
         // Arrange
-        UserExtension expectedUser = new UserExtension("username", Role.ADMIN);
+        User expectedUser = new User("username", Role.ADMIN);
         when(userRepository.findById(1L)).thenReturn(Optional.of(expectedUser));
 
         // Mock the SecurityContext and the Authentication object
@@ -215,7 +221,7 @@ public class UserServiceTest {
         when(userRepository.findByUsername(userDetails.getUsername())).thenReturn(Optional.of(expectedUser));
 
         // Act
-        UserExtension actualUser = userService.getUser(1L);
+        User actualUser = userService.getUser(1L);
 
         // Assert
         assertEquals(expectedUser, actualUser);
@@ -235,7 +241,7 @@ public class UserServiceTest {
         when(authentication.getPrincipal()).thenReturn(userDetails);
 
         // Mock the userRepository to return a User when findByUsername is called
-        UserExtension currentUser = new UserExtension("username", Role.ADMIN);
+        User currentUser = new User("username", Role.ADMIN);
         when(userRepository.findByUsername(userDetails.getUsername())).thenReturn(Optional.of(currentUser));
 
         // Act and Assert
@@ -245,7 +251,7 @@ public class UserServiceTest {
     @Test
     public void testGetUser_WithNonExistingId_ShouldThrowException() {
         // Arrange
-        UserExtension currentUser = new UserExtension("username", Role.ADMIN);
+        User currentUser = new User("username", Role.ADMIN);
         when(userRepository.findByUsername(currentUser.getUsername())).thenReturn(Optional.of(currentUser));
 
         Authentication authentication = mock(Authentication.class);
@@ -266,7 +272,7 @@ public class UserServiceTest {
     @Test
     public void testGetUser_WithoutPermission_ShouldThrowException() {
         // Arrange
-        UserExtension currentUser = new UserExtension("username", Role.USER);
+        User currentUser = new User("username", Role.USER);
         when(userRepository.findByUsername(currentUser.getUsername())).thenReturn(Optional.of(currentUser));
 
         Authentication authentication = mock(Authentication.class);
@@ -285,7 +291,7 @@ public class UserServiceTest {
     @Test
     public void testUpdateUser_WithValidUser_ShouldReturnUpdatedUser() {
         // Arrange
-        UserExtension currentUser = new UserExtension("currentUsername", Role.ADMIN);
+        User currentUser = new User("currentUsername", Role.ADMIN);
         when(userRepository.findByUsername(currentUser.getUsername())).thenReturn(Optional.of(currentUser));
 
         Authentication authentication = mock(Authentication.class);
@@ -297,13 +303,13 @@ public class UserServiceTest {
         when(authentication.getPrincipal()).thenReturn(userDetails);
         when(userDetails.getUsername()).thenReturn(currentUser.getUsername());
 
-        UserExtension userToUpdate = new UserExtension("username", Role.USER);
+        User userToUpdate = new User("username", Role.USER);
         userToUpdate.setUserId(1L);
         when(userRepository.existsById(userToUpdate.getUserId())).thenReturn(true);
         when(userRepository.save(userToUpdate)).thenReturn(userToUpdate);
 
         // Act
-        UserExtension updatedUser = userService.updateUser(userToUpdate);
+        User updatedUser = userService.updateUser(userToUpdate);
 
         // Assert
         assertEquals(userToUpdate, updatedUser);
@@ -323,7 +329,7 @@ public class UserServiceTest {
         when(authentication.getPrincipal()).thenReturn(userDetails);
 
         // Mock the userRepository to return a User when findByUsername is called
-        UserExtension currentUser = new UserExtension("username", Role.ADMIN);
+        User currentUser = new User("username", Role.ADMIN);
         when(userRepository.findByUsername(userDetails.getUsername())).thenReturn(Optional.of(currentUser));
 
         // Act and Assert
@@ -333,7 +339,7 @@ public class UserServiceTest {
     @Test
     public void testUpdateUser_WithNonExistingUser_ShouldThrowException() {
         // Arrange
-        UserExtension currentUser = new UserExtension("currentUsername", Role.ADMIN);
+        User currentUser = new User("currentUsername", Role.ADMIN);
         when(userRepository.findByUsername(currentUser.getUsername())).thenReturn(Optional.of(currentUser));
 
         Authentication authentication = mock(Authentication.class);
@@ -345,7 +351,7 @@ public class UserServiceTest {
         when(authentication.getPrincipal()).thenReturn(userDetails);
         when(userDetails.getUsername()).thenReturn(currentUser.getUsername());
 
-        UserExtension userToUpdate = new UserExtension("username", Role.USER);
+        User userToUpdate = new User("username", Role.USER);
         userToUpdate.setUserId(1L);
         when(userRepository.existsById(userToUpdate.getUserId())).thenReturn(false);
 
@@ -356,7 +362,7 @@ public class UserServiceTest {
     @Test
     public void testUpdateUser_WithNullUsername_ShouldThrowException() {
         // Arrange
-        UserExtension currentUser = new UserExtension("currentUsername", Role.ADMIN);
+        User currentUser = new User("currentUsername", Role.ADMIN);
         when(userRepository.findByUsername(currentUser.getUsername())).thenReturn(Optional.of(currentUser));
 
         Authentication authentication = mock(Authentication.class);
@@ -368,7 +374,7 @@ public class UserServiceTest {
         when(authentication.getPrincipal()).thenReturn(userDetails);
         when(userDetails.getUsername()).thenReturn(currentUser.getUsername());
 
-        UserExtension userToUpdate = new UserExtension(null, Role.USER);
+        User userToUpdate = new User(null, Role.USER);
         userToUpdate.setUserId(1L);
         when(userRepository.existsById(userToUpdate.getUserId())).thenReturn(true);
 
@@ -379,7 +385,7 @@ public class UserServiceTest {
     @Test
     public void testUpdateUser_WithoutPermission_ShouldThrowException() {
         // Arrange
-        UserExtension currentUser = new UserExtension("currentUsername", Role.USER);
+        User currentUser = new User("currentUsername", Role.USER);
         when(userRepository.findByUsername(currentUser.getUsername())).thenReturn(Optional.of(currentUser));
 
         Authentication authentication = mock(Authentication.class);
@@ -391,7 +397,7 @@ public class UserServiceTest {
         when(authentication.getPrincipal()).thenReturn(userDetails);
         when(userDetails.getUsername()).thenReturn(currentUser.getUsername());
 
-        UserExtension userToUpdate = new UserExtension("username", Role.USER);
+        User userToUpdate = new User("username", Role.USER);
         userToUpdate.setUserId(1L);
         when(userRepository.existsById(userToUpdate.getUserId())).thenReturn(true);
 
@@ -400,50 +406,16 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testGetUsersByRole_WithValidRole_ShouldReturnUsers() {
-        // Arrange
-        Role role = Role.ADMIN;
-        List<UserExtension> expectedUsers = Arrays.asList(new UserExtension("username1", role),
-                new UserExtension("username2", role));
-        when(userRepository.findByRole(role)).thenReturn(expectedUsers);
-
-        // Act
-        List<UserExtension> actualUsers = userService.getUsersByRole(role);
-
-        // Assert
-        assertEquals(expectedUsers, actualUsers);
-    }
-
-    @Test
-    public void testGetUsersByRole_WithNoUsers_ShouldReturnEmptyList() {
-        // Arrange
-        Role role = Role.ADMIN;
-        when(userRepository.findByRole(role)).thenReturn(Collections.emptyList());
-
-        // Act
-        List<UserExtension> actualUsers = userService.getUsersByRole(role);
-
-        // Assert
-        assertTrue(actualUsers.isEmpty());
-    }
-
-    @Test
-    public void testGetUsersByRole_WithNullRole_ShouldThrowException() {
-        // Act and Assert
-        assertThrows(IllegalArgumentException.class, () -> userService.getUsersByRole(null));
-    }
-
-    @Test
     public void testGetUsersByStatus_WithValidStatus_ShouldReturnUsers() {
         // Arrange
         Status status = Status.ONLINE;
-        UserExtension user1 = new UserExtension("username1", Role.ADMIN);
-        UserExtension user2 = new UserExtension("username2", Role.ADMIN);
-        List<UserExtension> expectedUsers = Arrays.asList(user1, user2);
+        User user1 = new User("username1", Role.ADMIN);
+        User user2 = new User("username2", Role.ADMIN);
+        List<User> expectedUsers = Arrays.asList(user1, user2);
         when(userRepository.findByStatus(status)).thenReturn(expectedUsers);
 
         // Act
-        List<UserExtension> actualUsers = userService.getUsersByStatus(status);
+        List<User> actualUsers = userService.getUsersByStatus(status);
 
         // Assert
         assertEquals(expectedUsers, actualUsers);
@@ -456,7 +428,7 @@ public class UserServiceTest {
         when(userRepository.findByStatus(status)).thenReturn(Collections.emptyList());
 
         // Act
-        List<UserExtension> actualUsers = userService.getUsersByStatus(status);
+        List<User> actualUsers = userService.getUsersByStatus(status);
 
         // Assert
         assertTrue(actualUsers.isEmpty());
@@ -472,15 +444,15 @@ public class UserServiceTest {
     public void testGetUsersByAccountStatus_WithValidStatus_ShouldReturnUsers() {
         // Arrange
         Account accountStatus = Account.ACTIVE;
-        UserExtension user1 = new UserExtension("username1", Role.USER);
+        User user1 = new User("username1", Role.USER);
         user1.setAccountStatus(accountStatus);
-        UserExtension user2 = new UserExtension("username2", Role.USER);
+        User user2 = new User("username2", Role.USER);
         user2.setAccountStatus(accountStatus);
-        List<UserExtension> expectedUsers = Arrays.asList(user1, user2);
+        List<User> expectedUsers = Arrays.asList(user1, user2);
         when(userRepository.findByAccountStatus(accountStatus)).thenReturn(expectedUsers);
 
         // Act
-        List<UserExtension> actualUsers = userService.getUsersByAccountStatus(accountStatus);
+        List<User> actualUsers = userService.getUsersByAccountStatus(accountStatus);
 
         // Assert
         assertEquals(expectedUsers, actualUsers);
@@ -493,7 +465,7 @@ public class UserServiceTest {
         when(userRepository.findByAccountStatus(accountStatus)).thenReturn(Collections.emptyList());
 
         // Act
-        List<UserExtension> actualUsers = userService.getUsersByAccountStatus(accountStatus);
+        List<User> actualUsers = userService.getUsersByAccountStatus(accountStatus);
 
         // Assert
         assertTrue(actualUsers.isEmpty());
@@ -508,7 +480,7 @@ public class UserServiceTest {
     @Test
     public void testDeleteUser_WithValidId_ShouldDeleteUser() {
         // Arrange
-        UserExtension currentUser = new UserExtension("currentUsername", Role.ADMIN);
+        User currentUser = new User("currentUsername", Role.ADMIN);
         when(userRepository.findByUsername(currentUser.getUsername())).thenReturn(Optional.of(currentUser));
 
         Authentication authentication = mock(Authentication.class);
@@ -533,7 +505,7 @@ public class UserServiceTest {
     @Test
     public void testDeleteUser_WithNullId_ShouldThrowException() {
         // Arrange
-        UserExtension currentUser = new UserExtension("currentUsername", Role.ADMIN);
+        User currentUser = new User("currentUsername", Role.ADMIN);
         when(userRepository.findByUsername(currentUser.getUsername())).thenReturn(Optional.of(currentUser));
 
         Authentication authentication = mock(Authentication.class);
@@ -552,7 +524,7 @@ public class UserServiceTest {
     @Test
     public void testDeleteUser_WithNonExistingId_ShouldThrowException() {
         // Arrange
-        UserExtension currentUser = new UserExtension("currentUsername", Role.ADMIN);
+        User currentUser = new User("currentUsername", Role.ADMIN);
         when(userRepository.findByUsername(currentUser.getUsername())).thenReturn(Optional.of(currentUser));
 
         Authentication authentication = mock(Authentication.class);
@@ -574,7 +546,7 @@ public class UserServiceTest {
     @Test
     public void testDeleteUser_WithoutPermission_ShouldThrowException() {
         // Arrange
-        UserExtension currentUser = new UserExtension("currentUsername", Role.USER);
+        User currentUser = new User("currentUsername", Role.USER);
         when(userRepository.findByUsername(currentUser.getUsername())).thenReturn(Optional.of(currentUser));
 
         Authentication authentication = mock(Authentication.class);
@@ -596,7 +568,7 @@ public class UserServiceTest {
     @Test
     public void testDeleteUserByUsername() {
         // Arrange
-        UserExtension currentUser = new UserExtension("currentUsername", Role.ADMIN);
+        User currentUser = new User("currentUsername", Role.ADMIN);
         when(userRepository.findByUsername(currentUser.getUsername())).thenReturn(Optional.of(currentUser));
 
         Authentication authentication = mock(Authentication.class);
@@ -620,7 +592,7 @@ public class UserServiceTest {
     @Test
     public void testDeleteUserByUsernameWithoutPermission() {
         // Arrange
-        UserExtension currentUser = new UserExtension("currentUsername", Role.USER);
+        User currentUser = new User("currentUsername", Role.USER);
         when(userRepository.findByUsername(currentUser.getUsername())).thenReturn(Optional.of(currentUser));
 
         Authentication authentication = mock(Authentication.class);

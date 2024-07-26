@@ -190,21 +190,27 @@ public class ContentController {
     })
     public ResponseEntity<?> getContentsByCreatedAtBetween(@PathVariable String contentType,
             @RequestParam LocalDateTime start, @RequestParam LocalDateTime end) {
-        List<Content> contents;
-        switch (contentType.toLowerCase()) {
-            case "comment":
-                contents = commentService.getContentsByCreatedAtBetween(start, end);
-                break;
-            case "post":
-                contents = postService.getContentsByCreatedAtBetween(start, end);
-                break;
-            case "thread":
-                contents = threadService.getContentsByCreatedAtBetween(start, end);
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid content type: " + contentType);
+        try {
+            List<Content> contents;
+            switch (contentType.toLowerCase()) {
+                case "comment":
+                    contents = commentService.getContentsByCreatedAtBetween(start, end);
+                    break;
+                case "post":
+                    contents = postService.getContentsByCreatedAtBetween(start, end);
+                    break;
+                case "thread":
+                    contents = threadService.getContentsByCreatedAtBetween(start, end);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid content type: " + contentType);
+            }
+            return new ResponseEntity<>(contents, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error retrieving data: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(contents, HttpStatus.OK);
     }
 
     @GetMapping("/content-containing/{contentType}")
@@ -216,21 +222,27 @@ public class ContentController {
     })
     public ResponseEntity<?> getContentsByContentContaining(@PathVariable String contentType,
             @RequestParam String text) {
-        List<? extends Content> contents;
-        switch (contentType.toLowerCase()) {
-            case "comment":
-                contents = commentService.getContentsByContentContaining(text);
-                break;
-            case "post":
-                contents = postService.getContentsByContentContaining(text);
-                break;
-            case "thread":
-                contents = threadService.getContentsByContentContaining(text);
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid content type: " + contentType);
+        try {
+            List<? extends Content> contents;
+            switch (contentType.toLowerCase()) {
+                case "comment":
+                    contents = commentService.getContentsByContentContaining(text);
+                    break;
+                case "post":
+                    contents = postService.getContentsByContentContaining(text);
+                    break;
+                case "thread":
+                    contents = threadService.getContentsByContentContaining(text);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid content type: " + contentType);
+            }
+            return new ResponseEntity<>(contents, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error retrieving data: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(contents, HttpStatus.OK);
     }
 
     @DeleteMapping("/{contentType}/delete-content-by-id/{id}")

@@ -11,7 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import com.LessonLab.forum.Models.Comment;
 import com.LessonLab.forum.Models.Post;
 import com.LessonLab.forum.Models.Thread;
-import com.LessonLab.forum.Models.UserExtension;
+import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Repositories.CommentRepository;
 import com.LessonLab.forum.Repositories.ContentRepository;
 import com.LessonLab.forum.Repositories.UserRepository;
@@ -35,13 +35,13 @@ public class CommentRepositoryTest {
 
     private Comment testComment;
     private Post testPost;
-    private UserExtension testUser;
+    private User testUser;
     private Thread testThread;
 
     @BeforeEach
     public void setUp() {
         // Create a test user
-        testUser = new UserExtension();
+        testUser = new User();
         testUser.setUsername("testUser");
         userRepository.save(testUser);
 

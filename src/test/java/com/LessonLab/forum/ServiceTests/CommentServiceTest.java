@@ -14,9 +14,11 @@ import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -25,8 +27,7 @@ import org.springframework.data.domain.Pageable;
 import com.LessonLab.forum.Models.Comment;
 import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Models.Post;
-import com.LessonLab.forum.Models.UserExtension;
-import com.LessonLab.forum.Models.Enums.Role;
+import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Repositories.CommentRepository;
 import com.LessonLab.forum.Repositories.ContentRepository;
 import com.LessonLab.forum.Repositories.UserRepository;
@@ -355,7 +356,7 @@ public class CommentServiceTest {
     @Test
     public void testGetCommentsByPost() {
         // Create user
-        UserExtension user = new UserExtension("testUser", Role.USER);
+        User user = new User("testUser", Role.USER);
 
         // Create a post
         Post post = new Post("Test post", user);
@@ -471,8 +472,8 @@ public class CommentServiceTest {
     @Test
     public void testCountCommentsByPostAndUserNot() {
         // Create users
-        UserExtension user1 = new UserExtension("testUser1", Role.USER);
-        UserExtension user2 = new UserExtension("testUser2", Role.USER);
+        User user1 = new User("testUser1", Role.USER);
+        User user2 = new User("testUser2", Role.USER);
 
         // Create a post
         Post post = new Post("Test post", user1);
@@ -511,7 +512,7 @@ public class CommentServiceTest {
     @Test
     public void testListContent() {
         // Create user
-        UserExtension user = new UserExtension("testUser", Role.USER);
+        User user = new User("testUser", Role.USER);
 
         // Create a post
         Post post = new Post("Test post", user);

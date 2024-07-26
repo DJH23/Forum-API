@@ -5,7 +5,6 @@ import java.util.List;
 import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Models.Role;
 import com.LessonLab.forum.Models.User;
-import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Repositories.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;

@@ -49,13 +49,13 @@ public abstract class Content {
         this.user = user;
     }
 
-    protected <T> void addToCollection(List<T> collection, T item) {
+    public <T> void addToCollection(List<T> collection, T item) {
         if (!collection.contains(item)) {
             collection.add(item);
         }
     }
 
-    protected <T> void removeFromCollection(List<T> collection, T item) {
+    public <T> void removeFromCollection(List<T> collection, T item) {
         collection.remove(item);
     }
 

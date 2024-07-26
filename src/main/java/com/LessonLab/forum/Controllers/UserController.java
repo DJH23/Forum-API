@@ -20,7 +20,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.LessonLab.forum.Models.User;
-import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Enums.Account;
 
 import com.LessonLab.forum.Models.Enums.Status;
@@ -93,7 +92,7 @@ public class UserController {
     @Operation(summary = "Get users by status", description = "Retrieve users by their status")
     @ApiResponse(responseCode = "200", description = "Users retrieved", content = @Content(schema = @Schema(implementation = List.class)))
     public ResponseEntity<?> getUsersByStatus(@PathVariable Status status) {
-        List<UserExtension> users = userService.getUsersByStatus(status);
+        List<User> users = userService.getUsersByStatus(status);
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
@@ -102,7 +101,7 @@ public class UserController {
     @Operation(summary = "Get users by account status", description = "Retrieve users by their account status")
     @ApiResponse(responseCode = "200", description = "Users retrieved", content = @Content(schema = @Schema(implementation = List.class)))
     public ResponseEntity<?> getUsersByAccountStatus(@PathVariable Account accountStatus) {
-        List<UserExtension> users = userService.getUsersByAccountStatus(accountStatus);
+        List<User> users = userService.getUsersByAccountStatus(accountStatus);
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
