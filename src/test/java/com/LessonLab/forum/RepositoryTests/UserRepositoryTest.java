@@ -2,11 +2,9 @@ package com.LessonLab.forum.RepositoryTests;
 
 import com.LessonLab.forum.Models.Role;
 import com.LessonLab.forum.Models.User;
-import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Enums.Account;
 import com.LessonLab.forum.Models.Enums.Status;
 import com.LessonLab.forum.Repositories.RoleRepository;
-import com.LessonLab.forum.Repositories.UserExtensionRepository;
 import com.LessonLab.forum.Repositories.UserRepository;
 
 import org.junit.jupiter.api.AfterEach;
@@ -17,11 +15,11 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,9 +29,6 @@ public class UserRepositoryTest {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private UserExtensionRepository userExtensionRepository;
 
     @Autowired
     private RoleRepository roleRepository;
@@ -60,10 +55,8 @@ public class UserRepositoryTest {
     public void tearDown() {
         // Clean up the database after testing
         // This might involve deleting test data
-        User user = userRepository.findByUsername("testUser");
-        if (user != null) {
-            userRepository.delete(user);
-        }
+        Optional<User> user = userRepository.findByUsername("testUser");
+        user.ifPresent(u -> userRepository.delete(u));
 
         Role role = roleRepository.findByName("ADMIN");
         if (role != null) {
@@ -75,33 +68,39 @@ public class UserRepositoryTest {
     public void testFindByUsername() {
 
         // Act
-        User foundUser = userRepository.findByUsername("testUser");
+        Optional<User> foundUser = userRepository.findByUsername("testUser");
 
         // Assert
-        assertNotNull(foundUser);
-        assertEquals("testUser", foundUser.getUsername());
+        assertTrue(foundUser.isPresent());
+        assertEquals("testUser", foundUser.get().getUsername());
     }
 
     @Test
-    public void testFindByRole() {
+    public void testFindUsersByRole() {
+        // Arrange
+        Role adminRole = roleRepository.findByName("ROLE_ADMIN");
+        assertNotNull(adminRole);
 
         // Act
-        List<Role> role = roleRepository.findByRole("ADMIN");
+        List<User> users = roleRepository.findUsersByRolesIn(Collections.singleton(adminRole));
 
         // Assert
-        assertNotNull(role);
-        assertEquals("ADMIN", role.get(0).getName());
+        assertNotNull(users);
+        assertTrue(users.size() > 0);
+        for (User user : users) {
+            assertTrue(user.getRoles().contains(adminRole));
+        }
     }
 
     @Test
     public void testFindByStatus() {
         // Arrange
-        UserExtension user = new UserExtension();
+        User user = new User();
         user.setStatus(Status.OFFLINE);
         userRepository.save(user);
 
         // Act
-        List<UserExtension> users = userExtensionRepository.findByStatus(Status.OFFLINE);
+        List<User> users = userRepository.findByStatus(Status.OFFLINE);
 
         // Assert
         assertEquals(1, users.size());
@@ -111,27 +110,21 @@ public class UserRepositoryTest {
     @Test
     public void testFindByAccountStatus() {
         // Arrange
-        UserExtension user = new UserExtension();
+        int initialActiveUserCount = userRepository.findByAccountStatus(Account.ACTIVE).size();
+
+        User user = new User();
+        user.setUsername("testActiveUser"); // Add a unique username
         user.setAccountStatus(Account.ACTIVE);
         userRepository.save(user);
 
         // Act
-        List<UserExtension> users = userExtensionRepository.findByAccountStatus(Account.ACTIVE);
+        List<User> users = userRepository.findByAccountStatus(Account.ACTIVE);
 
         // Assert
-        assertEquals(1, users.size());
-        assertEquals(Account.ACTIVE, users.get(0).getAccountStatus());
-    }
-
-    @Test
-    public void testFindByRoleIn() {
-
-        // Act
-        List<Role> testRole = roleRepository.findByRole("ADMIN");
-
-        // Assert
-        assertEquals(1, testRole.size());
-        assertEquals("ADMIN", testRole.get(0).getName());
+        assertEquals(initialActiveUserCount + 1, users.size());
+        assertTrue(users.stream().anyMatch(u -> u.getUsername().equals("testActiveUser")));
+        assertEquals(Account.ACTIVE, users.stream().filter(u -> u.getUsername().equals("testActiveUser")).findFirst()
+                .get().getAccountStatus());
     }
 
     @Test
@@ -149,14 +142,12 @@ public class UserRepositoryTest {
 
     @Test
     public void testDeleteByUsername() {
-
         // Act
         userRepository.deleteByUsername("testUser");
-        User foundUser = userRepository.findByUsername("testUser");
-
+        Optional<User> foundUser = userRepository.findByUsername("testUser");
+    
         // Assert
-        assertNull(foundUser);
-       
+        assertTrue(foundUser.isEmpty());
     }
 
 }

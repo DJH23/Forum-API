@@ -27,9 +27,8 @@ import org.springframework.data.domain.Sort;
 import com.LessonLab.forum.Models.Comment;
 import com.LessonLab.forum.Models.Content;
 import com.LessonLab.forum.Models.Post;
-import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Thread;
-import com.LessonLab.forum.Models.Enums.Role;
+import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Repositories.CommentRepository;
 import com.LessonLab.forum.Repositories.ContentRepository;
 import com.LessonLab.forum.Repositories.PostRepository;
@@ -156,7 +155,7 @@ public class PostServiceTest {
     @Test
     public void testGetPostsByThread() {
         // Create a test user and thread
-        UserExtension user = new UserExtension("testUser", Role.USER);
+        User user = new User("testUser", Role.USER);
         Thread thread = new Thread("Test thread title", "Test thread description");
 
         // Create a list of posts and associate them with the thread
@@ -181,7 +180,7 @@ public class PostServiceTest {
     @Test
     public void testGetPostsByCommentContent() {
         // Create a test user and thread
-        UserExtension user = new UserExtension("testUser", Role.USER);
+        User user = new User("testUser", Role.USER);
         Thread thread = new Thread("Test thread title", "Test thread description");
 
         // Create a list of posts and associate them with the thread
@@ -284,7 +283,7 @@ public class PostServiceTest {
     @Test
     public void testGetMostCommentedPosts() {
         // Create a test user and thread
-        UserExtension user = new UserExtension("testUser", Role.USER);
+        User user = new User("testUser", Role.USER);
         Thread thread = new Thread("Test thread title", "Test thread description");
 
         // Create a list of posts with varying numbers of comments

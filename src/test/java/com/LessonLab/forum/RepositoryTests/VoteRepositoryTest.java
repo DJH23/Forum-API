@@ -8,9 +8,9 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import com.LessonLab.forum.Models.Post;
-import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Vote;
 import com.LessonLab.forum.Models.Thread;
+import com.LessonLab.forum.Models.User;
 import com.LessonLab.forum.Repositories.ContentRepository;
 import com.LessonLab.forum.Repositories.UserRepository;
 import com.LessonLab.forum.Repositories.VoteRepository;
@@ -33,14 +33,14 @@ public class VoteRepositoryTest {
     private ContentRepository contentRepository;
 
     private Vote testVote;
-    private UserExtension testUser;
+    private User testUser;
     private Post testPost;
     private Thread testThread;
 
     @BeforeEach
     public void setUp() {
         // Create a test user
-        testUser = new UserExtension();
+        testUser = new User();
         testUser.setUsername("testUser");
         userRepository.save(testUser);
 

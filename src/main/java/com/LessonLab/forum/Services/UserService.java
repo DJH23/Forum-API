@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -14,11 +15,9 @@ import org.springframework.stereotype.Service;
 
 import com.LessonLab.forum.Models.Role;
 import com.LessonLab.forum.Models.User;
-import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Models.Enums.Account;
 import com.LessonLab.forum.Models.Enums.Status;
 import com.LessonLab.forum.Repositories.RoleRepository;
-import com.LessonLab.forum.Repositories.UserExtensionRepository;
 import com.LessonLab.forum.Repositories.UserRepository;
 import com.LessonLab.forum.interfaces.UserServiceInterface;
 import com.auth0.jwt.JWT;
@@ -44,20 +43,21 @@ public class UserService implements UserServiceInterface, UserDetailsService {
     private UserRepository userRepository;
 
     @Autowired
-    private UserExtensionRepository userExtensionRepository;
-
-    @Autowired
     private RoleRepository roleRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     private final long EXPIRATION_TIME = 30 * 60 * 1000; // 30 minutes
+    /*
+     * @Value("${jwt.secret}")
+     * private String SECRET;
+     */
     private final String SECRET = "secret"; // use a more secure secret and place it in secure storage
 
     public UserDetails loadUserByUsername(String username) {
         // Retrieve user with the given username
-        User user = userRepository.findByUsername(username);
+        Optional<User> user = userRepository.findByUsername(username);
         // Check if user exists
         if (user == null) {
             log.error("User not found in the database");
@@ -66,16 +66,20 @@ public class UserService implements UserServiceInterface, UserDetailsService {
             log.info("User found in the database: {}", username);
             // Create a collection of SimpleGrantedAuthority objects from the user's roles
             Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-            user.getRoles().forEach(role -> {
-                authorities.add(new SimpleGrantedAuthority(role.getName()));
-            });
+            user.orElseThrow(() -> new UsernameNotFoundException("User not found in the database")).getRoles()
+                    .forEach(role -> {
+                        authorities.add(new SimpleGrantedAuthority(role.getName()));
+                    });
             // Return the user details, including the username, password, and authorities
-            return new org.springframework.security.core.userdetails.User(user.getUsername(),
-                    user.getPassword(),
+            return new org.springframework.security.core.userdetails.User(
+                    user.orElseThrow(() -> new UsernameNotFoundException("User not found in the database"))
+                            .getUsername(),
+                    user.orElseThrow(() -> new UsernameNotFoundException("User not found in the database"))
+                            .getPassword(),
                     authorities);
         }
     }
-    
+
     public String createToken(String username) {
 
         UserDetails user = loadUserByUsername(username);
@@ -98,21 +102,23 @@ public class UserService implements UserServiceInterface, UserDetailsService {
         User user = new User();
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));
+        user.setAccountStatus(Account.ACTIVE);
+        user.setStatus(Status.ONLINE);
 
-        UserExtension userExtension = new UserExtension();
-        userExtension.setAccountStatus(Account.ACTIVE);
-        userExtension.setStatus(Status.ONLINE);
-        user.setUserExtension(userExtension);
-
-        user = saveUser(user);
+        user = userRepository.save(user);
 
         Role userRole = roleRepository.findByName("ROLE_USER");
         if (userRole == null) {
             userRole = new Role();
             userRole.setName("ROLE_USER");
-            saveRole(userRole);
+            roleRepository.save(userRole);
         }
-        addRoleToUser(username, "ROLE_USER");
+
+        Collection<Role> roles = new ArrayList<>();
+        roles.add(userRole);
+        user.setRoles(roles);
+
+        user = userRepository.save(user);
 
         return user;
     }
@@ -132,28 +138,11 @@ public class UserService implements UserServiceInterface, UserDetailsService {
         return userRepository.save(user);
     }
 
-    public List<Map<String, String>> getUsersByRole(String roleName) {
-        if (roleName == null) {
-            throw new IllegalArgumentException("Role name cannot be null");
-        }
-        Role role = roleRepository.findByName(roleName);
-        if (role == null) {
-            throw new IllegalArgumentException("Role not found");
-        }
-        List<User> users = userRepository.findByRolesIn(Collections.singleton(role));
-        if (users.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return users.stream()
-                .map(user -> Map.of("id", user.getId().toString(), "username", user.getUsername()))
-                .collect(Collectors.toList());
-    }
-
-    public List<UserExtension> getUsersByStatus(Status status) {
+    public List<User> getUsersByStatus(Status status) {
         if (status == null) {
             throw new IllegalArgumentException("Status cannot be null");
         }
-        List<UserExtension> users = userExtensionRepository.findByStatus(status);
+        List<User> users = userRepository.findByStatus(status);
 
         if (users.isEmpty()) {
             return Collections.emptyList();
@@ -161,34 +150,18 @@ public class UserService implements UserServiceInterface, UserDetailsService {
         return users;
     }
 
-    public List<UserExtension> getUsersByAccountStatus(Account accountStatus) {
+    public List<User> getUsersByAccountStatus(Account accountStatus) {
         if (accountStatus == null) {
             throw new IllegalArgumentException("Account status cannot be null");
         }
 
-        List<UserExtension> userExtensions = userExtensionRepository.findByAccountStatus(accountStatus);
+        List<User> users = userRepository.findByAccountStatus(accountStatus);
 
-        if (userExtensions.isEmpty()) {
+        if (users.isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<UserExtension> result = new ArrayList<>();
-
-        for (UserExtension userExtension : userExtensions) {
-            // Fetch the corresponding User entity
-            User user = userRepository.findById(userExtension.getId()).orElse(null);
-            if (user != null) {
-                // Update UserExtension with User details
-                userExtension.setName(user.getName());
-                userExtension.setUsername(user.getUsername());
-                userExtension.setPassword(user.getPassword());
-                userExtension.setRoles(user.getRoles());
-
-                result.add(userExtension);
-            }
-        }
-
-        return result;
+        return users;
     }
 
     @Transactional
@@ -221,8 +194,6 @@ public class UserService implements UserServiceInterface, UserDetailsService {
      */
     @Override
     public User saveUser(User user) {
-        log.info("Saving new user {} to the database", user.getName());
-        // Encode the user's password for security before saving
         return userRepository.save(user);
     }
 
@@ -247,17 +218,13 @@ public class UserService implements UserServiceInterface, UserDetailsService {
      */
     @Override
     public void addRoleToUser(String username, String roleName) {
-        log.info("Adding role {} to user {}", roleName, username);
-
-        // Retrieve the user and role objects from the repository
-        User user = userRepository.findByUsername(username);
+        Optional<User> user = userRepository.findByUsername(username);
         Role role = roleRepository.findByName(roleName);
-
-        // Add the role to the user's role collection
-        user.getRoles().add(role);
-
-        // Save the user to persist the changes
-        userRepository.save(user);
+        if (user.isPresent() && role != null) {
+            User userObject = user.get();
+            userObject.getRoles().add(role);
+            userRepository.save(userObject);
+        }
     }
 
     public User getCurrentUser() {
@@ -277,7 +244,7 @@ public class UserService implements UserServiceInterface, UserDetailsService {
     @Override
     public User getUser(String username) {
         log.info("Fetching user {}", username);
-        return userRepository.findByUsername(username);
+        return userRepository.findByUsername(username).orElse(null);
     }
 
     public Optional<User> getUserById(Long id) {

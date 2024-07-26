@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.LessonLab.forum.Models.Role;
 import com.LessonLab.forum.Repositories.RoleRepository;
+import com.LessonLab.forum.Services.RoleService;
 import com.LessonLab.forum.Services.UserService;
 import com.LessonLab.forum.dtos.RoleToUserDTO;
 
@@ -27,6 +28,9 @@ public class RoleController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private RoleService roleService;
 
     @Autowired
     private RoleRepository roleRepository;
@@ -64,7 +68,7 @@ public class RoleController {
             @ApiResponse(responseCode = "404", description = "Role not found", content = @Content(schema = @Schema(implementation = String.class)))
     })
     public ResponseEntity<?> getUsersByRole(@PathVariable String role) {
-        List<Map<String, String>> users = userService.getUsersByRole(role);
+        List<Map<String, String>> users = roleService.getUsersByRole(role);
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 

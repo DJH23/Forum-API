@@ -29,4 +29,8 @@ public class Role {
      * The name of the role
      */
     private String name;
+
+    public Role(String name) {
+        this.name = name;
+    }
 }

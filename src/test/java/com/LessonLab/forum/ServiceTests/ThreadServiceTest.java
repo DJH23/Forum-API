@@ -34,7 +34,6 @@ import com.LessonLab.forum.Models.Post;
 import com.LessonLab.forum.Models.Role;
 import com.LessonLab.forum.Models.Thread;
 import com.LessonLab.forum.Models.User;
-import com.LessonLab.forum.Models.UserExtension;
 import com.LessonLab.forum.Repositories.ContentRepository;
 import com.LessonLab.forum.Repositories.ThreadRepository;
 import com.LessonLab.forum.Repositories.UserRepository;
@@ -381,90 +380,6 @@ public class ThreadServiceTest {
         assertEquals("Thread 2", resultThread2.getTitle());
     }
 
-    /*
-     * @Test
-     * public void testDeleteThread() {
-     * // Create a test user
-     * User user = new User("testUser", Role.ADMIN);
-     * 
-     * // Create a test thread
-     * Thread thread = new Thread("Test thread title", "Test thread description");
-     * thread.setContentId(1L);
-     * 
-     * // Mock the contentRepository to return the thread
-     * when(contentRepository.findById(thread.getContentId())).thenReturn(Optional.
-     * of(thread));
-     * 
-     * // Call the deleteThread method
-     * threadService.deleteThread(thread.getContentId(), user);
-     * 
-     * // Verify that the contentRepository was called with the correct arguments
-     * verify(contentRepository).delete(thread);
-     * }
-     */
-
-    /*
-     * @Test
-     * public void testListThreads() {
-     * 
-     * // Create threads
-     * Thread thread1 = new Thread("Test title 1", "Test description 1");
-     * Thread thread2 = new Thread("Test title 2", "Test description 2");
-     * Thread thread3 = new Thread("Test title 3", "Test description 3");
-     * 
-     * // Save the threads
-     * when(contentRepository.save(thread1)).thenReturn(thread1);
-     * when(contentRepository.save(thread2)).thenReturn(thread2);
-     * when(contentRepository.save(thread3)).thenReturn(thread3);
-     * 
-     * // Mock the contentRepository to return the threads when findAll is called
-     * when(contentRepository.findAll()).thenReturn(Arrays.asList(thread1, thread2,
-     * thread3));
-     * 
-     * // Call listThreads
-     * List<Thread> returnedThreads = threadService.listThreads();
-     * 
-     * // Assert that the returned threads are the same as the original threads
-     * assertNotNull(returnedThreads);
-     * assertEquals(3, returnedThreads.size());
-     * assertTrue(returnedThreads.containsAll(Arrays.asList(thread1, thread2,
-     * thread3)));
-     * 
-     * // Verify that the findAll method was called
-     * verify(contentRepository, times(1)).findAll();
-     * }
-     */
-
-    /*
-     * @Test
-     * public void testHandleThreadVote() {
-     * // Create a user
-     * User user = new User("testUser", Role.USER);
-     * 
-     * // Create a thread
-     * Thread thread = new Thread("Test thread title", "Test thread description");
-     * 
-     * // Mock the userRepository to return the user when findById is called with 1L
-     * when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-     * 
-     * // Mock the contentRepository to return the thread when findById is called
-     * with 1L
-     * when(contentRepository.findById(1L)).thenReturn(Optional.of(thread));
-     * 
-     * // Mock the voteRepository to return Optional.empty() when
-     * findByUserAndContent is called
-     * when(voteRepository.findByUserAndContent(user,
-     * thread)).thenReturn(Optional.empty());
-     * 
-     * // Call handleThreadVote
-     * threadService.handleThreadVote(1L, 1L, true);
-     * 
-     * // Verify that the correct methods were called on the mock repositories
-     * verify(userRepository, times(1)).findById(1L);
-     * verify(contentRepository, times(1)).findById(1L);
-     * verify(voteRepository, times(1)).findByUserAndContent(user, thread);
-     * verify(contentRepository, times(1)).save(any(Content.class));
-     * }
-     */
+    
 
 }

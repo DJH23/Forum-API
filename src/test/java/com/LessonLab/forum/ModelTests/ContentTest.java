@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -79,5 +81,52 @@ public class ContentTest {
 
         // Assert
         assertTrue(result);
+    }
+
+    @Test
+    public void testAddToCollection() {
+        // Arrange
+        Content content = new Content() {
+            // Create an anonymous subclass because Content is abstract
+        };
+        List<String> collection = new ArrayList<>(); // Declare and initialize the collection variable
+
+        // Act
+        content.addToCollection(collection, "Item1");
+        content.addToCollection(collection, "Item1"); // Adding the same item again
+
+        // Assert
+        assertEquals(1, collection.size());
+        assertTrue(collection.contains("Item1"));
+    }
+
+    @Test
+    public void testRemoveFromCollection() {
+        // Arrange
+        List<String> collection = new ArrayList<>();
+        collection.add("Item1");        
+        Content content = new Content() {
+            // Create an anonymous subclass because Content is abstract
+        };
+
+        // Act
+        content.removeFromCollection(collection, "Item1");
+        content.removeFromCollection(collection, "Item2"); // Removing an item not in the list
+
+        // Assert
+        assertTrue(collection.isEmpty());
+    }
+
+    @Test
+    public void testPrePersistSetsCreatedAt() {
+        // Arrange
+        Content content = new Content() {
+            // Create an anonymous subclass because Content is abstract
+        };
+        // Act
+        content.prePersist(); // Simulate prePersist call
+
+        // Assert
+        assertTrue(content.getCreatedAt().isBefore(LocalDateTime.now()));
     }
 }
