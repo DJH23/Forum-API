@@ -1,5 +1,6 @@
 package com.LessonLab.forum.Controllers;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -81,7 +82,7 @@ public class UserController {
     @GetMapping("/get-user-by-username/{username}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
     @Operation(summary = "Get user by username", description = "Retrieve a user by their username")
-    @ApiResponse(responseCode = "200", description = "User retrieved", content = @Content(schema = @Schema(implementation = UserDetails.class)))
+    @ApiResponse(responseCode = "200", description = "User retrieved", content = @Content(schema = @Schema(implementation = User.class)))
     public ResponseEntity<?> getUserByUsername(@PathVariable String username) {
         UserDetails user = userService.loadUserByUsername(username);
         return new ResponseEntity<>(user, HttpStatus.OK);
@@ -92,8 +93,22 @@ public class UserController {
     @Operation(summary = "Get users by status", description = "Retrieve users by their status")
     @ApiResponse(responseCode = "200", description = "Users retrieved", content = @Content(schema = @Schema(implementation = List.class)))
     public ResponseEntity<?> getUsersByStatus(@PathVariable Status status) {
-        List<User> users = userService.getUsersByStatus(status);
-        return new ResponseEntity<>(users, HttpStatus.OK);
+        try {
+            List<User> users = userService.getUsersByStatus(status);
+            if (users.isEmpty()) {
+                // Optionally return a different status code or message if no users are found
+                return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
+            }
+            return new ResponseEntity<>(users, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            // Handle cases where status is null or invalid
+            return new ResponseEntity<>("Invalid status", HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            // Catch any other unexpected exceptions
+            e.printStackTrace(); // Log the exception (or use a logger)
+            return new ResponseEntity<>("An error occurred while processing the request",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/account-status/{accountStatus}")

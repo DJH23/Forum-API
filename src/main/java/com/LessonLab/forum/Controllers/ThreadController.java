@@ -42,9 +42,13 @@ public class ThreadController {
     })
     public ResponseEntity<?> updateThread(@PathVariable Long id, @RequestParam String newTitle,
             @RequestParam String newDescription) {
-        Thread thread = new Thread(newTitle, newDescription);
-        Thread updatedThread = threadService.updateThread(id, thread);
-        return new ResponseEntity<>(updatedThread, HttpStatus.OK);
+        try {
+            Thread thread = new Thread(newTitle, newDescription);
+            Thread updatedThread = threadService.updateThread(id, thread);
+            return new ResponseEntity<>(updatedThread, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
     }
 
     @GetMapping("/title/{title}")

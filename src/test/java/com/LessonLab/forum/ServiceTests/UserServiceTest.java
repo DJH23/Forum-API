@@ -58,6 +58,8 @@ public class UserServiceTest {
         testUser.setRoles(Collections.singleton(testRole));
     }
 
+    
+
     @Test
     public void testDeleteUserById() {
         // Arrange

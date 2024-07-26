@@ -36,12 +36,14 @@ public class RoleController {
     private RoleRepository roleRepository;
 
     @PostMapping("/add-role-type")
-      @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Add new role type", description = "Save a new role type to the database")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Role created"),
-            @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content(schema = @Schema(implementation = String.class)))
+            @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "403", description = "Access forbidden", content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "404", description = "User or role not found", content = @Content(schema = @Schema(implementation = String.class)))
     })
     public void saveRole(@RequestBody Role role) {
         userService.saveRole(role);
@@ -57,6 +59,10 @@ public class RoleController {
             @ApiResponse(responseCode = "404", description = "User or role not found", content = @Content(schema = @Schema(implementation = String.class)))
     })
     public void addRoleToUser(@RequestBody RoleToUserDTO roleToUserDTO) {
+        if (roleToUserDTO.getUsername() == null || roleToUserDTO.getUsername().isEmpty() ||
+                roleToUserDTO.getRoleName() == null || roleToUserDTO.getRoleName().isEmpty()) {
+            throw new IllegalArgumentException("Username and role name cannot be null or empty");
+        }
         userService.addRoleToUser(roleToUserDTO.getUsername(), roleToUserDTO.getRoleName());
     }
 

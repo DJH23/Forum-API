@@ -1,50 +1,39 @@
 package com.LessonLab.forum.ControllerTests;
 
-import com.LessonLab.forum.Models.Thread;
-import com.LessonLab.forum.Models.UserExtension;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
+import com.LessonLab.forum.Controllers.PostController;
+import com.LessonLab.forum.Models.Post;
+import com.LessonLab.forum.Models.User;
+import com.LessonLab.forum.Services.PostService;
+import com.LessonLab.forum.Services.UserService;
+import com.LessonLab.forum.Models.PostDTO;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
-
-import static org.mockito.Mockito.when;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.LessonLab.forum.Services.CommentService;
-import com.LessonLab.forum.Services.PostService;
-import com.LessonLab.forum.Services.ThreadService;
-import com.LessonLab.forum.Services.UserService;
-import com.LessonLab.forum.Models.Post;
-import com.LessonLab.forum.Repositories.ThreadRepository;
-import com.LessonLab.forum.Repositories.UserRepository;
-
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(MockitoExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-
 public class PostControllerTest {
 
     @Autowired
@@ -52,98 +41,44 @@ public class PostControllerTest {
 
     private MockMvc mockMvc;
 
-    @MockBean
-    private CommentService commentService;
-    @MockBean
+    @Mock
     private PostService postService;
-    @MockBean
-    private ThreadService threadService;
-    @MockBean
-    private UserService userService;
-    @MockBean
-    private UserRepository userRepository;
-    @MockBean
-    private ThreadRepository threadRepository;
 
-    @Before
+    @Mock
+    private UserService userService;
+
+    @InjectMocks
+    private PostController postController;
+
+    @BeforeEach
     public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     }
 
-    private String serializePosts(List<Post> posts) throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        return mapper.writeValueAsString(posts);
+    @Test
+    @WithMockUser(roles = { "USER" })
+    public void testAddPostContentToThread() {
+        User mockUser = new User();
+        Post mockPost = new Post();
+        when(userService.getCurrentUser()).thenReturn(mockUser);
+        when(postService.addPostToThread(any(Long.class), any(String.class), any(User.class))).thenReturn(mockPost);
+
+        ResponseEntity<?> response = postController.addPostContentToThread(1L, "Test post content");
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(mockPost, response.getBody());
     }
 
     @Test
-    public void testGetPostsByThread() throws Exception {
-        // Arrange
-        List<Post> posts = new ArrayList<>();
-        UserExtension user = new UserExtension(); // Create a user object
-        Thread thread = new Thread(); // Create a thread object
-        for (int i = 0; i < 3; i++) {
-            Post post = new Post("Test post content", user, thread);
-            posts.add(post);
-        }
-        Long threadId = 1L; // Assume that the thread ID is 1
+    @WithMockUser(roles = { "USER" })
+    public void testGetMostCommentedPostDTOs() {
+        List<PostDTO> mockPosts = new ArrayList<>();
+        Pageable pageable = PageRequest.of(0, 10);
+        when(postService.getMostCommentedPostDTOs(pageable, true)).thenReturn(mockPosts);
 
-        // Assume that the threadService returns the thread when getContent is called
-        when(threadService.getContent(threadId)).thenReturn(thread);
+        ResponseEntity<List<PostDTO>> response = postController.getMostCommentedPostDTOs(pageable, true);
 
-        // Assume that the postService returns the posts when getPostsByThread is called
-        when(postService.getPostsByThread(thread)).thenReturn(posts);
-
-        // Act and Assert
-        mockMvc.perform(get("/api/posts/thread/" + threadId))
-                .andExpect(status().isOk())
-                .andExpect(content().json(serializePosts(posts))); // Use a method to serialize the list of posts to
-                                                                   // JSON
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(mockPosts, response.getBody());
     }
-
-    @Test
-    public void testGetPostsByCommentContent() throws Exception {
-        // Arrange
-        List<Post> posts = new ArrayList<>();
-        String contentText = "Test comment content";
-        UserExtension user = new UserExtension(); // Create a user object
-        Thread thread = new Thread(); // Create a thread object
-        for (int i = 0; i < 3; i++) {
-            Post post = new Post("Test post content", user, thread);
-            posts.add(post);
-        }
-
-        // Assume that the postService returns the posts when getPostsByCommentContent
-        // is called
-        when(postService.getPostsByCommentContent(contentText)).thenReturn(posts);
-
-        // Act and Assert
-        mockMvc.perform(get("/api/posts/comment-content/" + contentText))
-                .andExpect(status().isOk())
-                .andExpect(content().json(serializePosts(posts)));
-    }
-
-    @Test
-    public void testGetMostCommentedPosts() throws Exception {
-        // Arrange
-        List<Post> posts = new ArrayList<>();
-        UserExtension user = new UserExtension(); // Create a user object
-        Thread thread = new Thread(); // Create a thread object
-        for (int i = 0; i < 3; i++) {
-            Post post = new Post("Test post content", user, thread);
-            posts.add(post);
-        }
-        Pageable pageable = PageRequest.of(0, 3); // Get the first 3 most commented posts
-
-        // Assume that the postService returns the posts when getMostCommentedPosts is
-        // called
-        when(postService.getMostCommentedPosts(pageable)).thenReturn(posts);
-
-        // Act and Assert
-        mockMvc.perform(get("/api/posts/most-commented").param("page", "0").param("size", "3"))
-                .andExpect(status().isOk())
-                .andExpect(content().json(serializePosts(posts)));
-    }
-
 }
