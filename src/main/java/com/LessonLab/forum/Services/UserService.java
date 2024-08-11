@@ -18,7 +18,6 @@ import com.LessonLab.forum.Repositories.RoleRepository;
 import com.LessonLab.forum.Repositories.UserRepository;
 import com.LessonLab.forum.interfaces.UserServiceInterface;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 
