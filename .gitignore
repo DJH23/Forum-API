@@ -1,9 +1,12 @@
-HELP.md
-target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+# Application configuration files
+/application.properties
+/.env
 
+# Build directories
+target/
+build/
+
+# IDE specific files
 ### STS ###
 .apt_generated
 .classpath
@@ -25,9 +28,30 @@ target/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
 ### VS Code ###
 .vscode/
+
+# Maven wrapper
+!.mvn/wrapper/maven-wrapper.jar
+
+# Exclude all build directories except specific paths
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# Exclude all build directories except specific paths
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# Log files
+*.log
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# IDE-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates

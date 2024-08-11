@@ -4,11 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,6 +17,8 @@ import com.LessonLab.forum.Models.Enums.Status;
 import com.LessonLab.forum.Repositories.RoleRepository;
 import com.LessonLab.forum.Repositories.UserRepository;
 import com.LessonLab.forum.interfaces.UserServiceInterface;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 
@@ -49,11 +48,9 @@ public class UserService implements UserServiceInterface, UserDetailsService {
     private PasswordEncoder passwordEncoder;
 
     private final long EXPIRATION_TIME = 30 * 60 * 1000; // 30 minutes
-    /*
-     * @Value("${jwt.secret}")
-     * private String SECRET;
-     */
-    private final String SECRET = "secret"; // use a more secure secret and place it in secure storage
+
+    @Value("${jwt.secret}")
+    private String SECRET;
 
     public UserDetails loadUserByUsername(String username) {
         // Retrieve user with the given username
@@ -149,8 +146,6 @@ public class UserService implements UserServiceInterface, UserDetailsService {
         }
         return users;
     }
-
- 
 
     public List<User> getUsersByAccountStatus(Account accountStatus) {
         if (accountStatus == null) {
