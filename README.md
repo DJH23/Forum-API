@@ -14,7 +14,7 @@ This is a forum application built with Spring Boot, designed to support user rol
 
 ### Configuration
 
-Before running the application, you need to set up the following configuration. Copy `application.example.properties` to `application.properties` and provide your own values.
+Before running the application, you need to set up the following configuration. Go to `application.properties` and provide your own values.
 
 - **Database Configuration:**
 
@@ -23,20 +23,17 @@ Before running the application, you need to set up the following configuration. 
   - `spring.datasource.password`: Database password
 
 - **JWT Configuration:**
-  - `jwt.secret`: Secret key used for JWT token signing
+  - `jwt.secret`: Secret key used for JWT token signing. A default value is provided in the `application.properties` file.
 
 ### Running the Application
 
-1. **Set up your MySQL database:**
-
-   - Create a database named `lessonlab` or modify the URL in `application.properties` to match your database.
-
-2. **Run the application:**
+1. **Run the application:**
 
    - Use Maven: `mvn spring-boot:run`
 
-3. **Access Swagger UI:**
-   - Visit `http://localhost:8080/swagger-ui-lesson-lab.html` to explore the API endpoints.
+2. **Access Swagger UI:**
+   - Navigate to `http://localhost:8080/swagger-ui/index.html#/` .
+   - Register a new user, login, copy the access token in the response body, click "Authorize" at the top right of the page, paste it in the value field, and explore the API endpoints.
 
 ## API Documentation
 
@@ -80,13 +77,14 @@ This class also extends Content and represents a post in a discussion thread. It
 
 This class also extends Content and represents a comment on a post. It contains a reference to the Post it belongs to.
 
+### Interactions between Classes
+
 The interactions between these classes form the structure of the forum:
 
 - A User can create a Thread, which becomes a new discussion topic.
 - Inside this Thread, the User or other users can create Post objects, contributing to the discussion.
 - Users can also create Comment objects on these Post objects, further contributing to the discussion.
-
-The ContentService, ThreadService, and other service classes in the Services directory contain the business logic for creating, retrieving, updating, and deleting these objects.
+- Admin and Moderator users can manage users and delete content.
 
 ## Running Tests
 

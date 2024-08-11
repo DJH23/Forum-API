@@ -50,6 +50,7 @@ public class UserService implements UserServiceInterface, UserDetailsService {
 
     @Value("${jwt.secret}")
     private String SECRET;
+    
 
     public UserDetails loadUserByUsername(String username) {
         // Retrieve user with the given username
